@@ -1,12 +1,12 @@
-import { pool } from "../config/db.js";
+import  pool from "../config/db.js";
 import { sha1 } from "../utils/hash.js";
 
-export async function checkUser(utilizator, parola) {
-  const hashed = sha1(parola);
+export async function checkUser(nume_complet, parola_hash) {
+  const hashed = sha1(parola_hash);
 
   const result = await pool.query(
-    `SELECT * FROM admin.utilizatori 
-     WHERE utilizator = $1 AND parola = $2 AND activ = true LIMIT 1`,
+    `SELECT id FROM admin.utilizatori 
+     WHERE nume_complet = $1 AND parola_hash = $2 AND activ = true LIMIT 1`,
     [utilizator, hashed]
   );
 
