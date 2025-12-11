@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { checkUser } from "../services/users.service.js";
 
 export async function login(nume_complet, parola_hash) {

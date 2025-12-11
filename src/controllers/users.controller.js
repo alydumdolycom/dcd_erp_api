@@ -1,12 +1,11 @@
 const express = require("express");
 const app = express();
-const pool = require("./db");
+const pool = require("../config/db.js");
+const { updateUser, deleteUser, find } = require("../services/users.service");
 
-app.use(express.json());
 // Lista de utilizatori, cu sistem de paginare
-app.get("/utilizatori", async (req, res) => {
+export async function getUsers(page = 1, limit = 10, sortField = "id", sortBy = "desc") {
     try {
-        let { page = 1, limit = 10, search = "", sortField = "id", sortBy = "desc" } = req.query;
 
         // Normalize values
         page = parseInt(page);
@@ -16,7 +15,7 @@ app.get("/utilizatori", async (req, res) => {
         const searchQuery = `%${search}%`;
 
         // Allowed sortable columns
-        const allowedSortFields = ["id", "name", "email", "created_at"];
+        const allowedSortFields = ["id_utilizator", "nume_complet", "email", "creat_la"];
         if (!allowedSortFields.includes(sortField)) {
             sortField = "id"; // default
         }
@@ -25,12 +24,12 @@ app.get("/utilizatori", async (req, res) => {
         sortBy = sortBy.toLowerCase() === "asc" ? "asc" : "desc";
 
         const result = await pool.query(`
-            SELECT id, name, email, active, created_at
+            SELECT id_utilizator, nume_complet, email, activ, created_at
             FROM utilizatori
-            WHERE deleted_at IS NULL
+            WHERE sters_la IS NULL
               AND (
-                    CAST(id AS TEXT) ILIKE $3
-                    OR name ILIKE $3
+                    CAST(id_utilizator AS TEXT) ILIKE $3
+                    OR nume_complet ILIKE $3
                     OR email ILIKE $3
                   )
             ORDER BY ${sortField} ${sortBy}
@@ -40,10 +39,10 @@ app.get("/utilizatori", async (req, res) => {
         const countResult = await pool.query(`
             SELECT COUNT(*)
             FROM utilizatori
-            WHERE deleted_at IS NULL
+            WHERE sters_la IS NULL
               AND (
-                    CAST(id AS TEXT) ILIKE $1
-                    OR name ILIKE $1
+                    CAST(id_utilizator AS TEXT) ILIKE $1
+                    OR nume_complet ILIKE $1
                     OR email ILIKE $1
                   )
         `, [searchQuery]);
@@ -94,7 +93,6 @@ app.post("/utilizatori", async (req, res) => {
                 active: user.active
             }
         });
-        MediaList.send(to , messaj)
     } catch (err) {
         console.error(err);
 
@@ -108,78 +106,19 @@ app.post("/utilizatori", async (req, res) => {
 });
 
 app.patch("/utilizatori/:id", async (req, res) => {
-    try {
+   try {
         const userId = req.params.id;
-        const { name, person_to_contact, email, password, active } = req.body;
-
-        // Validate
-        if (!name && !person_to_contact && !email && !password && active === undefined) {
-            return res.status(400).json({ error: "Nothing to update" });
+        
+        const utilizator = await updateUser(userId, nume_complet, email, parola_hash, activ);
+       
+        if (!utilizator) {
+           return res.status(404).json({ error: "Utilizatorul nu a fost gasit." });
         }
-
-        // Build dynamic update query
-        const fields = [];
-        const values = [];
-        let index = 1;
-
-        if (name) {
-            fields.push(`name = $${index++}`);
-            values.push(name);
-        }
-
-        if (person_to_contact) {
-            fields.push(`person_to_contact = $${index++}`);
-            values.push(person_to_contact);
-        }
-
-        if (email) {
-            fields.push(`email = $${index++}`);
-            values.push(email);
-        }
-
-        if (password) {
-            fields.push(`password = $${index++}`);
-            values.push(password);
-        }
-
-        if (active !== undefined) {
-            fields.push(`active = $${index++}`);
-            values.push(active);
-        }
-
-        // Always update updated_at
-        fields.push(`updated_at = NOW()`);
-
-        // Add the ID for the WHERE clause
-        values.push(userId);
-
-        const sql = `
-            UPDATE utilizatori
-            SET ${fields.join(", ")}
-            WHERE id = $${index}
-            RETURNING id, name, email, active, updated_at
-        `;
-
-        const result = await pool.query(sql, values);
-
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        res.json({
-            message: "User updated successfully",
-            user: result.rows[0]
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        if (err.code === "23505") {
-            return res.status(409).json({ error: "Email already exists." });
-        }
-
-        res.status(500).json({ error: "Server error" });
-    }
+         res.json({ message: "Utilizatorul actualizat", user: utilizator });
+   } catch (err) {
+       console.error(err);
+       res.status(500).json({ error: "Server error" });
+   }
 });
 
 app.patch("/utilizatori/:id/restore", async (req, res) => {
@@ -212,28 +151,19 @@ app.delete("/utilizatori/:id/soft", async (req, res) => {
     try {
         const userId = req.params.id;
 
-        const result = await pool.query(`
-            UPDATE utilizatori
-            SET deleted_at = NOW(), updated_at = NOW()
-            WHERE id = $1 AND deleted_at IS NULL
-            RETURNING id, name, email, deleted_at
-        `, [userId]);
-
+        const result = await find(userId);
         if (result.rowCount === 0) {
             return res.status(404).json({ error: "User not found or already deleted." });
         }
+        await deleteUser(userId);
 
         res.json({
-            message: "User soft-deleted successfully",
+            message: "Utilizator dezactivat",
             user: result.rows[0]
         });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare Server 500"});
     }
-});
-
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
 });

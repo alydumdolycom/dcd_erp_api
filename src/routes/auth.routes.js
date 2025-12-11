@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV === "development" ? false : true,
             sameSite: "strict",
             maxAge: 3600000
         });
@@ -45,7 +45,8 @@ router.post("/login", async (req, res) => {
         return res.json({
             success: true,
             message: "Login successful",
-            utilizator
+            utilizator,
+            token
         });
 
     } catch (error) {

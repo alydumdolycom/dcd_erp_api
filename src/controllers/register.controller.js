@@ -1,12 +1,12 @@
 import pool from "../config/db.js";
 import { sha1 } from "../utils/hash.js";
 
-export async function registerUser(utilizator, parola) {
+export async function registerUser(email, nume_complet, parola_hash) {
   try {
     // Check if user exists by username
     const check = await pool.query(
-      `SELECT id, email FROM admin.utilizatori WHERE email = $1 LIMIT 1`,
-      [utilizator]
+      `SELECT id_utilizator, nume_complet, email  FROM admin.utilizatori WHERE email = $1 LIMIT 1`,
+      [nume_complet]
     );
 
     if (check.rows.length > 0) {
@@ -14,13 +14,13 @@ export async function registerUser(utilizator, parola) {
     }
 
     // Hash password (SHA1)
-    const hashedPassword = sha1(parola);
+    const hashedPassword = sha1(parola_hash);
 
     // Insert user into DB
     await pool.query(
-      `INSERT INTO admin.utilizatori (email, utilizator, parola, activ)
+      `INSERT INTO admin.utilizatori (email, nume_complet, parola_hash, activ)
        VALUES ($1, $2, $3, true)`,
-      [email, utilizator, hashedPassword]
+      [email, nume_complet, hashedPassword]
     );
 
     return { success: true, message: "User registered successfully" };
