@@ -1,5 +1,5 @@
-import pool from "../config/db.js";
-import { sha1 } from "../utils/hash.js";
+import pool from "../../config/db.js";
+import { sha1 } from "../../utils/hash.js";
 
 export async function registerUser(email, nume_complet, parola_hash) {
   try {

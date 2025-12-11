@@ -1,4 +1,4 @@
-import { checkUser } from "../services/users.service.js";
+import { checkUser } from "../../services/users.service.js";
 
 export async function login(nume_complet, parola_hash) {
 

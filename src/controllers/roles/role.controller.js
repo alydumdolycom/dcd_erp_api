@@ -1,4 +1,5 @@
 import pool from "../../config/db.js";
+import { checkRole } from "../../services/role.services.js";
 
 // ✔ Get all roles
 export const getRoles = async (req, res) => {
@@ -154,6 +155,7 @@ export const deleteRole = async (req, res) => {
   try {
     const { id } = req.params;
 
+    await checkRole(id);
     const result = await pool.query(
       "DELETE FROM roluri WHERE id_rol = $1 RETURNING *",
       [id]

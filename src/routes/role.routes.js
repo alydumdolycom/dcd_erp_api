@@ -19,5 +19,5 @@ router.get("/roluri", auth, getRoles);
 router.get("/roluri/:id", auth, getRoleById);
 router.post("/roluri", auth, createRole);
 router.patch("/roluri/:id", auth, updateRole);
-router.delete("/:id", auth, deleteRole);
+router.delete("roluri//:id", auth, deleteRole);
 export default router;
