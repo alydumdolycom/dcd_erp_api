@@ -1,5 +1,11 @@
-import crypto from "crypto";
+import bcrypt from "bcrypt";
 
-export function sha1(value) {
-  return crypto.createHash("sha1").update(value).digest("hex");
+const SALT_ROUNDS = 10;
+
+export async function hashPassword(password) {
+  return await bcrypt.hash(password, SALT_ROUNDS);
+}
+
+export async function comparePassword(password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
 }

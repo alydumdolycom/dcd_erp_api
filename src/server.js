@@ -1,34 +1,45 @@
 import express from "express";
-import cors from "cors";
-import authRoutes from "./routes/auth.routes.js";
-import usersRoutes from "./routes/users.routes.js";
-import roleRoutes from "./routes/role.routes.js";
 import dotenv from "dotenv";
-const router = express.Router();
-dotenv.config({ path: '../.env' });
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Load .env from project root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({
+    path: path.resolve(__dirname, "../.env")
+});
+
+// Import module routers
+import usersRoutes from "./modules/users/users.routes.js";
+// import rolesRoutes from "./modules/roles/roles.routes.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+
 const app = express();
 
-dotenv.config();
-app.use(cors());
+// Middlewares
 app.use(express.json());
-app.use("/api", authRoutes);
-app.use("/api", usersRoutes);
-app.use("/api", roleRoutes);
+app.use(cookieParser());
+app.use(cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true
+}));
 
-app.get("/api/test", (req, res) => {
-  res.send("API is working!");
+// API base path
+app.use("/api/users", usersRoutes);
+// app.use("/api/roles", rolesRoutes);
+app.use("/api/auth", authRoutes);
+
+// Health check
+app.get("/health", (req, res) => {
+    res.json({ status: "OK", uptime: process.uptime() });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server started on port ", process.env.PORT || 3000);
+// Start server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
-
-
-
-// Define your routes here
-router.get("/login", (req, res) => {
-  res.send("Login route");
-});
-
-// Export the router as default
-export default router;
