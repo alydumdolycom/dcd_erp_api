@@ -16,7 +16,9 @@ dotenv.config({
 import usersRoutes from "./modules/users/users.routes.js";
 // import rolesRoutes from "./modules/roles/roles.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
-
+// import accountRoutes from "./modules/account/index.js";
+import employeesRoutes from "./modules/employees/index.js";
+import lookupsRoutes from "./modules/lookups/index.js";
 const app = express();
 
 // Middlewares
@@ -31,6 +33,9 @@ app.use(cors({
 app.use("/api/users", usersRoutes);
 // app.use("/api/roles", rolesRoutes);
 app.use("/api/auth", authRoutes);
+// app.use("/api/account", accountRoutes);
+app.use("/api/employees", employeesRoutes);
+app.use("/api/lookups", lookupsRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
