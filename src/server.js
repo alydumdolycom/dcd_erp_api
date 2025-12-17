@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+const app = express();
 
 // Load .env from project root
 const __filename = fileURLToPath(import.meta.url);
@@ -14,13 +15,11 @@ dotenv.config({
 
 // Import module routers
 import usersRoutes from "./modules/users/users.routes.js";
-// import rolesRoutes from "./modules/roles/roles.routes.js";
+import rolesRoutes from "./modules/roles/roles.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 // import accountRoutes from "./modules/account/index.js";
 import employeesRoutes from "./modules/employees/index.js";
 import lookupsRoutes from "./modules/lookups/index.js";
-const app = express();
-
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -31,7 +30,7 @@ app.use(cors({
 
 // API base path
 app.use("/api/users", usersRoutes);
-// app.use("/api/roles", rolesRoutes);
+app.use("/api/roles", rolesRoutes);
 app.use("/api/auth", authRoutes);
 // app.use("/api/account", accountRoutes);
 app.use("/api/employees", employeesRoutes);

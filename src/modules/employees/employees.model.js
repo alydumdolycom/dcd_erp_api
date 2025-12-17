@@ -3,6 +3,13 @@ import pool from "../../config/db.js";
 const TABLE = "salarizare.salariati"; // adjust schema/table if needed
 
 export const EmployeesModel = {
+  async findByCnp(cnp) {
+    const { rows } = await pool.query(
+      `SELECT id FROM salarizare.salariati WHERE cnp = $1 LIMIT 1`,
+      [cnp]
+    );
+    return rows[0] || null;
+  },
   async all({
     page = 1,
     limit = 10,
@@ -95,6 +102,8 @@ export const EmployeesModel = {
         S.salar_net,
         S.salar_baza,
         S.sector,
+        S.data_incetarii,
+        S.data_determinata,
         NSD.nume_departament,
         NSF.nume_functie
       FROM salarizare.salariati S
@@ -184,9 +193,9 @@ export const EmployeesModel = {
         pers_deducere,
         observatii
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NULL, NULL, NULL, NULL, $13, $14,
-      NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, NULL, NULL, NULL, NULL,
-      NULL, NULL, NULL, NULL, NULL, $15, NULL, NULL)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+      $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35,
+      $36, $37, $38, $39, $40)
       RETURNING *;
     `;
     const values = [
@@ -206,16 +215,16 @@ export const EmployeesModel = {
         data.data_determinata,
         data.nr_contract,
         data.data_contract,
-        data.data.salar_baza,
+        data.salar_baza,
         data.salar_net,
         data.spor_vechime,
-        data.data.vechime,
+        data.vechime,
         data.pensionar,
         data.scutit_impozit,
         data.intrerupere,
         data.are_garantie,
         data.garantie_plafon,
-        data.data.garantie_luna,
+        data.garantie_luna,
         data.telefon,
         data.email,
         data.localitate,
@@ -226,7 +235,7 @@ export const EmployeesModel = {
         data.scara,
         data.etaj,
         data.ap,
-        data.data.sector,
+        data.sector,
         data.cod_postal,
         data.pers_deducere,
         data.observatii
@@ -255,8 +264,24 @@ export const EmployeesModel = {
     return result.rows[0];
   },
   async findById(id) {
-    const query = `SELECT * FROM ${TABLE} WHERE id = $1;`;
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const query = `
+      SELECT
+        S.*,
+        NSD.nume_departament,
+        NSF.nume_functie,
+        nom_judete AS NJ
+      FROM salarizare.salariati AS S
+      JOIN admin.nom_salarii_departamente AS NSD
+        ON S.id_departament = NSD.id
+      JOIN admin.nom_salarii_functii AS NSF
+        ON S.id_functie = NSF.id
+      JOIN admin.nom_judete AS NJ
+        ON S.id_judet_cass = NJ.id
+      WHERE S.id = $1
+      LIMIT 1;
+    `;
+
+    const { rows } = await pool.query(query, [id]);
+    return rows[0] || null;
   }
 };

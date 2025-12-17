@@ -1,14 +1,13 @@
 import { EmployeesService } from "./employees.service.js";
-
 export const EmployeesController = {
   async getAll(req, res, next) {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit = res.limits?.default || 10,
         search = "",
-        sortBy = "id",
-        sortOrder = "DESC",
+        sortBy = res.query?.defaultSortBy || "id",
+        sortOrder =  res.sortOrder || "asc",
 
         // filters
         id_departament,
@@ -41,7 +40,7 @@ export const EmployeesController = {
     try {
       const employee = await EmployeesService.getById(req.params.id);
       if (!employee) {
-        return res.status(404).json({ message: "Employee not found" });
+        return res.status(404).json({ message: "Salariatul nu a fost gasit" });
       }
       res.json(employee);
     } catch (err) {
@@ -50,6 +49,7 @@ export const EmployeesController = {
   },
 
   async create(req, res, next) {
+
     try {
       const employee = await EmployeesService.create(req.body);
       res.status(201).json(employee);

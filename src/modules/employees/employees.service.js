@@ -1,5 +1,5 @@
 import { EmployeesModel } from "./employees.model.js";
-
+import { addError } from "../../utils/validators.js";
 export const EmployeesService = {
   async getAllPaginated({page,
     limit,
@@ -34,6 +34,40 @@ export const EmployeesService = {
     return EmployeesModel.findById(id);
   },
   async create(data) {
+    const errors = {};
+
+    // REQUIRED
+    if (!data.cnp) addError(errors, "cnp", "obligatoriu");
+    if (!data.nume) addError(errors, "nume", "obligatoriu");
+    if (!data.prenume) addError(errors, "prenume", "obligatoriu");
+    if (!data.salar_baza) addError(errors, "prenume", "obligatoriu");
+    if (!data.salar_net) addError(errors, "prenume", "obligatoriu");
+    if (!data.data_angajarii) addError(errors, "data_angajarii", "obligatoriu");
+
+    // FORMAT
+    if (data.cnp && data.cnp.length !== 13) {
+      addError(errors, "cnp", "Trebuie sa aiba 13 caractere");
+    }
+
+    if (data.salar_net && isNaN(Number(data.salar_net))) {
+      addError(errors, "salar_net", "Trebuie sa fie un numar");
+    }
+
+    if (data.salar_baza && isNaN(Number(data.salar_baza))) {
+      addError(errors, "salar_baza", "Trebuie sa fie un numar");
+    }
+
+    // DATABASE UNIQUE CHECK
+    if (data.cnp) {
+      const existing = await EmployeesModel.findByCnp(data.cnp);
+      if (existing) {
+        addError(errors, "cnp", "CNP deja exista");
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return { errors };
+    }
     return EmployeesModel.create(data);
   },
   async update(id, data) {
