@@ -21,6 +21,7 @@ export const EmployeesService = {
       filters
     });
   },
+
   async updateEmployee(id, payload) {
     const employee = await EmployeesModel.update(id, payload);
 
@@ -30,9 +31,11 @@ export const EmployeesService = {
 
     return employee;
   },
+
   async getById(id) {
     return EmployeesModel.findById(id);
   },
+
   async create(data) {
     const errors = {};
 
@@ -43,7 +46,9 @@ export const EmployeesService = {
     if (!data.salar_baza) addError(errors, "prenume", "obligatoriu");
     if (!data.salar_net) addError(errors, "prenume", "obligatoriu");
     if (!data.data_angajarii) addError(errors, "data_angajarii", "obligatoriu");
-
+    if (data.data_angajarii && data.data_incetarii && data.data_angajarii > data.data_incetarii) {
+      addError(errors, "data_incetarii", "Data incetarii trebuie sa fie dupa data angajarii");
+    }
     // FORMAT
     if (data.cnp && data.cnp.length !== 13) {
       addError(errors, "cnp", "Trebuie sa aiba 13 caractere");
@@ -70,9 +75,11 @@ export const EmployeesService = {
     }
     return EmployeesModel.create(data);
   },
+
   async update(id, data) {
     return EmployeesModel.update(id, data);
   },
+
   async delete(id) {
     return EmployeesModel.delete(id);
   }

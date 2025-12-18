@@ -30,7 +30,7 @@ export const AuthController = {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development",
       sameSite: "strict",
-      maxAge: 3600000
+      maxAge: 8 * 60 * 60 * 1000 // 8 hours
     });
 
     return res.json({

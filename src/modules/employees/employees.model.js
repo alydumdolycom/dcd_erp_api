@@ -1,11 +1,11 @@
 import pool from "../../config/db.js";
 
-const TABLE = "salarizare.salariati"; // adjust schema/table if needed
 
 export const EmployeesModel = {
+  TABLE: "salarizare.salariati",
   async findByCnp(cnp) {
     const { rows } = await pool.query(
-      `SELECT id FROM salarizare.salariati WHERE cnp = $1 LIMIT 1`,
+      `SELECT id FROM ${this.TABLE} WHERE cnp = $1 LIMIT 1`,
       [cnp]
     );
     return rows[0] || null;
@@ -75,6 +75,16 @@ export const EmployeesModel = {
       whereClauses.push(`S.sector = $${values.length}`);
     }
 
+    if (filters.nume) {
+      values.push(filters.nume);
+      whereClauses.push(`S.nume = $${values.length}`);
+    }
+
+    if (filters.prenume) {
+      values.push(filters.prenume);
+      whereClauses.push(`S.prenume = $${values.length}`);
+    }
+
     if (filters.cnp) {
       values.push(filters.cnp);
       whereClauses.push(`S.cnp = $${values.length}`);
@@ -106,7 +116,7 @@ export const EmployeesModel = {
         S.data_determinata,
         NSD.nume_departament,
         NSF.nume_functie
-      FROM salarizare.salariati S
+      FROM ${this.TABLE} S
       JOIN admin.nom_salarii_departamente NSD
         ON S.id_departament = NSD.id
       JOIN admin.nom_salarii_functii NSF
@@ -122,7 +132,7 @@ export const EmployeesModel = {
     // =========================
     const countQuery = `
       SELECT COUNT(*)
-      FROM salarizare.salariati S
+      FROM ${this.TABLE} S
       JOIN admin.nom_salarii_departamente NSD
         ON S.id_departament = NSD.id
       JOIN admin.nom_salarii_functii NSF
@@ -151,7 +161,7 @@ export const EmployeesModel = {
   },
   async create(data) {
     const query = `
-      INSERT INTO ${TABLE}  (
+      INSERT INTO ${this.TABLE}  (
         id_firma,
         nume,
         prenume,
@@ -255,7 +265,7 @@ export const EmployeesModel = {
     values.push(id); // for WHERE clause
 
     const query = `
-      UPDATE ${TABLE}
+      UPDATE ${this.TABLE}
       SET ${fields.join(", ")}
       WHERE id = $${idx}
       RETURNING *;
@@ -269,14 +279,14 @@ export const EmployeesModel = {
         S.*,
         NSD.nume_departament,
         NSF.nume_functie,
-        nom_judete AS NJ
-      FROM salarizare.salariati AS S
+        NJ.judet
+      FROM ${this.TABLE} AS S
       JOIN admin.nom_salarii_departamente AS NSD
         ON S.id_departament = NSD.id
       JOIN admin.nom_salarii_functii AS NSF
         ON S.id_functie = NSF.id
       JOIN admin.nom_judete AS NJ
-        ON S.id_judet_cass = NJ.id
+        ON S.id_judet_cass = NJ.id  
       WHERE S.id = $1
       LIMIT 1;
     `;

@@ -20,13 +20,32 @@ import authRoutes from "./modules/auth/auth.routes.js";
 // import accountRoutes from "./modules/account/index.js";
 import employeesRoutes from "./modules/employees/index.js";
 import lookupsRoutes from "./modules/lookups/index.js";
+import companiesRoutes from "./modules/companies/companies.routes.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://165.232.138.233",
+  "http://localhost:5173"
+];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true
+  origin: function (origin, callback) {
+    // allow Postman / server-to-server calls
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 // API base path
 app.use("/api/users", usersRoutes);
@@ -35,6 +54,7 @@ app.use("/api/auth", authRoutes);
 // app.use("/api/account", accountRoutes);
 app.use("/api/employees", employeesRoutes);
 app.use("/api/lookups", lookupsRoutes);
+app.use("/api/companies", companiesRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

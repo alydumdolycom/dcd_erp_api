@@ -1,10 +1,11 @@
 import { EmployeesService } from "./employees.service.js";
 export const EmployeesController = {
+
   async getAll(req, res, next) {
     try {
       const {
         page = 1,
-        limit = res.limits?.default || 10,
+        limit = 10,
         search = "",
         sortBy = res.query?.defaultSortBy || "id",
         sortOrder =  res.sortOrder || "asc",
@@ -30,7 +31,11 @@ export const EmployeesController = {
         }
       });
 
-      res.status(200).json(result);
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        pagination: result.pagination
+      });
     } catch (err) {
       next(err);
     }
@@ -38,7 +43,7 @@ export const EmployeesController = {
 
   async getById(req, res, next) {
     try {
-      const employee = await EmployeesService.getById(req.params.id);
+      const employee = await EmployeesService.getById(req.params.id); 
       if (!employee) {
         return res.status(404).json({ message: "Salariatul nu a fost gasit" });
       }
@@ -47,16 +52,25 @@ export const EmployeesController = {
       next(err);
     }
   },
-
+  
   async create(req, res, next) {
 
     try {
       const employee = await EmployeesService.create(req.body);
-      res.status(201).json(employee);
+      res.status(201).json({
+        success: true,
+        message: "Informatiile au fost salvate",
+        data: employee
+      });
     } catch (err) {
-      next(err);
+      next({
+        status: 500,
+        message: "A aparut o eroare la salvarea informatiilor",
+        details: err.message
+      });
     }
   },
+
   async update(req, res) {
     const { id } = req.params;
 
@@ -68,28 +82,29 @@ export const EmployeesController = {
     if (!employee) {
       return res.status(404).json({
         success: false,
-        message: "Employee not found"
+        message: "Nu a fost gasit"
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Employee updated successfully",
+      message: "Informatiile au fost actualizate",
       data: employee
     });
   },
+  
   async delete(req, res) {
     const { id } = req.params;
     const deleted = await EmployeesService.deleteEmployee(Number(id));
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        message: "Employee not found"
+        message: "Nu a fost gasit"
       });
     }
     return res.status(200).json({
       success: true,
-      message: "Employee deleted successfully"
+      message: "Informatiile au fost sterse"
     });
   }
 };

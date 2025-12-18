@@ -12,8 +12,7 @@ export const LookupsController = {
 
   async getCities(req, res, next) {
     try {
-      const { county_id } = req.query;
-      const data = await LookupsService.getCities(county_id);
+      const data = await LookupsService.getCities();
       res.json(data);
     } catch (err) {
       next(err);
@@ -22,8 +21,7 @@ export const LookupsController = {
 
   async getTowns(req, res, next) {
     try {
-      const { city_id } = req.query;
-      const data = await LookupsService.getTowns(city_id);
+      const data = await LookupsService.getTowns(req.params.id);
       res.json(data);
     } catch (err) {
       next(err);

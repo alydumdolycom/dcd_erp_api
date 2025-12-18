@@ -8,35 +8,22 @@ export const LookupsModel = {
     return rows;
   },
 
-  async getCities(countyId) {
+  async getCities() {
     let sql = `SELECT id, judet FROM admin.nom_judete`;
-    const params = [];
-
-    if (countyId) {
-      params.push(countyId);
-      sql += ` WHERE id = $1`;
-    }
-
-    sql += ` ORDER BY judet`;
-
-    const { rows } = await pool.query(sql, params);
+    const { rows } = await pool.query(sql);
     return rows;
   },
 
-  async getTowns(cityId) {
-    let sql = `SELECT id, name FROM admin.towns`;
-    const params = [];
+  async getTowns(id) {
+    const sql = `
+      SELECT id, localitate FROM admin.nom_localitati
+      WHERE id_judet = $1
+    `;
 
-    if (cityId) {
-      params.push(cityId);
-      sql += ` WHERE city_id = $1`;
-    }
-
-    sql += ` ORDER BY name`;
-
-    const { rows } = await pool.query(sql, params);
+    const { rows } = await pool.query(sql, [id]);
     return rows;
   },
+
   async getJobTypes() {
     const { rows } = await pool.query(
       `SELECT id, nume_functie FROM admin.nom_salarii_functii ORDER BY nume_functie`

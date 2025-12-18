@@ -1,19 +1,19 @@
 import { LookupsModel } from "./lookups.model.js";
 
 export const LookupsService = {
-  getDepartments() {
-    return LookupsModel.getDepartments();
+  async getDepartments() {
+    return await LookupsModel.getDepartments();
   },
 
-  getCities(countyId) {
-    return LookupsModel.getCities(countyId);
+  async getCities() {
+    return await LookupsModel.getCities();
   },
 
-  getTowns(cityId) {
-    return LookupsModel.getTowns(cityId);
+  async getTowns(id) {
+    return await LookupsModel.getTowns(id);
   },
 
-  getJobTypes() {
-    return LookupsModel.getJobTypes();
+  async getJobTypes() {
+    return await LookupsModel.getJobTypes();
   }
 };

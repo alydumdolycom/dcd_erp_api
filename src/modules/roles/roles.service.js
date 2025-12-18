@@ -1,19 +1,32 @@
+import { addError } from "../../utils/validators.js";
 import { RoleModel } from "./roles.model.js";
 
 export const RolesService = {
-    getAllRoles: () => {
-        return RoleModel.all();
+    async getAllRoles() {
+        return await RoleModel.all();
     },
-    getRoleById: (id) => {
-        return RoleModel.findById(id);
+
+    async getRoleById(id) {
+        return await RoleModel.findById(id);
     },
-    createRole: (roleData) => {
-        return RoleModel.create(roleData);   
+
+    async create(data) {
+        const errors = {};
+        const findRole = await RoleModel.findRole(data.nume_rol);
+        if (findRole) {
+            addError(errors, "nume_rol", "Rolul exista deja");
+        }
+        if (Object.keys(errors).length > 0) {
+            return { errors };
+        }
+        return await RoleModel.create(data);   
     },
-    updateRole: (id, roleData) => {
-        return RoleModel.update(id, roleData);   
+
+    async updateRole(id, roleData) {
+        return await RoleModel.update(id, roleData);   
     },
-    deleteRole: (id) => {
-        return RoleModel.delete(id);   
+
+    async deleteRole(id) {
+        return await RoleModel.delete(id);   
     }
 };
