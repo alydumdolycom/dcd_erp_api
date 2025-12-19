@@ -40,6 +40,14 @@ export const AuthController = {
       token: result.token
     });
   },
+  
+  async logout(req, res) {
+    res.clearCookie("token");
+    res.json({ 
+      success: true,
+      message: "Utilizator deconectat"
+     });
+  },
 
   async recover(req, res) {
     const errors = AuthValidation.recover(req.body);

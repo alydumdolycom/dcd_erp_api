@@ -1,7 +1,8 @@
 import { EmployeesModel } from "./employees.model.js";
 import { addError } from "../../utils/validators.js";
 export const EmployeesService = {
-  async getAllPaginated({page,
+  async getAllPaginatedByCompany({
+    page,
     limit,
     search,
     sortBy,
@@ -32,7 +33,7 @@ export const EmployeesService = {
     return employee;
   },
 
-  async getById(id) {
+  async findById(id) {
     return EmployeesModel.findById(id);
   },
 

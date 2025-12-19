@@ -57,7 +57,7 @@ export const createEmployeeSchema = {
     email: Joi.string().email().max(100).allow(null, ""),
 
     localitate: Joi.string().max(100).allow(null, ""),
-    judet: Joi.string().max(50).allow(null, ""),
+    judet: Joi.number(),
     strada: Joi.string().max(100).allow(null, ""),
     nr: Joi.string().max(10).allow(null, ""),
     bloc: Joi.string().max(10).allow(null, ""),

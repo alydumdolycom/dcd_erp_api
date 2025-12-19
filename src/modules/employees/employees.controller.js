@@ -2,6 +2,7 @@ import { EmployeesService } from "./employees.service.js";
 export const EmployeesController = {
 
   async getAll(req, res, next) {
+    console.log(req.user)
     try {
       const {
         page = 1,
@@ -17,7 +18,7 @@ export const EmployeesController = {
         activ
       } = req.query;
 
-      const result = await EmployeesService.getAllPaginated({
+      const result = await EmployeesService.getAllPaginatedByCompany({
         page,
         limit,
         search,
@@ -43,8 +44,8 @@ export const EmployeesController = {
 
   async getById(req, res, next) {
     try {
-      const employee = await EmployeesService.getById(req.params.id); 
-      if (!employee) {
+      const employee = await EmployeesService.findById(req.params.id); 
+      if (!employee) { 
         return res.status(404).json({ message: "Salariatul nu a fost gasit" });
       }
       res.json(employee);

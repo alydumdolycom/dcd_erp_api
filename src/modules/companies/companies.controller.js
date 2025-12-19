@@ -6,10 +6,10 @@ export const CompaniesController = {
     const companies = await CompaniesService.getAllPaginated({
       page: Number(page) || 1,
       limit: Number(limit) || 10,   
-        search: search || '',
-        sortBy: sortBy || 'name',
-        sortOrder: sortOrder || 'asc',
-        filters: filters ? JSON.parse(filters) : {}
+      search: search || '',
+      sortBy: sortBy || 'name',
+      sortOrder: sortOrder || 'asc',
+      filters: filters ? JSON.parse(filters) : {}
     });
 
     res.send(companies);

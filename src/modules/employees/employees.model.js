@@ -94,7 +94,6 @@ export const EmployeesModel = {
       values.push(filters.activ);
       whereClauses.push(`S.activ = $${values.length}`);
     }
-
     const whereSQL = whereClauses.length
       ? `WHERE ${whereClauses.join(" AND ")}`
       : "";
@@ -286,7 +285,7 @@ export const EmployeesModel = {
       JOIN admin.nom_salarii_functii AS NSF
         ON S.id_functie = NSF.id
       JOIN admin.nom_judete AS NJ
-        ON S.id_judet_cass = NJ.id  
+        ON S.judet = NJ.id  
       WHERE S.id = $1
       LIMIT 1;
     `;

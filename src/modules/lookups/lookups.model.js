@@ -1,6 +1,30 @@
 import pool from "../../config/db.js";
 
 export const LookupsModel = {
+  async getEmployeeCompany(id) {
+    const query = `
+      SELECT F.id, F.nume FROM utilizatori AS U
+      JOIN utilizatori_acces_firme as UAF 
+        ON U.id_utilizator = UAF.id_utilizator
+      JOIN firme AS F
+        ON F.id = UAF.id_firma
+      WHERE U.id_utilizator = $1
+    `;
+    const values = [id];
+    return await pool.query(query, values);
+  },
+  async updateEmployeeMode(id, mode) {
+    const query = `
+      UPDATE salarizare.salariati
+      SET
+        mod_editare = $2
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const values = [id, mode];
+    return await pool.query(query, values);
+  },
+
   async getDepartments() {
     const { rows } = await pool.query(
       `SELECT id, nume_departament FROM admin.nom_salarii_departamente ORDER BY nume_departament`
