@@ -67,5 +67,25 @@ export const AuthModel = {
       `,
       [hashed, id]
     );
+  },
+
+  async saveRefreshToken({ userId, tokenHash, expiresAt }) {
+    await pool.query(
+      `
+      INSERT INTO refresh_tokens (id_utilizator, token_hash, expires_at)
+      VALUES ($1, $2, $3)
+      `,
+      [userId, tokenHash, expiresAt]
+    );
+  },
+
+  async removeToken() {
+    await pool.query(
+      `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1`,
+      [matched.token_hash]
+    );
+
+    res.clearCookie("refresh_token", { path: "/api/auth" });
+    res.json({ success: true });
   }
 };

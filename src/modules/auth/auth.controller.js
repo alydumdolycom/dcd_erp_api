@@ -26,22 +26,25 @@ export const AuthController = {
 
     if (result.error) return res.status(400).json({ error: result.error });
 
-    res.cookie("token", result.token, {
+    res.cookie("refresh_token", result.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
-      sameSite: "strict",
-      maxAge: 8 * 60 * 60 * 1000 // 8 hours
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 8 * 60 * 60 * 1000 // 8h
     });
 
+    // 🔐 Returnezi DOAR access token
     return res.json({
       success: true,
-      message: "Autentificat.",
       user: result.user,
-      token: result.token
+      token: result.accessToken
     });
+    
   },
   
   async logout(req, res) {
+    await AuthService.logout(req.token);
     res.clearCookie("token");
     res.json({ 
       success: true,

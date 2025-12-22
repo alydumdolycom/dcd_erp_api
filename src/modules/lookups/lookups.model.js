@@ -1,6 +1,14 @@
 import pool from "../../config/db.js";
 
 export const LookupsModel = {
+
+  async getContractType() {
+    const query = `
+      SELECT NST.* FROM nom_salarii_tipcontract AS NST
+    `;
+    return await pool.query(query)
+  },
+
   async getEmployeeCompany(id) {
     const query = `
       SELECT F.id, F.nume FROM utilizatori AS U
@@ -13,6 +21,7 @@ export const LookupsModel = {
     const values = [id];
     return await pool.query(query, values);
   },
+  
   async updateEmployeeMode(id, mode) {
     const query = `
       UPDATE salarizare.salariati

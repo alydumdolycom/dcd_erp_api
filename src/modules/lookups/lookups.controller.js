@@ -2,6 +2,15 @@ import { LookupsService } from "./lookups.service.js";
 
 export const LookupsController = {
 
+  async getContractTypes(req, res, next) {
+    try {
+      const data = await LookupsService.getContractType();
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  },
+  
   async employeeCompany(req, res, next) {
     try {
       const data = await LookupsService.getEmployeeCompany(req.user.id);

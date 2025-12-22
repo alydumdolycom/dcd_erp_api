@@ -10,5 +10,5 @@ router.get("/towns/:id", LookupsController.getTowns);
 router.get("/job-types", LookupsController.getJobTypes);
 router.patch("/employee/mode/:id", LookupsController.editEmployeeMode);
 router.get("/employee/company", auth, LookupsController.employeeCompany);
-
+router.get("/contract/types", LookupsController.getContractTypes);
 export default router;

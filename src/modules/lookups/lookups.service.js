@@ -1,9 +1,15 @@
 import { LookupsModel } from "./lookups.model.js";
 
 export const LookupsService = {
+
+  async getContractType(){
+    return await LookupsModel.getContractType();
+  },
+
   async getEmployeeCompany(id){ 
     return await LookupsModel.getEmployeeCompany(id);
   },
+
   async editEmployee(id, mode) {
     return await LookupsModel.updateEmployeeMode(id, mode);
   },

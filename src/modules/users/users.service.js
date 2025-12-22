@@ -32,13 +32,13 @@ export const UsersService = {
     if (data.email) {
       const byEmail = await UserModel.findByEmail(data.email);
       if (byEmail && String(byEmail.id_utilizator) !== String(id)) {
-        return { error: "Email already used by another user", code: "EMAIL_EXISTS" };
+        return { error: "Email deja folosit", code: "EMAIL_EXISTS" };
       }
     }
     if (data.nume_complet) {
       const byName = await UserModel.findByName(data.nume_complet);
       if (byName && String(byName.id_utilizator) !== String(id)) {
-        return { error: "Name already used by another user", code: "NAME_EXISTS" };
+        return { error: "Numele Complet deja folosit", code: "NAME_EXISTS" };
       }
     }
 

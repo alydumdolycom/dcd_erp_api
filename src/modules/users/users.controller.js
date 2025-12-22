@@ -87,7 +87,7 @@ export const UserController = {
 
       return res.json({
         success: true,
-        message: "Utilizator actualizat cu succes.",
+        message: "Informatiile au fost actualizate.",
         data: updated
       });
 

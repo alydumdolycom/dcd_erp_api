@@ -128,7 +128,7 @@ export const UserModel = {
     return user;
   },
   // update user
-  async update(id, { nume_complet, email, parola_hash, activ }) {
+  async update(id, { nume_complet, email, parola_hash, activ, id_rol }) {
     const fields = [];
     const values = [];
     let idx = 1;  
@@ -152,6 +152,11 @@ export const UserModel = {
     if (activ !== undefined) {
       fields.push(`activ = $${idx++}`);
       values.push(activ);
+    }
+
+    if (id_rol !== undefined) {
+      fields.push(`id_rol = $${idx++}`);
+      values.push(id_rol);
     }
 
     if (fields.length === 0) {

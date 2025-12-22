@@ -3,6 +3,7 @@ import pool from "../../config/db.js";
 
 export const EmployeesModel = {
   TABLE: "salarizare.salariati",
+
   async findByCnp(cnp) {
     const { rows } = await pool.query(
       `SELECT id FROM ${this.TABLE} WHERE cnp = $1 LIMIT 1`,
@@ -13,6 +14,7 @@ export const EmployeesModel = {
   async all({
     page = 1,
     limit = 10,
+    id_firma,
     search = "",
     filters = {},
     sortBy = "id",
@@ -27,13 +29,7 @@ export const EmployeesModel = {
     // =========================
     const allowedSort = {
       id: "S.id",
-      nume: "S.nume",
-      prenume: "S.prenume",
-      data_angajarii: "S.data_angajarii",
-      salar_baza: "S.salar_baza",
-      salar_net: "S.salar_net",
-      departament: "NSD.nume_departament",
-      functie: "NSF.nume_functie"
+      id_firma: "S.id_firma"
     };
 
     const sortColumn = allowedSort[sortBy] || "S.id";
@@ -50,9 +46,6 @@ export const EmployeesModel = {
       whereClauses.push(`
         (
           S.nume ILIKE $${values.length}
-          OR S.prenume ILIKE $${values.length}
-          OR S.cnp ILIKE $${values.length}
-          OR S.email ILIKE $${values.length}
         )
       `);
     }
@@ -60,40 +53,21 @@ export const EmployeesModel = {
     // =========================
     // FILTERS
     // =========================
-    if (filters.id_departament) {
-      values.push(filters.id_departament);
-      whereClauses.push(`S.id_departament = $${values.length}`);
+    if (id_firma) {
+      values.push(id_firma);
+      whereClauses.push(`S.id_firma = $${values.length}`);
     }
 
-    if (filters.id_functie) {
-      values.push(filters.id_functie);
-      whereClauses.push(`S.id_functie = $${values.length}`);
+    if (filters.cif) {
+      values.push(filters.cif);
+      whereClauses.push(`S.cif = $${values.length}`);
     }
 
-    if (filters.sector) {
-      values.push(filters.sector);
-      whereClauses.push(`S.sector = $${values.length}`);
+    if (filters.implicit) {
+      values.push(filters.implicit);
+      whereClauses.push(`S.implicit = $${values.length}`);
     }
 
-    if (filters.nume) {
-      values.push(filters.nume);
-      whereClauses.push(`S.nume = $${values.length}`);
-    }
-
-    if (filters.prenume) {
-      values.push(filters.prenume);
-      whereClauses.push(`S.prenume = $${values.length}`);
-    }
-
-    if (filters.cnp) {
-      values.push(filters.cnp);
-      whereClauses.push(`S.cnp = $${values.length}`);
-    }
-
-    if (filters.activ !== undefined) {
-      values.push(filters.activ);
-      whereClauses.push(`S.activ = $${values.length}`);
-    }
     const whereSQL = whereClauses.length
       ? `WHERE ${whereClauses.join(" AND ")}`
       : "";
@@ -116,10 +90,10 @@ export const EmployeesModel = {
         NSD.nume_departament,
         NSF.nume_functie
       FROM ${this.TABLE} S
-      JOIN admin.nom_salarii_departamente NSD
-        ON S.id_departament = NSD.id
-      JOIN admin.nom_salarii_functii NSF
-        ON NSF.id = S.id_functie
+      	JOIN admin.nom_salarii_departamente AS NSD
+	  	    ON S.id_departament = NSD.id
+        JOIN admin.nom_salarii_functii AS NSF
+          ON NSF.id = S.id_functie
       ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir}
       LIMIT $${values.length + 1}
@@ -132,10 +106,6 @@ export const EmployeesModel = {
     const countQuery = `
       SELECT COUNT(*)
       FROM ${this.TABLE} S
-      JOIN admin.nom_salarii_departamente NSD
-        ON S.id_departament = NSD.id
-      JOIN admin.nom_salarii_functii NSF
-        ON NSF.id = S.id_functie
       ${whereSQL};
     `;
 

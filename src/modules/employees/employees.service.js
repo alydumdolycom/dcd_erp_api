@@ -1,23 +1,18 @@
 import { EmployeesModel } from "./employees.model.js";
 import { addError } from "../../utils/validators.js";
 export const EmployeesService = {
-  async getAllPaginatedByCompany({
-    page,
-    limit,
+
+  async getAll({
     search,
     sortBy,
+    id_firma,
     sortOrder,
     filters}) {
- // Business rules can live here
-    if (limit > 100) {
-      limit = 100; // hard limit protection
-    }
 
     return EmployeesModel.all({
-      page,
-      limit,
       search,
       sortBy,
+      id_firma,
       sortOrder,
       filters
     });

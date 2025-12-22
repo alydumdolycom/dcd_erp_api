@@ -1,16 +1,13 @@
 import { EmployeesService } from "./employees.service.js";
-export const EmployeesController = {
 
+export const EmployeesController = {
   async getAll(req, res, next) {
-    console.log(req.user)
     try {
       const {
-        page = 1,
-        limit = 10,
         search = "",
         sortBy = res.query?.defaultSortBy || "id",
+        id_firma,
         sortOrder =  res.sortOrder || "asc",
-
         // filters
         id_departament,
         id_functie,
@@ -18,11 +15,10 @@ export const EmployeesController = {
         activ
       } = req.query;
 
-      const result = await EmployeesService.getAllPaginatedByCompany({
-        page,
-        limit,
+      const result = await EmployeesService.getAll({
         search,
         sortBy,
+        id_firma,
         sortOrder,
         filters: {
           id_departament,
@@ -34,8 +30,7 @@ export const EmployeesController = {
 
       res.status(200).json({
         success: true,
-        data: result.data,
-        pagination: result.pagination
+        data: result.data
       });
     } catch (err) {
       next(err);
