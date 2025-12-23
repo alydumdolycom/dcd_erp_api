@@ -1,7 +1,8 @@
-import crypto from "crypto";
+import crypto, { createHash } from "crypto";
 import { AccountRecoveryModel } from "./account.recovery.model.js";
 import { hashPassword } from "../../utils/hash.js";
 import { sendMail } from "../../utils/mailer.js";
+import { hashToken } from "../../utils/tokenHash.js";
 
 export const AccountRecoveryService = {
   async createRecovery(email) {
@@ -9,7 +10,7 @@ export const AccountRecoveryService = {
     if (!user) return; // prevent user enumeration
 
     const token = crypto.randomBytes(32).toString("hex");
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const tokenHash = hashToken(token);
 
     await AccountRecoveryModel.storeToken({
       userId: user.id_utilizator,
@@ -30,7 +31,7 @@ export const AccountRecoveryService = {
   },
 
   async resetPassword(token, newPassword) {
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const tokenHash = createHash("sha256").update(token).digest("hex");
 
     const record = await AccountRecoveryModel.findValidToken(tokenHash);
     if (!record) {

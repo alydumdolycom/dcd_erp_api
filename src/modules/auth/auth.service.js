@@ -13,7 +13,7 @@ export const AuthService = {
     return await UserModel.create(data);
   },
 
-  async login(nume_complet, parola_hash) {
+async login(nume_complet, parola_hash) {
     const user = await AuthModel.findUser(nume_complet, parola_hash);
     if (!user) return { error: "Utilizator inexistent." };
  
@@ -22,7 +22,7 @@ export const AuthService = {
         id: user.id_utilizator,
         nume_complet: user.nume_complet
       },
-      process.env.JWT_SECRET,
+        process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
 
@@ -45,6 +45,7 @@ export const AuthService = {
       refreshToken
     };
   },
+
 
   async sendRecovery(email) {
     const user = await AuthModel.findByEmail(email);

@@ -173,5 +173,14 @@ export const UserModel = {
 
     const result = await pool.query(sql, values);
     return result.rows[0];
+  },
+  
+  findById: async (id) => {
+    const result = await pool.query(
+      `SELECT id_utilizator FROM admin.utilizatori 
+       WHERE id_utilizator = $1 LIMIT 1`,
+      [id]
+    );
+    return result.rows[0] || null;
   }
 };

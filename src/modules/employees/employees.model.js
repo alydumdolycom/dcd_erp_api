@@ -1,6 +1,5 @@
 import pool from "../../config/db.js";
 
-
 export const EmployeesModel = {
   TABLE: "salarizare.salariati",
 

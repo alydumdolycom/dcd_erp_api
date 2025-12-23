@@ -40,6 +40,16 @@ export const LookupsModel = {
     );
     return rows;
   },
+  async insertDepartment(departmentData) {
+    const { nume_departament, observatii } = departmentData;
+    const query = `
+      INSERT INTO admin.nom_salarii_departamente (nume_departament, observatii)
+      VALUES ($1, $2) RETURNING *;
+    `;
+    const values = [nume_departament, observatii];
+    const { rows } = await pool.query(query, values);
+    return rows[0];
+  },
 
   async getCities() {
     let sql = `SELECT id, judet FROM admin.nom_judete`;

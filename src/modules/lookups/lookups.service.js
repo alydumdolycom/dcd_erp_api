@@ -14,6 +14,10 @@ export const LookupsService = {
     return await LookupsModel.updateEmployeeMode(id, mode);
   },
 
+  async createDepartment(departmentData) {
+    return await LookupsModel.insertDepartment(departmentData);
+  },
+  
   async getDepartments() {
     return await LookupsModel.getDepartments();
   },

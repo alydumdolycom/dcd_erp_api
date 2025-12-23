@@ -1,10 +1,11 @@
 import pool from "../../config/db.js";
 import bcrypt from "bcrypt";
 import { hashPassword, comparePassword } from "../../utils/hash.js";
+import { hashToken } from "../../utils/tokenHash.js";
 
 export const AuthModel = {
-    TABLE: "admin.utilizatori",
-    async findUser(nume_complet, parola_hash ) {
+  TABLE: "admin.utilizatori",
+async findUser(nume_complet, parola_hash ) {
       
     const result = await pool.query(
       `SELECT id_utilizator, nume_complet, email, parola_hash, activ, sters_la FROM ${this.TABLE}
@@ -32,6 +33,7 @@ export const AuthModel = {
       email: user.email
     };
   },
+
 
   async saveRecoveryToken(email, token) {
     return pool.query(
@@ -87,5 +89,21 @@ export const AuthModel = {
 
     res.clearCookie("refresh_token", { path: "/api/auth" });
     res.json({ success: true });
+  },
+
+ async revoke(token) {
+    await pool.query(
+      `UPDATE refresh_tokens SET revoked = true WHERE token = $1`,
+      [token]
+    );
+  },
+
+  async findValid(token) {
+    const { rows } = await pool.query(
+      `SELECT * FROM refresh_tokens
+       WHERE token = $1 AND revoked = false`,
+      [token]
+    );
+    return rows[0] || null  ;
   }
 };

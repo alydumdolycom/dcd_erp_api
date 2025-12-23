@@ -41,6 +41,15 @@ export const LookupsController = {
       next(err);
     }
   },
+  
+  async createDepartment(req, res, next) {
+    try {
+      const data = await LookupsService.createDepartment(req.body);
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  },
 
   async getCities(req, res, next) {
     try {
