@@ -11,7 +11,7 @@ export const UsersService = {
     return await UserModel.findById(id);
   },
 
-  async createUser(data) {
+  async create(data) {
     // Business logic: ensure unique email & name
     const existingEmail = await UserModel.findByEmail(data.email);
     if (existingEmail) {
@@ -21,8 +21,6 @@ export const UsersService = {
     if (existingName) {
       return { error: "Nume complet already in use", code: "NAME_EXISTS" };
     }
-    const hashedPassword = await hashPassword(data.parola_hash);
-    data.parola_hash = hashedPassword;
     const created = await UserModel.create(data);
     return { data: created };
   },

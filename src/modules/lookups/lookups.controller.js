@@ -10,46 +10,6 @@ export const LookupsController = {
       next(err);
     }
   },
-  
-  async employeeCompany(req, res, next) {
-    try {
-      const data = await LookupsService.getEmployeeCompany(req.user.id);
-      res.json(data);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async editEmployeeMode(req, res, next) {
-    try {
-      const data = await LookupsService.editEmployee(req.params.id, req.body.mode);
-      return res.status(200).json({
-        success: true,
-        message: "Informatiile au fost actualizate",
-        data: data
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async getDepartments(req, res, next) {
-    try {
-      const data = await LookupsService.getDepartments();
-      res.json(data);
-    } catch (err) {
-      next(err);
-    }
-  },
-  
-  async createDepartment(req, res, next) {
-    try {
-      const data = await LookupsService.createDepartment(req.body);
-      res.json(data);
-    } catch (err) {
-      next(err);
-    }
-  },
 
   async getCities(req, res, next) {
     try {
@@ -68,13 +28,23 @@ export const LookupsController = {
       next(err);
     }
   },
-
-  async getJobTypes(req, res, next) {
+  async countEmployees(req, res, next) {
+    const companyId = req.params.id;
     try {
-      const data = await LookupsService.getJobTypes();
+      const data = await LookupsService.countEmployees(companyId);
       res.json(data);
     } catch (err) {
       next(err);
     }
+  },
+  async countUsers(req, res, next) {
+    const companyId = req.params.id;
+
+    try {
+      const data = await LookupsService.countUsers(companyId);
+      res.json(data);
+    } catch (err) {
+      next(err);
+    } 
   }
 };

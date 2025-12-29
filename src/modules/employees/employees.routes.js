@@ -13,6 +13,8 @@ router.post(
   validate(createEmployeeSchema),
   EmployeesController.create
 );
-router.patch("/:id", EmployeesController.update);
-router.delete("/:id", EmployeesController.delete);
+router.patch("/:id", auth, EmployeesController.update);
+router.delete("/:id", auth, EmployeesController.delete);
+router.patch("/:id/mode", auth, EmployeesController.editEmployeeMode);
+router.get("/employee/company", auth, EmployeesController.employeeCompany);
 export default router;

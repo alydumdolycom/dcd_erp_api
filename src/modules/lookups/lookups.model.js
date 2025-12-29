@@ -9,30 +9,7 @@ export const LookupsModel = {
     return await pool.query(query)
   },
 
-  async getEmployeeCompany(id) {
-    const query = `
-      SELECT F.id, F.nume FROM utilizatori AS U
-      JOIN utilizatori_acces_firme as UAF 
-        ON U.id_utilizator = UAF.id_utilizator
-      JOIN firme AS F
-        ON F.id = UAF.id_firma
-      WHERE U.id_utilizator = $1
-    `;
-    const values = [id];
-    return await pool.query(query, values);
-  },
-  
-  async updateEmployeeMode(id, mode) {
-    const query = `
-      UPDATE salarizare.salariati
-      SET
-        mod_editare = $2
-      WHERE id = $1
-      RETURNING *;
-    `;
-    const values = [id, mode];
-    return await pool.query(query, values);
-  },
+
 
   async getDepartments() {
     const { rows } = await pool.query(
@@ -40,6 +17,7 @@ export const LookupsModel = {
     );
     return rows;
   },
+
   async insertDepartment(departmentData) {
     const { nume_departament, observatii } = departmentData;
     const query = `
@@ -72,5 +50,27 @@ export const LookupsModel = {
       `SELECT id, nume_functie FROM admin.nom_salarii_functii ORDER BY nume_functie`
     );
     return rows;
-  } 
+  },
+
+  async saveJobTypes(jobTypesData) {
+    const { id, nume_functie, observatii, cod_cor, functie_cor } = jobTypesData;
+    let query, values;
+    if (id) {
+      query = `
+        UPDATE admin.nom_salarii_functii
+        SET nume_functie = $2, observatii = $3
+        WHERE id = $1
+        RETURNING *;
+      `;
+      values = [id, nume_functie, observatii, cod_cor, functie_cor];
+    } else {
+      query = `
+        INSERT INTO admin.nom_salarii_functii (nume_functie, observatii, cod_cor, functie_cor)
+        VALUES ($1, $2, $3, $4) RETURNING *;
+      `;
+      values = [nume_functie, observatii, cod_cor, functie_cor];
+    }
+    const { rows } = await pool.query(query, values);
+    return rows[0];
+  }
 };

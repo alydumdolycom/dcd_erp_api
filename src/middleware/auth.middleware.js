@@ -1,39 +1,19 @@
-// import jwt from "jsonwebtoken";
-
-// export function auth(req, res, next) {
-//   const token = req.headers.authorization?.split(" ")[1];
-
-//   if (!token) return res.status(401).json({ message: "Va rugam sa va autentificati" });
-
-//   try {
-//     req.user = jwt.verify(token, process.env.JWT_SECRET);
-//     next();
-//   } catch (err) {
-//     return res.status(401).json({ message: "Token invalid" });
-//   }
-// }
+// middleware/auth.middleware.js
 import jwt from "jsonwebtoken";
 
 export function auth(req, res, next) {
-  const header = req.headers.access_token;
+  const authHeader = req.headers.authorization;
 
-  if (!header) {
-    return res.status(401).json({ message: "Lipsă token de acces" });
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Missing access token" });
   }
 
-  const token = header.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Token invalid" });
-  }
+  const token = authHeader.split(" ")[1];
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    req.user = payload;
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (err) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expirat" });
-    }
-    return res.status(401).json({ message: "Token invalid" });
+    return res.status(401).json({ message: "Access token invalid or expired" });
   }
 }

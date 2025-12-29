@@ -1,102 +1,75 @@
 import jwt from "jsonwebtoken";
-import { UserModel } from "../users/users.model.js";
 import { AuthModel } from "./auth.model.js";
 import { AuthService } from "./auth.service.js";
 import { AuthValidation } from "./auth.validation.js";
+import { hashToken } from "../../utils/tokenHash.js";
 
 export const AuthController = {
+
+// controllers/auth.controller.js
   async refresh(req, res) {
-    const oldToken = req.cookies.refresh_token;
+    const refreshToken = req.cookies.refresh_token;
+    console.log("Received refresh token:", refreshToken);
 
-      if (!oldToken) {
-        return res.status(401).json({ message: "Lipsă refresh token" });
-      }
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Missing refresh token" });
+    }
 
-      const stored = await AuthModel.findValid(oldToken);
-      if (!stored) {
-        return res.status(401).json({ message: "Refresh token invalid" });
-      }
+    const refreshTokenHash = hashToken(refreshToken);
+    const stored = await AuthModel.findValid(refreshTokenHash);
+    if (!stored) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
 
-      try {
-        // verify refresh token
-        const payload = jwt.verify(oldToken, process.env.JWT_REFRESH_SECRET);
+    let payload;
+    console.log(refreshTokenHash)
+    try {
+      payload = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET
+      );
 
-        // revoke old refresh token (rotation)
-        await AuthModel.revoke(oldToken);
+    } catch (err) {
+      return res.status(401).json({ message: "Refresh token expired", error: err.message });
+    }
 
-        const user = await UserModel.findById(payload.id);
-        if (!user) return res.sendStatus(401);
+    // 🔁 ROTATE TOKEN
+    await AuthModel.revoke(refreshTokenHash);
 
-        // generate NEW tokens
-        const newAccessToken = jwt.sign(
-          {
-            id: user.id_utilizator,
-            nume_complet: user.nume_complet
-          },
-          process.env.JWT_ACCESS_SECRET,
-          { expiresIn: "15m" }
-        );
+    const newRefreshToken = jwt.sign(
+      { id: payload.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
 
-        const newRefreshToken = jwt.sign(
-          { id: user.id_utilizator },
-          process.env.JWT_REFRESH_SECRET,
-          { expiresIn: "7d" }
-        );
+    await AuthModel.saveRefreshToken({
+      userId: payload.id,
+      tokenHash: hashToken(newRefreshToken),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
 
-        // store new refresh token
-        await AuthModel.create({
-          userId: user.id_utilizator,
-          token: newRefreshToken,
-          userAgent: req.headers["user-agent"],
-          ip: req.ip
-        });
+    const newAccessToken = jwt.sign(
+      { id: payload.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
 
-        // overwrite cookie
-        res.cookie("refresh_token", newRefreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-          path: "/api/auth/refresh",
-          maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+    res.cookie("refresh_token", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/"
+    });
 
-        return res.json({
-          accessToken: newAccessToken
-        });
-      } catch (err) {
-        return res.status(401).json({ message: "Refresh token expirat" });
-      }
+    return res.json({
+      token: newAccessToken
+    });
   },
-  // async refresh(req, res) {
-  //   const token = req.cookies.refresh_token;
-  //   if (!token) {
-  //     return res.status(401).json({ message: "Lipsa token" });
-  //   }
-  //   const stored = await AuthModel.findValid(token);
-  //   if (!stored) {
-  //     return res.status(401).json({ message: "Token de reîmprospătare invalid" });
-  //   }
-
-  //   // rotate refresh token (SECURITY)
-  //   await AuthModel.revoke(token);
-  //   const user = await UserModel.findById(stored.id_utilizator);
-
-  //   const newAccessToken = jwt.sign(
-  //     { 
-  //       id: user.id_utilizator, nume_complet: user.nume_complet },
-  //       process.env.JWT_SECRET,
-  //     { expiresIn: "15m" }
-  //   );
-
-  //   return res.json({
-  //     accessToken: newAccessToken,
-  //     user
-  //   });
-  // },
 
   async register(req, res) {
-    // const errors = AuthValidation.register(req.body);
-    // if (errors.length) return res.status(400).json({ errors });
+    const errors = AuthValidation.register(req.body);
+    if (errors.length) return res.status(400).json({ errors });
 
     const created = await AuthService.register(req.body);
     if (created.error) return res.status(400).json({ error: created.error });
@@ -111,41 +84,49 @@ export const AuthController = {
   async login(req, res) {
 
     const errors = AuthValidation.login(req.body);
-      if (errors.length) {
-        return res.status(400).json({ errors });
+    if (errors.length) return res.status(400).json({ errors });
+
+    const { nume_complet, parola_hash } = req.body;
+    const result = await AuthService.login(nume_complet, parola_hash);
+
+    if (result.error) return res.status(400).json({ error: result.error });
+
+    // Set refresh token cookie
+    res.cookie("refresh_token", result.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 8 * 60 * 60 * 1000 // 8h
+    });
+
+    // Return user and success
+    return res.json({
+      success: true,
+      user: result.user,
+      token: result.accessToken
+    });
+  },
+  
+  async logout(req, res) {
+    const refreshToken = req.cookies.refresh_token;
+
+      if (refreshToken) {
+        await AuthService.logout(refreshToken);
       }
 
-      const { nume_complet, parola_hash } = req.body; // plain password
-      const result = await AuthService.login(nume_complet, parola_hash);
-
-      if (result.error) {
-        return res.status(401).json({ error: result.error });
-      }
-
-      // ✅ Correct refresh-token cookie
-      res.cookie("refresh_token", result.refreshToken, {
+      // Clear refresh token cookie
+      res.clearCookie("refresh_token", {
         httpOnly: true,
+        sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/api/auth/refresh",
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        path: "/"
       });
 
       return res.json({
         success: true,
-        user: result.user,
-        accessToken: result.accessToken
+        message: "Deconectat cu succes."
       });
-  },
-  
-  async logout(req, res) {
-    const token = req.cookies.refresh_token;
-    if (token) {
-      await AuthModel.revoke(token);
-    } 
-    res.clearCookie("refresh_token", { path: "/" });
-    res.clearCookie("access_token", { path: "/" });
-    return res.json({ success: true, message: "Deconectat cu succes." });
   },
 
   async recover(req, res) {

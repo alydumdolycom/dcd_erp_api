@@ -35,8 +35,8 @@ export const DepartmentsController = {
   },
   async create(req, res, next) {
     try {   
-        const { name, companyId } = req.body;
-        const newDepartment = await DepartmentsService.create({ name, companyId });
+        const { nume_departament, observatii } = req.body;
+        const newDepartment = await DepartmentsService.create({ nume_departament, observatii });
         res.status(201).json({ success: true, data: newDepartment });
     } catch (err) { 
       next(err);
@@ -45,10 +45,10 @@ export const DepartmentsController = {
   async update(req, res, next) {
     try { 
         const { id } = req.params;
-        const { name, companyId } = req.body;
-        const updatedDepartment = await DepartmentsService.update(id, { name, companyId }); 
+        const { nume_departament, observatii } = req.body;
+        const updatedDepartment = await DepartmentsService.update(id, { nume_departament, observatii }); 
         if (!updatedDepartment) {
-            return res.status(404).json({ success: false, message: "Department not found" });
+            return res.status(404).json({ success: false, message: "Informatii nu au fost gasite" });
         }
         res.status(200).json({ success: true, data: updatedDepartment });
     } catch (err) { 

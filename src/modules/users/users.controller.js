@@ -1,5 +1,4 @@
 // src/modules/users/users.controller.js
-import { UserModel } from "./users.model.js";
 import { UsersService } from "./users.service.js";
 
 export const UserController = {
@@ -8,7 +7,7 @@ export const UserController = {
   async create(req, res) {
     try {
       const { nume_complet, email, parola_hash } = req.body;
-      const newUser = await UsersService.createUser({ nume_complet, email, parola_hash });
+      const newUser = await UsersService.create({ nume_complet, email, parola_hash });
       if (newUser.error) {
         if (newUser.code === "EMAIL_EXISTS" || newUser.code === "NAME_EXISTS") {
           return res.status(400).json({   

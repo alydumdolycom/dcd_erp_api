@@ -6,7 +6,6 @@ export const UserModel = {
   TABLE: "admin.utilizatori",
   // Create user
   async create({ nume_complet, email, parola_hash }) {
-    parola_hash = await hashPassword(parola_hash);
     const sql = `
       INSERT INTO ${this.TABLE}
         (nume_complet, email, parola_hash)
@@ -17,7 +16,7 @@ export const UserModel = {
     const result = await pool.query(sql, [
       nume_complet,
       email,
-      parola_hash
+      await hashPassword(parola_hash)
     ]);
 
     return result.rows[0];

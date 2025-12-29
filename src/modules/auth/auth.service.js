@@ -13,39 +13,40 @@ export const AuthService = {
     return await UserModel.create(data);
   },
 
-async login(nume_complet, parola_hash) {
+  async login(nume_complet, parola_hash) {
     const user = await AuthModel.findUser(nume_complet, parola_hash);
     if (!user) return { error: "Utilizator inexistent." };
- 
+    if(user.activ === 0) return { error: "Cont inactiv. Contacteaza administratorul." };
+    if(user.sters === 1) return { error: "Cont sters. Contacteaza administratorul." };
+    // ACCESS TOKEN (short)
     const accessToken = jwt.sign(
       {
         id: user.id_utilizator,
         nume_complet: user.nume_complet
       },
-        process.env.JWT_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
 
-    // REFRESH TOKEN (lung)
+    // REFRESH TOKEN (long) ✅ FIXED
     const refreshToken = jwt.sign(
       { id: user.id_utilizator },
-      process.env.JWT_SECRET,
+      process.env.JWT_REFRESH_SECRET,
       { expiresIn: "8h" }
     );
 
-    // add a day
     await AuthModel.saveRefreshToken({
       userId: user.id_utilizator,
       tokenHash: hashToken(refreshToken),
       expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000)
     });
+
     return {
       user,
       accessToken,
       refreshToken
     };
   },
-
 
   async sendRecovery(email) {
     const user = await AuthModel.findByEmail(email);
@@ -66,7 +67,9 @@ async login(nume_complet, parola_hash) {
 
     return { success: true };
   },
-  async logout(token) {
-    await AuthModel.removeToken(token);
+  async logout(refreshToken) {
+    if (!refreshToken) return;
+    const tokenHash = hashToken(refreshToken);
+    await AuthModel.revoke(tokenHash);
   }
 };

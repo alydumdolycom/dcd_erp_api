@@ -241,25 +241,51 @@ export const EmployeesModel = {
     const result = await pool.query(query, values);
     return result.rows[0];
   },
+
   async findById(id) {
     const query = `
       SELECT
         S.*,
         NSD.nume_departament,
         NSF.nume_functie,
-        NJ.judet
+        NJ.judet as nume_judet
       FROM ${this.TABLE} AS S
       JOIN admin.nom_salarii_departamente AS NSD
         ON S.id_departament = NSD.id
       JOIN admin.nom_salarii_functii AS NSF
         ON S.id_functie = NSF.id
       JOIN admin.nom_judete AS NJ
-        ON S.judet = NJ.id  
+        ON S.judet::integer = NJ.id  
       WHERE S.id = $1
       LIMIT 1;
     `;
-
-    const { rows } = await pool.query(query, [id]);
+    const values = [id];
+    const { rows } = await pool.query(query, values);
     return rows[0] || null;
-  }
+  },
+
+  async getEmployeeCompany(id) {
+    const query = `
+      SELECT F.id, F.nume FROM utilizatori AS U
+      JOIN utilizatori_acces_firme as UAF 
+        ON U.id_utilizator = UAF.id_utilizator
+      JOIN firme AS F
+        ON F.id = UAF.id_firma
+      WHERE U.id_utilizator = $1
+    `;
+    const values = [id];
+    return await pool.query(query, values);
+  },
+  
+  async updateEmployeeMode(id, mode) {
+    const query = `
+      UPDATE salarizare.salariati
+      SET
+        mod_editare = $2
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const values = [id, mode];
+    return await pool.query(query, values);
+  },
 };

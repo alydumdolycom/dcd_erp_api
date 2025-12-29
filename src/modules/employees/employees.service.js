@@ -18,6 +18,13 @@ export const EmployeesService = {
     });
   },
 
+  async getEmployeeCompany(id){ 
+    return await EmployeesModel.getEmployeeCompany(id);
+  },
+
+  async editEmployee(id, mode) {
+    return await EmployeesModel.updateEmployeeMode(id, mode);
+  },
   async updateEmployee(id, payload) {
     const employee = await EmployeesModel.update(id, payload);
 

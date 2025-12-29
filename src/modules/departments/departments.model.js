@@ -13,24 +13,24 @@ export const DepartmentsModel = {
     const { rows } = await pool.query(query);
     return rows;
   },
-  async create({ nume_departament }) {
+  async create({ nume_departament, observatii }) {
     const query = `
-      INSERT INTO ${this.TABLE} (nume_departament)
-      VALUES ($1)
+      INSERT INTO ${this.TABLE} (nume_departament, observatii)
+      VALUES ($1, $2)
       RETURNING *;
     `;
-    const values = [nume_departament];
+    const values = [nume_departament, observatii];
     const { rows } = await pool.query(query, values);
     return rows[0];
   },
-  async update(id, { nume_departament }) {
+  async update(id, { nume_departament, observatii }) {
     const query = `
       UPDATE ${this.TABLE}
-      SET nume_departament = $1
-      WHERE id = $2
+      SET nume_departament = $1, observatii = $2
+      WHERE id = $3
       RETURNING *;
     `;
-    const values = [nume_departament, id];
+    const values = [nume_departament, observatii, id];
     const { rows } = await pool.query(query, values);
     return rows[0];
   },  async findById(id) {

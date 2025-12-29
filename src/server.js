@@ -23,6 +23,7 @@ import employeesRoutes from "./modules/employees/index.js";
 import lookupsRoutes from "./modules/lookups/index.js";
 import companiesRoutes from "./modules/companies/companies.routes.js";
 import departmentsRoutes from "./modules/departments/departments.routes.js";
+import jobsRoutes from "./modules/jobs/jobs.routes.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -57,6 +58,7 @@ app.use("/api/employees", auth, employeesRoutes);
 app.use("/api/lookups", auth, lookupsRoutes);
 app.use("/api/companies", auth, companiesRoutes);
 app.use("/api/departments", auth, departmentsRoutes);
+app.use("/api/jobs", auth, jobsRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

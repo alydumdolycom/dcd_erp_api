@@ -8,8 +8,8 @@ const router = Router();
 router.post("/", validate(createUserSchema), UserController.create);
 
 router.get("/", auth, UserController.index);
-router.get("/:id", UserController.find);
-router.patch("/:id", UserController.update);
-router.delete("/:id", UserController.delete);
+router.get("/:id", auth, UserController.find);
+router.patch("/:id", auth, UserController.update);
+router.delete("/:id", auth, UserController.delete);
 
 export default router;

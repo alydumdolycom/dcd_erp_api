@@ -6,20 +6,8 @@ export const LookupsService = {
     return await LookupsModel.getContractType();
   },
 
-  async getEmployeeCompany(id){ 
-    return await LookupsModel.getEmployeeCompany(id);
-  },
-
-  async editEmployee(id, mode) {
-    return await LookupsModel.updateEmployeeMode(id, mode);
-  },
-
-  async createDepartment(departmentData) {
-    return await LookupsModel.insertDepartment(departmentData);
-  },
-  
-  async getDepartments() {
-    return await LookupsModel.getDepartments();
+  async saveJobTypes(jobTypesData) {
+    return await LookupsModel.saveJobTypes(jobTypesData);
   },
 
   async getCities() {
