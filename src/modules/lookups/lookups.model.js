@@ -72,5 +72,26 @@ export const LookupsModel = {
     }
     const { rows } = await pool.query(query, values);
     return rows[0];
+  },
+  async countEmployees(companyId) {
+    const query = `
+      SELECT COUNT(*) AS count FROM salarizare.salariati WHERE id_firma = $1
+    `;
+    const { rows } = await pool.query(query, [companyId]);
+    return parseInt(rows[0].count, 10);
+  },
+  async countUsers() {
+    const query = `
+      SELECT COUNT(*) AS count FROM admin.utilizatori
+    `;
+    const { rows } = await pool.query(query);
+    return parseInt(rows[0].count);
+  },
+  async countRoles() {
+    const query = `
+      SELECT COUNT(*) AS count FROM admin.roluri
+    `;
+    const { rows } = await pool.query(query);
+    return parseInt(rows[0].count);
   }
 };

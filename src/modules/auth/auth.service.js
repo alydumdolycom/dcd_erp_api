@@ -16,8 +16,14 @@ export const AuthService = {
   async login(nume_complet, parola_hash) {
     const user = await AuthModel.findUser(nume_complet, parola_hash);
     if (!user) return { error: "Utilizator inexistent." };
-    if(user.activ === 0) return { error: "Cont inactiv. Contacteaza administratorul." };
-    if(user.sters === 1) return { error: "Cont sters. Contacteaza administratorul." };
+    const userErrors = {
+      missing: "Utilizator inexistent.",
+      inactive: "Cont inactiv. Contactează administratorul.",
+      deleted: "Cont șters. Contactează administratorul."
+    };
+    if (!user) return { error: userErrors.missing };
+    if (!user.activ) return { error: userErrors.inactive };
+    if (user.sters) return { error: userErrors.deleted };
     // ACCESS TOKEN (short)
     const accessToken = jwt.sign(
       {

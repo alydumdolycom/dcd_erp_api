@@ -28,23 +28,20 @@ export const LookupsController = {
       next(err);
     }
   },
-  async countEmployees(req, res, next) {
+  async dashboardCount(req, res, next) {
     const companyId = req.params.id;
+    console.log("Company ID:", companyId);    
     try {
-      const data = await LookupsService.countEmployees(companyId);
-      res.json(data);
+      const countEmployees = await LookupsService.countEmployees(companyId);
+      const countUsers = await LookupsService.countUsers();
+      const countRoles = await LookupsService.countRoles();
+      res.json({
+        countEmployees: countEmployees,
+        countUsers: countUsers,
+        countRoles: countRoles,
+      });
     } catch (err) {
       next(err);
     }
-  },
-  async countUsers(req, res, next) {
-    const companyId = req.params.id;
-
-    try {
-      const data = await LookupsService.countUsers(companyId);
-      res.json(data);
-    } catch (err) {
-      next(err);
-    } 
   }
 };

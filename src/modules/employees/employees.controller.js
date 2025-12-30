@@ -38,6 +38,7 @@ export const EmployeesController = {
     },
 
     async getById(req, res, next) {
+      console.log(req.params.id);
       try {
         const employee = await EmployeesService.findById(req.params.id); 
         if (!employee) { 

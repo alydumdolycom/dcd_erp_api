@@ -10,7 +10,7 @@ router.get("/", auth, EmployeesController.getAll);
 router.get("/:id", EmployeesController.getById);
 router.post(
   "/",
-  validate(createEmployeeSchema),
+  // validate(createEmployeeSchema),
   EmployeesController.create
 );
 router.patch("/:id", auth, EmployeesController.update);

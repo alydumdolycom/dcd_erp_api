@@ -221,6 +221,7 @@ export const EmployeesModel = {
     const result = await pool.query(query, values);
     return result.rows[0];
   },
+  
   async update(id, payload) {
     const fields = [];
     const values = [];
@@ -248,14 +249,19 @@ export const EmployeesModel = {
         S.*,
         NSD.nume_departament,
         NSF.nume_functie,
-        NJ.judet as nume_judet
+        NJ.judet as nume_judet,
+        U.nume_complet AS ultimul_editor
       FROM ${this.TABLE} AS S
       JOIN admin.nom_salarii_departamente AS NSD
         ON S.id_departament = NSD.id
       JOIN admin.nom_salarii_functii AS NSF
         ON S.id_functie = NSF.id
       JOIN admin.nom_judete AS NJ
-        ON S.judet::integer = NJ.id  
+        ON S.judet::integer = NJ.id
+      LEFT JOIN admin.resource_edit_logs AS REL
+        ON REL.id_resursa = S.id AND REL.resursa = 'salarizare'
+      LEFT JOIN admin.utilizatori AS U
+        ON U.id_utilizator = REL.id_utilizator
       WHERE S.id = $1
       LIMIT 1;
     `;

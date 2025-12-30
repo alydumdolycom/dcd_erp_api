@@ -22,7 +22,6 @@ export const AuthController = {
     }
 
     let payload;
-    console.log(refreshTokenHash)
     try {
       payload = jwt.verify(
         refreshToken,

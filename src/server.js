@@ -50,7 +50,7 @@ app.use(cors({
 }));
 
 // API base path
-app.use("/api/users", usersRoutes);
+app.use("/api/users", auth, usersRoutes);
 app.use("/api/roles", auth, rolesRoutes);
 app.use("/api/auth", authRoutes);
 // app.use("/api/account", accountRoutes);

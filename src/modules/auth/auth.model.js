@@ -30,7 +30,9 @@ export const AuthModel = {
       return {
         id_utilizator: user.id_utilizator,
         nume_complet: user.nume_complet,
-        email: user.email
+        email: user.email,
+        activ: user.activ,
+        sters_la: user.sters_la
       };
   },
 
