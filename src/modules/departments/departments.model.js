@@ -1,7 +1,7 @@
 import pool from "../../config/db.js";
 
 export const DepartmentsModel = {
-  TABLE: "nom_salarii_departamente",
+  TABLE: "nomenclatoare.nom_salarii_departamente",
     async all() {
     const query = `
       SELECT    

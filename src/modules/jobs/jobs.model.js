@@ -2,7 +2,7 @@ import pool from "../../config/db.js";
 
 export const JobsModel = {
   // Define model properties and methods here
-    Table: 'nom_salarii_functii',
+    Table: 'nomenclatoare.nom_salarii_functii',
 
     async get() {
         // Example: Get all records from the table

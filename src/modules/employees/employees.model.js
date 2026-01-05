@@ -89,9 +89,9 @@ export const EmployeesModel = {
         NSD.nume_departament,
         NSF.nume_functie
       FROM ${this.TABLE} S
-      	JOIN admin.nom_salarii_departamente AS NSD
+      	JOIN nomenclatoare.nom_salarii_departamente AS NSD
 	  	    ON S.id_departament = NSD.id
-        JOIN admin.nom_salarii_functii AS NSF
+        JOIN nomenclatoare.nom_salarii_functii AS NSF
           ON NSF.id = S.id_functie
       ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir}
@@ -252,11 +252,11 @@ export const EmployeesModel = {
         NJ.judet as nume_judet,
         U.nume_complet AS ultimul_editor
       FROM ${this.TABLE} AS S
-      JOIN admin.nom_salarii_departamente AS NSD
+      JOIN nomenclatoare.nom_salarii_departamente AS NSD
         ON S.id_departament = NSD.id
-      JOIN admin.nom_salarii_functii AS NSF
+      JOIN nomenclatoare.nom_salarii_functii AS NSF
         ON S.id_functie = NSF.id
-      JOIN admin.nom_judete AS NJ
+      JOIN nomenclatoare.nom_judete AS NJ
         ON S.judet::integer = NJ.id
       LEFT JOIN admin.resource_edit_logs AS REL
         ON REL.id_resursa = S.id AND REL.resursa = 'salarizare'
