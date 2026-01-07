@@ -36,9 +36,7 @@ export const AuthService = {
 
     // REFRESH TOKEN (long) ✅ FIXED
     const refreshToken = jwt.sign(
-      { id: user.id_utilizator },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "8h" }
+      { id: user.id_utilizator },process.env.JWT_REFRESH_SECRET,{ expiresIn: "8h" }
     );
 
     await AuthModel.saveRefreshToken({
@@ -73,6 +71,7 @@ export const AuthService = {
 
     return { success: true };
   },
+  
   async logout(refreshToken) {
     if (!refreshToken) return;
     const tokenHash = hashToken(refreshToken);

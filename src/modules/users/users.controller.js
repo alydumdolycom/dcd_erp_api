@@ -1,4 +1,7 @@
 // src/modules/users/users.controller.js
+import { PermissionsService } from "../permissions/permissions.service.js";
+import { RoleModel } from "../roles/roles.model.js";
+import { RolesService } from "../roles/roles.service.js";
 import { UsersService } from "./users.service.js";
 
 export const UserController = {
@@ -55,6 +58,8 @@ export const UserController = {
     try {
       const { id } = req.params;
       const user = await UsersService.getById(id);
+      const roles = await RolesService.getUserRoles(id);
+      const permissions = await PermissionsService.getUserPermissions(id);
 
       if (!user) {
         return res.status(404).json({
@@ -65,7 +70,9 @@ export const UserController = {
 
       return res.json({
         success: true,
-        data: user
+        data: user,
+        roles: roles,
+        permissions: permissions
       });
 
     } catch (err) {
@@ -113,6 +120,26 @@ export const UserController = {
 
     } catch (err) {
       console.error("Delete user error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Eroare server."
+      });
+    }
+  },
+
+  async syncRoles(req, res) {
+    try {
+      const { id } = req.params;
+      const { roles } = req.body;
+      const updatedUser = await UsersService.syncRoles(id, roles);
+
+      return res.json({
+        success: true,
+        message: "Roluri sincronizate cu succes.",
+        data: updatedUser
+      });
+    } catch (err) {
+      console.error("Sync roles error:", err);
       return res.status(500).json({
         success: false,
         message: "Eroare server."

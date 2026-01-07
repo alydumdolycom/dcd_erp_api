@@ -3,22 +3,24 @@ import { AuthModel } from "./auth.model.js";
 import { AuthService } from "./auth.service.js";
 import { AuthValidation } from "./auth.validation.js";
 import { hashToken } from "../../utils/tokenHash.js";
+import { UserModel } from "../users/users.model.js";
+// import { RoleModel } from "../roles/roles.model.js";
+import { AccessService } from "../permissions/acces.service.js";
 
 export const AuthController = {
 
 // controllers/auth.controller.js
   async refresh(req, res) {
     const refreshToken = req.cookies.refresh_token;
-    console.log("Received refresh token:", refreshToken);
 
     if (!refreshToken) {
-      return res.status(401).json({ message: "Missing refresh token" });
+      return res.status(401).json({ message: "Lipsa token de reîmprospătare" });
     }
 
     const refreshTokenHash = hashToken(refreshToken);
     const stored = await AuthModel.findValid(refreshTokenHash);
     if (!stored) {
-      return res.status(401).json({ message: "Invalid refresh token" });
+      return res.status(401).json({ message: "Token de reîmprospătare invalid" });
     }
 
     let payload;
@@ -29,26 +31,32 @@ export const AuthController = {
       );
 
     } catch (err) {
-      return res.status(401).json({ message: "Refresh token expired", error: err.message });
+      return res.status(401).json({ message: "Token de reîmprospătare expirat", error: err.message });
     }
 
     // 🔁 ROTATE TOKEN
     await AuthModel.revoke(refreshTokenHash);
-
+    
+    const user = await UserModel.findById(payload.id);
+    if (!user) {
+      return res.status(401).json({ message: "Utilizatorul nu a fost găsit" });
+    }
     const newRefreshToken = jwt.sign(
-      { id: payload.id },
+      { id: payload.id, user: user },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
-
+    const abilities = await AccessService.resolveAbilities(user.id_utilizator);
     await AuthModel.saveRefreshToken({
       userId: payload.id,
       tokenHash: hashToken(newRefreshToken),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
-
     const newAccessToken = jwt.sign(
-      { id: payload.id },
+      {
+        id: user.id_utilizator,
+        nume_complet: user.nume_complet,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
@@ -62,7 +70,8 @@ export const AuthController = {
     });
 
     return res.json({
-      token: newAccessToken
+      token: newAccessToken,
+      abilities: abilities,
     });
   },
 
@@ -98,11 +107,12 @@ export const AuthController = {
       path: "/",
       maxAge: 8 * 60 * 60 * 1000 // 8h
     });
-
+    const abilities = await AccessService.resolveAbilities(result.user.id_utilizator);
     // Return user and success
     return res.json({
       success: true,
       user: result.user,
+      abilities: abilities,
       token: result.accessToken
     });
   },

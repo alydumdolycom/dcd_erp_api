@@ -1,3 +1,3 @@
-import rolesRoutes from "./roles.routes.js";
+import { permissionsRoutes } from "./permissions.routes.js";
 
-export default rolesRoutes;
+export default permissionsRoutes;

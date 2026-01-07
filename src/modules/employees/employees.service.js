@@ -26,7 +26,16 @@ export const EmployeesService = {
     return await EmployeesModel.updateEmployeeMode(id, mode);
   },
   async updateEmployee(id, payload) {
-    const employee = await EmployeesModel.update(id, payload);
+    let paymentMethod = {};
+    
+    paymentMethod.cont_bancar = payload.cont_bancar;
+    paymentMethod.id_modplata = payload.id_modplata;
+    paymentMethod.activ = payload.activ;
+    delete payload.cont_bancar;
+    delete payload.id_modplata;
+    delete payload.activ;  
+    const employeeData = { ...payload };
+    const employee = await EmployeesModel.update(id, payload, paymentMethod);
 
     if (!employee) {
       return null;
@@ -85,5 +94,9 @@ export const EmployeesService = {
 
   async delete(id) {
     return EmployeesModel.delete(id);
+  },
+
+  async modEditEmployee(employeeData) {
+    return await EmployeesModel.modEditEmployee(employeeData);
   }
 };

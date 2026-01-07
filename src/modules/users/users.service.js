@@ -1,6 +1,5 @@
 // src/modules/users/users.service.js
 import { UserModel } from "./users.model.js";
-import { comparePassword, hashPassword } from "../../utils/hash.js";
 
 export const UsersService = {
   async get(query) {
@@ -46,5 +45,9 @@ export const UsersService = {
 
   async softDelete(id) {
     return await UserModel.softDelete(id);
+  },
+
+  async syncRoles(userId, roles) {
+    return await UserModel.syncRoles(userId, roles);
   }
 };

@@ -36,6 +36,7 @@ export const JobsController = {
             });
         }
     },
+    
     // ...existing code...
     async update(req, res) {
         try {
@@ -45,6 +46,7 @@ export const JobsController = {
         res.status(500).json({ error: "Failed to update job" });
         }
     },
+
     async delete(req, res) {
         try {
         await JobsService.delete(req.params.id);

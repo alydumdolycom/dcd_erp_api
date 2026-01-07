@@ -1,21 +1,69 @@
-import pool from "../../config/db"
+import pool from "../../config/db.js";
 
-export const PermissionsModel = {
-    // Define and return the Permission model
-    async all() {
-        // Logic to get all permissions from the database
-         return pool.query("SELECT * FROM permissions_table");
-    },
-    async findById(id) {
-        // Logic to find a permission by ID from the database
-        return pool.query("SELECT * FROM permissions_table WHERE id = $1", [id]);
-    }, 
-    async create(data) {
-        // Logic to create a new permission in the database
-        return pool.query("INSERT INTO permissions_table (name, description) VALUES ($1, $2) RETURNING *", [data.name, data.description]);
-    },  
-    async update(id, data) {
-        // Logic to update a permission in the database
-        return pool.query("UPDATE permissions_table SET name = $1, description = $2 WHERE id = $3 RETURNING *", [data.name, data.description, id]);
-    }
-}   
+export const PermissionModel = {
+
+ async getByRoleIds(id_utilizator) {
+    if (!id_utilizator) return [];
+
+    const values = [id_utilizator];
+
+    const { rows } = await pool.query(`
+      SELECT p.*
+      FROM permisiuni.permisiuni p
+      JOIN permisiuni.roluri_permisiuni rp ON rp.id_permisiune = p.id
+      JOIN permisiuni.utilizatori_roluri ur ON ur.id_rol = rp.id_rol
+      JOIN admin.utilizatori u ON u.id_utilizator = ur.id_utilizator
+      WHERE u.id_utilizator = $1
+    `, values);
+    return rows;
+  },
+
+  async getByUserId(id_utilizator) {
+    if (!id_utilizator) return [];  
+    const values = [id_utilizator];
+
+    const { rows } = await pool.query(`
+      SELECT p.*
+      FROM permisiuni.permisiuni p  
+      JOIN permisiuni.utilizatori_permisiuni up ON up.id_permisiune = p.id
+      JOIN admin.utilizatori u ON u.id_utilizator = up.id_utilizator
+      WHERE u.id_utilizator = $1  
+    `, values);
+    return rows;
+  },
+
+  async create(data) {
+    const values = [data.nume, data.descriere];
+    const { rows } = await pool.query(
+      `INSERT INTO permisiuni.permisiuni (nume, descriere) VALUES ($1, $2) RETURNING *`,
+      values
+    );
+    return rows[0];
+  },
+
+  async getById(id) {
+    const values = [id];
+    const { rows } = await pool.query(
+      `SELECT * FROM permisiuni.permisiuni WHERE id = $1`,
+      values
+    );
+    return rows[0];
+  },
+
+  async update(id, data) {
+    const values = [data.nume, data.descriere, id];
+    const { rows } = await pool.query(
+      `UPDATE permisiuni.permisiuni SET nume = $1, descriere = $2 WHERE id = $3 RETURNING *`,
+      values
+    );
+    return rows[0];
+  },
+
+  async delete(id) {
+    const values = [id];
+    await pool.query(
+      `DELETE FROM permisiuni.permisiuni WHERE id = $1`,
+      values
+    );
+  } 
+};

@@ -21,6 +21,7 @@ export const UserModel = {
 
     return result.rows[0];
   },
+
   async all({ page = 1, limit = 10, search = "", nume_complet, email, activ }) {
     const offset = (page - 1) * limit;
 
@@ -73,6 +74,7 @@ export const UserModel = {
       }
     };
   },
+
   // Check name
   async findByName(nume_complet) {
     const result = await pool.query(
@@ -92,6 +94,7 @@ export const UserModel = {
     );
     return result.rows[0] || null;
   },
+
   // soft delete user
   async softDelete(id) {
     const res = await pool.query(
@@ -100,6 +103,7 @@ export const UserModel = {
     );
     return res.rows[0] || null;
   },
+
   // find user
   async findByUser({ nume_complet, parola_hash }) {
     const sql = `
@@ -126,6 +130,7 @@ export const UserModel = {
 
     return user;
   },
+
   // update user
   async update(id, { nume_complet, email, parola_hash, activ, id_rol }) {
     const fields = [];
@@ -174,12 +179,29 @@ export const UserModel = {
     return result.rows[0];
   },
   
-  findById: async (id) => {
+  async findById(id) {
     const result = await pool.query(
-      `SELECT id_utilizator FROM admin.utilizatori 
+      `SELECT id_utilizator, nume_complet FROM admin.utilizatori 
        WHERE id_utilizator = $1 LIMIT 1`,
       [id]
     );
     return result.rows[0] || null;
-  }
+  },
+
+  async syncRoles(userId, roles) {
+    // First, remove existing roles
+    await pool.query(
+      `DELETE FROM permisiuni.utilizatori_roluri WHERE id_utilizator = $1`,
+      [userId]
+    );
+    // Then, insert new roles
+    const insertPromises = roles.map(roleId => {
+      return pool.query(
+        `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
+        [userId, roleId]
+      );
+    });
+    await Promise.all(insertPromises);
+    return await this.findById(userId);
+  } 
 };

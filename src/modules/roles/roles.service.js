@@ -28,5 +28,16 @@ export const RolesService = {
 
     async deleteRole(id) {
         return await RoleModel.delete(id);   
+    },
+    async getUserRoles(userId) {
+        return await RoleModel.userRoles(userId);
+    },
+
+    async getUserRoles(userId) {
+        return await RoleModel.getRoles(userId);
+    },
+
+    async syncRoles(id, roles) {
+    return await RoleModel.syncRoles(id, roles);
     }
 };

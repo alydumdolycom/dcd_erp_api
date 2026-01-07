@@ -10,5 +10,6 @@ router.get("/", UserController.index);
 router.get("/:id", UserController.find);
 router.patch("/:id", UserController.update);
 router.delete("/:id", UserController.delete);
+router.post("/sync/roles/:id", UserController.syncRoles);
 
 export default router;

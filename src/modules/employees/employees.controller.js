@@ -38,7 +38,6 @@ export const EmployeesController = {
     },
 
     async getById(req, res, next) {
-      console.log(req.params.id);
       try {
         const employee = await EmployeesService.findById(req.params.id); 
         if (!employee) { 
@@ -113,14 +112,12 @@ export const EmployeesController = {
       }
     },
   
-    async editEmployeeMode(req, res, next) {
+    async modEditEmployee(req, res, next) {
+      req.body.id_utilizator = req.user.id;
+      req.body.ip = req.ip;
       try {
-        const data = await EmployeesService.editEmployee(req.params.id, req.body.mode);
-        return res.status(200).json({
-          success: true,
-          message: "Informatiile au fost actualizate",
-          data: data
-        });
+        const data = await EmployeesService.modEditEmployee(req.body);
+        res.json(data);
       } catch (err) {
         next(err);
       }

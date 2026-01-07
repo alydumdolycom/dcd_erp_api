@@ -2,7 +2,16 @@ import { LookupsService } from "./lookups.service.js";
 
 export const LookupsController = {
 
-  async getContractTypes(req, res, next) {
+  async paymentType(req, res, next) {
+    try {
+      const data = await LookupsService.paymentType();  
+      res.json(data);
+    } catch (err) {
+      next(err);
+    } 
+  },
+  
+  async getContractType(req, res, next) {
     try {
       const data = await LookupsService.getContractType();
       res.json(data);
@@ -10,7 +19,25 @@ export const LookupsController = {
       next(err);
     }
   },
+  
+  async hoursWorked(req, res, next) {
+    try {
+      const data = await LookupsService.hoursWorked();
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  },
 
+  async monthsOfYear(req, res, next) {
+    try {
+      const data = await LookupsService.monthsOfYear();
+      res.json(data);
+    } catch (err) {
+      next(err);
+    } 
+  },
+  
   async getCities(req, res, next) {
     try {
       const data = await LookupsService.getCities();
@@ -28,9 +55,9 @@ export const LookupsController = {
       next(err);
     }
   },
+  
   async dashboardCount(req, res, next) {
     const companyId = req.params.id;
-    console.log("Company ID:", companyId);    
     try {
       const countEmployees = await LookupsService.countEmployees(companyId);
       const countUsers = await LookupsService.countUsers();
