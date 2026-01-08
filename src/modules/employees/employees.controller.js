@@ -103,6 +103,7 @@ export const EmployeesController = {
         message: "Informatiile au fost sterse"
       });
     },
+    
     async employeeCompany(req, res, next) {
       try {
         const data = await EmployeesService.getEmployeeCompany(req.user.id);

@@ -11,6 +11,104 @@ export const EmployeesModel = {
     return rows[0] || null;
   },
 
+  // async all({
+  //   id_firma,
+  //   search = "",
+  //   filters = {},
+  //   sortBy = "id",
+  //   sortOrder = "DESC"
+  // }) {
+  //   // =========================
+  //   // ALLOWED SORT COLUMNS (SECURITY)
+  //   // =========================
+  //   const allowedSort = {
+  //     id: "S.id",
+  //     id_firma: "S.id_firma",
+  //     nume: "S.nume",
+  //     prenume: "S.prenume",
+  //     data_angajarii: "S.data_angajarii"
+  //   };
+
+  //   const sortColumn = allowedSort[sortBy] || "S.id";
+  //   const sortDir = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+  //   let whereClauses = [];
+  //   let values = [];
+
+  //   // =========================
+  //   // SEARCH
+  //   // =========================
+  //   if (search) {
+  //     values.push(`%${search}%`);
+  //     whereClauses.push(`
+  //       (
+  //         S.nume ILIKE $${values.length}
+  //         OR S.prenume ILIKE $${values.length}
+  //         OR S.cnp ILIKE $${values.length}
+  //       )
+  //     `);
+  //   }
+
+  //   // =========================
+  //   // FILTERS
+  //   // =========================
+  //   if (id_firma) {
+  //     values.push(id_firma);
+  //     whereClauses.push(`S.id_firma = $${values.length}`);
+  //   }
+
+  //   if (filters.id_departament) {
+  //     values.push(filters.id_departament);
+  //     whereClauses.push(`S.id_departament = $${values.length}`);
+  //   }
+
+  //   if (filters.id_functie) {
+  //     values.push(filters.id_functie);
+  //     whereClauses.push(`S.id_functie = $${values.length}`);
+  //   }
+
+  //   if (filters.activ !== undefined) {
+  //     values.push(filters.activ);
+  //     whereClauses.push(`S.activ = $${values.length}`);
+  //   }
+
+  //   const whereSQL = whereClauses.length
+  //     ? `WHERE ${whereClauses.join(" AND ")}`
+  //     : "";
+
+  //   // =========================
+  //   // DATA QUERY
+  //   // =========================
+  //   const query = `
+  //     SELECT
+  //       S.id,
+  //       S.id_firma,
+  //       S.nume,
+  //       S.prenume,
+  //       S.cnp,
+  //       TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
+  //       S.salar_net,
+  //       S.salar_baza,
+  //       S.sector,
+  //       S.data_incetarii,
+  //       S.data_determinata,
+
+  //       NSD.id AS id_departament,
+  //       NSD.nume_departament,
+  //       NSF.nume_functie
+
+  //     FROM ${this.TABLE} S
+  //     LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+  //       ON S.id_departament = NSD.id
+  //     JOIN nomenclatoare.nom_salarii_functii NSF
+  //       ON S.id_functie = NSF.id
+  //     ${whereSQL}
+  //     ORDER BY ${sortColumn} ${sortDir};
+  //   `;
+
+  //   const { rows } = await pool.query(query, values);
+  //   return rows;
+  // },
   async all({
     page = 1,
     limit = 10,
@@ -92,6 +190,7 @@ export const EmployeesModel = {
         S.sector,
         S.data_incetarii,
         S.data_determinata,
+        NSD.id AS id_departament,
         NSD.nume_departament,
         NSF.nume_functie
       FROM ${this.TABLE} S
@@ -100,9 +199,7 @@ export const EmployeesModel = {
         JOIN nomenclatoare.nom_salarii_functii AS NSF
           ON NSF.id = S.id_functie
       ${whereSQL}
-      ORDER BY ${sortColumn} ${sortDir}
-      LIMIT $${values.length + 1}
-      OFFSET $${values.length + 2};
+      ORDER BY ${sortColumn} ${sortDir};
     `;
 
     // =========================
@@ -114,7 +211,7 @@ export const EmployeesModel = {
       ${whereSQL};
     `;
 
-    const dataValues = [...values, limit, offset];
+    const dataValues = [...values];
 
     const [dataResult, countResult] = await Promise.all([
       pool.query(dataQuery, dataValues),
@@ -229,7 +326,6 @@ export const EmployeesModel = {
         ];
         const result = await pool.query(query, values);
         const employeeId = result.rows[0].id;
-
         const paymentMethods = [
           employeeId,
           data.id_modplata,
@@ -278,6 +374,15 @@ export const EmployeesModel = {
       RETURNING *;
     `;
     const result = await pool.query(query, values);
+    const paymentQuery = `
+        UPDATE salarizare.salariati_modplata 
+          SET activ=true 
+        WHERE 
+          id_modplata=$1 AND id_salariat=$2;
+      `
+    const paymentValues = [paymentMethod.id_modplata, id];
+    await pool.query(paymentQuery, paymentValues);
+    
     return result.rows[0];
   },
 
@@ -306,8 +411,10 @@ export const EmployeesModel = {
     const values = [id];
     const { rows } = await pool.query(employees, values);
     const paymentMethodsQuery = `
-      SELECT salarizare.salariati_modplata.cont_bancar,
+      SELECT 
+        salarizare.salariati_modplata.cont_bancar,
         salarizare.salariati_modplata.id_modplata,
+        salarizare.salariati_modplata.activ,
         nomenclatoare.nom_salarii_modplata.mod_plata
       FROM salarizare.salariati_modplata
       LEFT JOIN nomenclatoare.nom_salarii_modplata

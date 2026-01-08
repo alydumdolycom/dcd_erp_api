@@ -18,7 +18,6 @@ dotenv.config({
 import usersRoutes from "./modules/users/users.routes.js";
 import rolesRoutes from "./modules/roles/roles.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
-// import accountRoutes from "./modules/account/index.js";
 import employeesRoutes from "./modules/employees/index.js";
 import lookupsRoutes from "./modules/lookups/index.js";
 import companiesRoutes from "./modules/companies/companies.routes.js";
@@ -26,6 +25,7 @@ import departmentsRoutes from "./modules/departments/departments.routes.js";
 import jobsRoutes from "./modules/jobs/jobs.routes.js";
 import permissionsRoutes from "./modules/permissions/permissions.routes.js";
 import paymentsRoutes from "./modules/payments/payments.routes.js";
+import accountRoutes from "./modules/account/account.routes.js";
 
 // Middlewares
 app.use(express.json());
@@ -56,7 +56,7 @@ app.use(cors({
 app.use("/api/users", auth, usersRoutes);
 app.use("/api/roles", auth, rolesRoutes);
 app.use("/api/auth", authRoutes);
-// app.use("/api/account", accountRoutes);
+app.use("/api/account", accountRoutes);
 app.use("/api/employees", auth, employeesRoutes);
 app.use("/api/lookups", auth, lookupsRoutes);
 app.use("/api/companies", auth, companiesRoutes);

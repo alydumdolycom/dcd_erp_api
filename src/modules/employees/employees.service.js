@@ -2,20 +2,29 @@ import { EmployeesModel } from "./employees.model.js";
 import { addError } from "../../utils/validators.js";
 export const EmployeesService = {
 
-  async getAll({
-    search,
-    sortBy,
-    id_firma,
-    sortOrder,
-    filters}) {
+  async getAll({ 
+          search,
+          sortBy,
+          id_firma,
+          sortOrder,
+          filters: {
+            id_departament,
+            id_functie,
+            sex,
+            activ
+          }}) {
 
-    return EmployeesModel.all({
-      search,
-      sortBy,
-      id_firma,
-      sortOrder,
-      filters
-    });
+    return EmployeesModel.all({ 
+          search,
+          sortBy,
+          id_firma,
+          sortOrder,
+          filters: {
+            id_departament,
+            id_functie,
+            sex,
+            activ
+          }});
   },
 
   async getEmployeeCompany(id){ 

@@ -1,8 +1,3 @@
-import { Router } from "express";
-import recoveryRoutes from "./account.recovery.routes.js";
+import accountRoutes from "./account.routes.js";
 
-const router = Router();
-
-router.use("/", recoveryRoutes);
-
-export default router;
+export default accountRoutes;

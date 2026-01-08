@@ -1,6 +1,6 @@
 import pool from "../../config/db.js";
 
-export const AccountRecoveryModel = {
+export const AccountModel = {
   async findUserByEmail(email) {
     const result = await pool.query(
       `SELECT id_utilizator FROM admin.utilizatori WHERE email = $1 LIMIT 1`,
