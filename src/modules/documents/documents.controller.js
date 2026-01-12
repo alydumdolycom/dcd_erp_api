@@ -1,5 +1,6 @@
 import { DocumentsService } from "./documents.service";
 export const DocumentsController = {
+    
     async getAll(req, res, next) { 
         try {
             const data = await DocumentsService.getAllDocuments();
