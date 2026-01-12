@@ -13,7 +13,7 @@ export const DocumentsModel = {
         const { rows } = await pool.query(query, values);
         return rows || null;
     },
-
+    
     async create(data) {
         try {
             const values = [
@@ -81,5 +81,14 @@ export const DocumentsModel = {
         await pool.query(`
             DELETE FROM ${this.Table} WHERE ${this.Table}.id = $1
         `, [id]);
+    },
+    
+    async findByEmployeeId(id_employee) {
+        const query = `
+                SELECT * FROM ${this.Table} 
+                WHERE id_salariat = $1`;
+        const values = [id_employee];
+        const { rows } = await pool.query(query, values);
+        return rows || null;
     }
 };

@@ -3,12 +3,12 @@ import nodemailer from 'nodemailer';
 try {
    // 1. Configure the transporter with your Mailgun credentials
 const transporter = nodemailer.createTransport({
-    host: 'smtp.mailgun.org', // Mailgun SMTP hostname
+    host: process.env.MAILGUN_HOST, // Mailgun SMTP hostname
     port: 587,                // Recommended port
     secure: false,            // False for port 587 (uses STARTTLS)
     auth: {
-        user: 'brad@sandboxa1f7cdebbcf64ec6b718a3deeed05f22.mailgun.org',
-        pass: MAIL_GUN_PASSWORD // Use the password you created in the Mailgun dashboard
+        user: process.env.MAILGUN_USER,
+        pass: process.env.MAILGUN_PASSWD // Use the password you created in the Mailgun dashboard
     }
 });
 
@@ -25,7 +25,6 @@ const mailOptions = {
 async function send() {
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('Message sent: %s', info.messageId);
     } catch (error) {
         console.error('Error occurred:', error.message);
     }

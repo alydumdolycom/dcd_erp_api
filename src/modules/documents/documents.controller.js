@@ -4,7 +4,7 @@ export const DocumentsController = {
     
     async getAll(req, res, next) { 
         try {
-            const data = await DocumentsService.getAll(id_firma);
+            const data = await DocumentsService.getAll(req.params.id_firma);
             res.send(data);
         } catch (error) {
             next({ message: "Error fetching documents", error });
@@ -29,5 +29,14 @@ export const DocumentsController = {
     async delete(req, res) { 
         await DocumentsService.delete(req.params.id);
         res.status(204).send();
+    },
+
+    async getEmployeeDocs(req, res, next) { 
+        try {
+            const data = await DocumentsService.getEmployeeDocs(req.params.id_employee);
+            res.send(data);
+        } catch (error) {
+            next({ message: "Error fetching employee documents", error });
+        }   
     }
 };

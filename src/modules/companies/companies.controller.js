@@ -1,23 +1,40 @@
 import { CompaniesService } from './companies.service.js';
 
 export const CompaniesController = {
-  async getAll(req, res) {
-    const { page, limit, search, sortBy, sortOrder, filters } = req.query;
-    const companies = await CompaniesService.getAllPaginated({
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,   
-      search: search || '',
-      sortBy: sortBy || 'name',
-      sortOrder: sortOrder || 'asc',
-      filters: filters ? JSON.parse(filters) : {}
-    });
+  async getAll(req, res, next) {
+    try {
+      const { page, limit, search, sortBy, sortOrder, filters } = req.query;
+      const companies = await CompaniesService.getAllPaginated({
+        page: Number(page) || 1,
+        limit: Number(limit) || 10,   
+        search: search || '',
+        sortBy: sortBy || 'name',
+        sortOrder: sortOrder || 'asc',
+        filters: filters ? JSON.parse(filters) : {}
+      });
 
     res.send(companies);
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la preluarea informatiilor",
+        details: err.message
+      });
+    }
   },    
-  async getBy(req, res) {    
+  async getBy(req, res, next) {    
     const { id } = req.params;
-    // Logic to retrieve a company by ID
-    res.send(`Retrieve company with ID: ${id}`);
+    try {
+      // Logic to retrieve a company by ID
+      const company = await CompaniesService.getById(id);
+      res.send(company);
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la preluarea informatiilor",
+        details: err.message
+      });
+    }
   },
   async create(req, res, next) {
     try {

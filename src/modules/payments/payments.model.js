@@ -11,7 +11,6 @@ export const PaymentsModel = {
     },
 
     async create(paymentData) {
-        console.log(paymentData);
         try {   
             const { id_salariat, id_modplata, cont_bancar, activ } = paymentData;
             const { rows } = await pool.query(
@@ -21,7 +20,6 @@ export const PaymentsModel = {
             [ id_salariat, id_modplata, cont_bancar, activ ]);
             return rows[0];        
         } catch (err) {
-           console.log(err);
            throw err;
         }
     },
