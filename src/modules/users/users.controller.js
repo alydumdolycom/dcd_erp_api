@@ -6,6 +6,15 @@ import { UsersService } from "./users.service.js";
 
 export const UserController = {
 
+  async all() {
+    try {
+      const users = await UsersService.getAll();
+      return users;
+    } catch (err) {
+      console.error("Get all users error:", err);
+      throw err;
+    }
+  },
   // CREATE (Admin adds a user)
   async create(req, res) {
     try {

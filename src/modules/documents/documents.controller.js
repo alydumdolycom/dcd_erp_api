@@ -1,13 +1,8 @@
 import { DocumentsService } from "./documents.service.js";
 
 export const DocumentsController = {
-<<<<<<< HEAD
     
     async getAll(req, res, next) { 
-=======
-    async getAll(req, res, next) {
-        const id_firma = req.query.id_firma || req.params.id_firma;
->>>>>>> 77fff1e (update)
         try {
             const data = await DocumentsService.getAll(id_firma);
             res.send(data);
