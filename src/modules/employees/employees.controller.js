@@ -12,6 +12,8 @@ export const EmployeesController = {
           // filters
           id_departament,
           id_functie,
+          luna_angajarii,
+          anul_angajarii,
           sex,
           activ
         } = req.query;
@@ -25,6 +27,8 @@ export const EmployeesController = {
           filters: {
             id_departament,
             id_functie,
+            luna_angajarii,
+            anul_angajarii,
             sex,
             activ
           }

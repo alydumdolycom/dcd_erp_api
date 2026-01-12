@@ -1,8 +1,9 @@
 // src/modules/users/users.service.js
 import { UserModel } from "./users.model.js";
+import { RolesService } from "../roles/roles.service.js";
 
 export const UsersService = {
-  async get(query) {
+  async getAll(query) {
     return await UserModel.all(query);
   },
 
@@ -20,8 +21,14 @@ export const UsersService = {
     if (existingName) {
       return { error: "Nume complet already in use", code: "NAME_EXISTS" };
     }
-    const created = await UserModel.create(data);
-    return { data: created };
+    const user = await UserModel.create(data);
+    // Assign role after user creation
+    if (data.role_id) {
+      // Import RolesModel at the top of the file
+      // import { RolesModel } from "../roles/roles.model.js";
+      await RolesService.assignRoleToUser(user.id_utilizator, data.role_id);
+    }
+    return { data: user };
   },
 
   async update(id, data) {
@@ -49,5 +56,9 @@ export const UsersService = {
 
   async syncRoles(userId, roles) {
     return await UserModel.syncRoles(userId, roles);
-  }
+  },
+
+  async assignRoleToUser(userId, roleId) {
+      return await UserModel.assignRoleToUser(userId, roleId);
+  }  
 };

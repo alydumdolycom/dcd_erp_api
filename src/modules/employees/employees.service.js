@@ -11,22 +11,26 @@ export const EmployeesService = {
           filters: {
             id_departament,
             id_functie,
+            luna_angajarii,
+            anul_angajarii,
             sex,
             activ
           }}) {
 
     const data = await EmployeesModel.all({ 
-          search,
-          sortBy,
-          id_firma,
-          sortOrder,
-          data_angajarii,
-          filters: {
-            id_departament,
-            id_functie,
-            sex,
-            activ
-          }});
+      search,
+      sortBy,
+      id_firma,
+      sortOrder,
+      data_angajarii,
+      filters: {
+        id_departament,
+        id_functie,
+        luna_angajarii,
+        anul_angajarii,
+        sex,
+        activ
+      }});
     return { data };
   },
 

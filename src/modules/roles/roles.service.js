@@ -36,7 +36,7 @@ export const RolesService = {
     async getUserRoles(userId) {
         return await RoleModel.getRoles(userId);
     },
-
+    
     async syncRoles(id, roles) {
     return await RoleModel.syncRoles(id, roles);
     }

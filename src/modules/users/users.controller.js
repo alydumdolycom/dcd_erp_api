@@ -6,7 +6,7 @@ import { UsersService } from "./users.service.js";
 
 export const UserController = {
 
-  async all() {
+  async getAll() {
     try {
       const users = await UsersService.getAll();
       return users;
@@ -144,11 +144,10 @@ export const UserController = {
 
       return res.json({
         success: true,
-        message: "Roluri sincronizate cu succes.",
+        message: "Informațiile au fost actualizate.",
         data: updatedUser
       });
     } catch (err) {
-      console.error("Sync roles error:", err);
       return res.status(500).json({
         success: false,
         message: "Eroare server."

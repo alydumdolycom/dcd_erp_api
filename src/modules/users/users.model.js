@@ -203,5 +203,15 @@ export const UserModel = {
     });
     await Promise.all(insertPromises);
     return await this.findById(userId);
-  } 
+  },
+
+  async assignRoleToUser(userId, roleId) {
+    const { rows } = await pool.query(
+      `INSERT INTO permisiuni.utilizatori_roluri (utilizator_id, rol_id)
+       VALUES ($1, $2)
+        RETURNING *`, 
+      [userId, roleId]
+    );
+    return rows[0];
+  }
 };

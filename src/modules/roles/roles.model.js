@@ -126,5 +126,5 @@ export const RoleModel = {
     }
 
     return await this.findById(id);
-  } 
+  }
 };

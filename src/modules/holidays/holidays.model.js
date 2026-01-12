@@ -5,7 +5,10 @@ export const HolidaysModel = {
     async all() {
         // Database logic to get all holidays
         const query = `
-                    SELECT SCO.*, S.id, S.nume FROM ${this.Table} as SCO
+                    SELECT 
+                        SCO.*, 
+                        S.id, S.nume, S.prenume 
+                    FROM ${this.Table} as SCO
                     LEFT JOIN salarizare.salariati S
                         ON SCO.id_salariat = S.id
                     ORDER BY SCO.id DESC`;

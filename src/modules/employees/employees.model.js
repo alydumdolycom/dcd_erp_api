@@ -174,6 +174,18 @@ export const EmployeesModel = {
       whereClauses.push(`S.id_functie = $${values.length}`);
     }
 
+    if (filters.luna_angajarii) {
+      values.push(filters.luna_angajarii);
+      // Extract month from data_angajarii (format: MM-DD-YYYY)
+      whereClauses.push(`TO_CHAR(S.data_angajarii, 'MM') = $${values.length}`);
+    }
+
+    if (filters.anul_angajarii) {
+      values.push(filters.anul_angajarii);
+      // Extract year from data_angajarii (format: MM-DD-YYYY)
+      whereClauses.push(`TO_CHAR(S.data_angajarii, 'YYYY') = $${values.length}`);
+    }
+
     if (filters.activ !== undefined) {
       values.push(filters.activ);
       whereClauses.push(`S.activ = $${values.length}`);
@@ -193,7 +205,7 @@ export const EmployeesModel = {
       S.nume,
       S.prenume,
       S.cnp,
-      TO_CHAR(S.data_angajarii, 'YYYY-MM-DD') AS data_angajarii,
+      TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
       S.salar_net,
       S.salar_baza,
       S.sector,
