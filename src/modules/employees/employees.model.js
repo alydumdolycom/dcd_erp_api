@@ -110,24 +110,25 @@ export const EmployeesModel = {
   //   return rows;
   // },
   async all({
-    page = 1,
-    limit = 10,
     id_firma,
     search = "",
     filters = {},
     sortBy = "id",
-    sortOrder = "DESC"
+    sortOrder = "DESC",
+    data_angajarii
   }) {
-    page = Number(page);
-    limit = Number(limit);
-    const offset = (page - 1) * limit;
+
 
     // =========================
     // ALLOWED SORT COLUMNS (SECURITY)
     // =========================
     const allowedSort = {
       id: "S.id",
-      id_firma: "S.id_firma"
+      id_firma: "S.id_firma",
+      nume: "S.nume",
+      prenume: "S.prenume",
+      data_angajarii: "S.data_angajarii",
+      cnp: "S.cnp"
     };
 
     const sortColumn = allowedSort[sortBy] || "S.id";
@@ -137,28 +138,30 @@ export const EmployeesModel = {
     let values = [];
 
     // =========================
-    // SEARCH
+    // GLOBAL SEARCH
     // =========================
     if (search) {
       values.push(`%${search}%`);
       whereClauses.push(`
-        (
-          S.nume ILIKE $${values.length}
-        )
+      (
+        S.nume ILIKE $${values.length}
+        OR S.prenume ILIKE $${values.length}
+        OR S.cnp ILIKE $${values.length}
+      )
       `);
     }
 
     // =========================
     // FILTERS
     // =========================
-    if (id_firma) {
+    if (id_firma !== undefined) {
       values.push(id_firma);
       whereClauses.push(`S.id_firma = $${values.length}`);
     }
 
-    if (filters.cif) {
-      values.push(filters.cif);
-      whereClauses.push(`S.cif = $${values.length}`);
+    if (data_angajarii !== undefined) {
+      values.push(data_angajarii);
+      whereClauses.push(`S.data_angajarii = $${values.length}`);
     }
 
     if (filters.id_departament) {
@@ -166,9 +169,14 @@ export const EmployeesModel = {
       whereClauses.push(`S.id_departament = $${values.length}`);
     }
 
-    if (filters.implicit) {
-      values.push(filters.implicit);
-      whereClauses.push(`S.implicit = $${values.length}`);
+    if (filters.id_functie) {
+      values.push(filters.id_functie);
+      whereClauses.push(`S.id_functie = $${values.length}`);
+    }
+
+    if (filters.activ !== undefined) {
+      values.push(filters.activ);
+      whereClauses.push(`S.activ = $${values.length}`);
     }
 
     const whereSQL = whereClauses.length
@@ -178,57 +186,34 @@ export const EmployeesModel = {
     // =========================
     // DATA QUERY
     // =========================
-    const dataQuery = `
+    const query = `
       SELECT
-        S.id,
-        S.nume,
-        S.prenume,
-        S.cnp,
-        TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
-        S.salar_net,
-        S.salar_baza,
-        S.sector,
-        S.data_incetarii,
-        S.data_determinata,
-        NSD.id AS id_departament,
-        NSD.nume_departament,
-        NSF.nume_functie
+      S.id,
+      S.id_firma,
+      S.nume,
+      S.prenume,
+      S.cnp,
+      S.data_angajarii,
+      S.salar_net,
+      S.salar_baza,
+      S.sector,
+      S.data_incetarii,
+      S.data_determinata,
+      NSD.id AS id_departament,
+      NSD.nume_departament,
+      NSF.nume_functie
       FROM ${this.TABLE} S
-      	JOIN nomenclatoare.nom_salarii_departamente AS NSD
-	  	    ON S.id_departament = NSD.id
-        JOIN nomenclatoare.nom_salarii_functii AS NSF
-          ON NSF.id = S.id_functie
+      LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+      ON S.id_departament = NSD.id
+      JOIN nomenclatoare.nom_salarii_functii NSF
+      ON S.id_functie = NSF.id
       ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir};
     `;
 
-    // =========================
-    // COUNT QUERY
-    // =========================
-    const countQuery = `
-      SELECT COUNT(*)
-      FROM ${this.TABLE} S
-      ${whereSQL};
-    `;
+    const { rows } = await pool.query(query, values);
+    return rows;
 
-    const dataValues = [...values];
-
-    const [dataResult, countResult] = await Promise.all([
-      pool.query(dataQuery, dataValues),
-      pool.query(countQuery, values)
-    ]);
-
-    const total = Number(countResult.rows[0].count);
-
-    return {
-      data: dataResult.rows,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    };
   },
 
   async create(data) {
@@ -356,7 +341,7 @@ export const EmployeesModel = {
     }   
   },
   
-  async update(id, employeeData, paymentMethod) {
+  async update(id, employeeData) {
     const fields = [];
     const values = [];
     let idx = 1;
@@ -374,14 +359,6 @@ export const EmployeesModel = {
       RETURNING *;
     `;
     const result = await pool.query(query, values);
-    const paymentQuery = `
-        UPDATE salarizare.salariati_modplata 
-          SET activ=true 
-        WHERE 
-          id_modplata=$1 AND id_salariat=$2;
-      `
-    const paymentValues = [paymentMethod.id_modplata, id];
-    await pool.query(paymentQuery, paymentValues);
     
     return result.rows[0];
   },

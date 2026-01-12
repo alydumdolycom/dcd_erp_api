@@ -8,6 +8,7 @@ export const EmployeesController = {
           sortBy = res.query?.defaultSortBy || "id",
           id_firma,
           sortOrder =  res.sortOrder || "asc",
+          data_angajarii,
           // filters
           id_departament,
           id_functie,
@@ -20,6 +21,7 @@ export const EmployeesController = {
           sortBy,
           id_firma,
           sortOrder,
+          data_angajarii,
           filters: {
             id_departament,
             id_functie,

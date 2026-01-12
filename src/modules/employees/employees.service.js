@@ -7,6 +7,7 @@ export const EmployeesService = {
           sortBy,
           id_firma,
           sortOrder,
+          data_angajarii,
           filters: {
             id_departament,
             id_functie,
@@ -14,17 +15,19 @@ export const EmployeesService = {
             activ
           }}) {
 
-    return EmployeesModel.all({ 
+    const data = await EmployeesModel.all({ 
           search,
           sortBy,
           id_firma,
           sortOrder,
+          data_angajarii,
           filters: {
             id_departament,
             id_functie,
             sex,
             activ
           }});
+    return { data };
   },
 
   async getEmployeeCompany(id){ 

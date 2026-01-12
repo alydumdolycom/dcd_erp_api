@@ -26,6 +26,7 @@ import jobsRoutes from "./modules/jobs/jobs.routes.js";
 import permissionsRoutes from "./modules/permissions/permissions.routes.js";
 import paymentsRoutes from "./modules/payments/payments.routes.js";
 import accountRoutes from "./modules/account/account.routes.js";
+import documentsRoutes from "./modules/documents/documents.routes.js";
 
 // Middlewares
 app.use(express.json());
@@ -56,7 +57,7 @@ app.use(cors({
 app.use("/api/users", auth, usersRoutes);
 app.use("/api/roles", auth, rolesRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/account", accountRoutes);
+app.use("/api/account", auth, accountRoutes);
 app.use("/api/employees", auth, employeesRoutes);
 app.use("/api/lookups", auth, lookupsRoutes);
 app.use("/api/companies", auth, companiesRoutes);
@@ -64,6 +65,7 @@ app.use("/api/departments", auth, departmentsRoutes);
 app.use("/api/jobs", auth, jobsRoutes);
 app.use("/api/permissions", auth, permissionsRoutes);
 app.use("/api/payments", auth, paymentsRoutes);
+app.use("/api/documents", auth, documentsRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

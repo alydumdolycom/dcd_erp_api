@@ -1,26 +1,32 @@
+import { DocumentsModel } from "./documents.model.js";
+
 export const DocumentsService = {
-    async getAllDocuments() {
+    async getAll(id_firma) {
         // Logic to get all documents
-        return [];
+        const rows = await DocumentsModel.all(id_firma);
+        return rows;
     },
 
-    async createDocument(data) {
+    async create(data) {
         // Logic to create a document
-        return data;
+        const rows = await DocumentsModel.create(data);
+        return rows;
     },
 
-    async getDocumentById(id) {
+    async getById(id) {
         // Logic to get a document by ID
-        return { id };
+        const rows = await DocumentsModel.findById(id);
+        return rows;
     },
 
-    async updateDocument(id, data) {
+    async update(id, data) {
         // Logic to update a document
-        return { id, ...data };
+        const rows = await DocumentsModel.update(id, data);
+        return rows;
     },
 
-    async deleteDocument(id) {  
+    async delete(id) {  
         // Logic to delete a document
-        return { id };
+        await DocumentsModel.delete(id);
     }
 };

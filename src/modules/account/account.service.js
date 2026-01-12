@@ -1,7 +1,7 @@
 import crypto, { createHash } from "crypto";
 import { AccountModel } from "./account.model.js";
 import { hashPassword } from "../../utils/hash.js";
-import { sendMail } from "../../utils/mailer.js";
+// import { sendMail } from "../../utils/mailer.js";
 import { hashToken } from "../../utils/tokenHash.js";
 
 export const AccountService = {
@@ -19,15 +19,15 @@ export const AccountService = {
 
     const recoveryLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    await sendMail({
-      to: user.email,
-      subject: "Recuperare parolă",
-      html: `
-        <p>Click pe link-ul de mai jos pentru a-ți reseta parola:</p>
-        <a href="${recoveryLink}">${recoveryLink}</a>
-        <p>Acest link expiră în 15 minute.</p>
-      `
-    });
+    // await sendMail({
+    //   to: user.email,
+    //   subject: "Recuperare parolă",
+    //   html: `
+    //     <p>Click pe link-ul de mai jos pentru a-ți reseta parola:</p>
+    //     <a href="${recoveryLink}">${recoveryLink}</a>
+    //     <p>Acest link expiră în 15 minute.</p>
+    //   `
+    // });
   },
 
   async resetPassword(token, newPassword) {
