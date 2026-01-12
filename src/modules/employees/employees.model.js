@@ -193,7 +193,7 @@ export const EmployeesModel = {
       S.nume,
       S.prenume,
       S.cnp,
-      S.data_angajarii,
+      TO_CHAR(S.data_angajarii, 'YYYY-MM-DD') AS data_angajarii,
       S.salar_net,
       S.salar_baza,
       S.sector,

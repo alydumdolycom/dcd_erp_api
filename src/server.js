@@ -27,6 +27,7 @@ import permissionsRoutes from "./modules/permissions/permissions.routes.js";
 import paymentsRoutes from "./modules/payments/payments.routes.js";
 import accountRoutes from "./modules/account/account.routes.js";
 import documentsRoutes from "./modules/documents/documents.routes.js";
+import holidaysRoutes from "./modules/holidays/holidays.routes.js";
 
 // Middlewares
 app.use(express.json());
@@ -66,6 +67,7 @@ app.use("/api/jobs", auth, jobsRoutes);
 app.use("/api/permissions", auth, permissionsRoutes);
 app.use("/api/payments", auth, paymentsRoutes);
 app.use("/api/documents", auth, documentsRoutes);
+app.use("/api/holidays", auth, holidaysRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
