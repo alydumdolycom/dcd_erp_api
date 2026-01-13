@@ -1,5 +1,6 @@
 import { RolesService } from "./roles.service.js";
 export const RolesController = {
+
     async getAll(req, res, next)  { 
         try {
             const roles = await RolesService.getAllRoles();
@@ -8,6 +9,7 @@ export const RolesController = {
             next(err);
         }
     },
+    
     async getById(req, res, next) { 
         try {
             const role = await  RolesService.getRoleById(req.params.id);    
@@ -37,6 +39,7 @@ export const RolesController = {
             });
           }
     },
+
     async update(req, res, next) { 
         try {
             const role = await RolesService.updateRole(req.params.id, req.body);
@@ -45,6 +48,7 @@ export const RolesController = {
             next(err);
         }
     },
+    
     async delete(req, res, next) { 
         try {
             await RolesService.deleteRole(req.params.id);

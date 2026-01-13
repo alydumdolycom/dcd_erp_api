@@ -225,7 +225,6 @@ export const EmployeesModel = {
 
     const { rows } = await pool.query(query, values);
     return rows;
-
   },
 
   async create(data) {
@@ -464,5 +463,114 @@ export const EmployeesModel = {
       await pool.query(query, values);
     }
     return { success: true };
+  },
+
+  // filter employees by multiple optional criteria by month and year of hiring
+  async getEmployeesByFilters({
+            id_firma,
+            id_departament,
+            id_functie, 
+            activ,
+            anul_angajarii,
+            luna_angajarii  
+  }) {
+    let whereClauses = [];
+    let values = [];
+    let idx = 1;
+    if (id_firma !== undefined) {
+      values.push(id_firma);
+      whereClauses.push(`S.id_firma = $${idx}`);
+      idx++;
+    }
+
+    if (id_departament !== undefined) {
+      values.push(id_departament);
+      whereClauses.push(`S.id_departament = $${idx}`);
+      idx++;
+    }
+
+    if (id_functie !== undefined) {
+      values.push(id_functie);
+      whereClauses.push(`S.id_functie = $${idx}`);
+      idx++;
+    }
+
+    if (anul_angajarii !== undefined) {
+      values.push(anul_angajarii);
+      whereClauses.push(`TO_CHAR(S.data_angajarii, 'YYYY') = $${idx}`);
+      idx++;
+    }
+
+    if (luna_angajarii !== undefined) {
+      values.push(luna_angajarii);
+      whereClauses.push(`TO_CHAR(S.data_angajarii, 'MM') = $${idx}`);
+      idx++;
+    }
+
+    if (activ !== undefined) {
+      values.push(activ);
+      whereClauses.push(`S.activ = $${idx}`);
+      idx++;
+    }
+    const whereSQL = whereClauses.length
+      ? `WHERE ${whereClauses.join(" AND ")}`
+      : ""; 
+    const query = `
+      SELECT
+        S.id,
+        S.id_firma,
+        S.nume,
+        S.prenume,
+        S.cnp,
+        TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
+        S.salar_net,
+        S.salar_baza,
+        S.sector,
+        S.data_incetarii, 
+        S.data_determinata,
+        NSD.id AS id_departament,
+        NSD.nume_departament,
+        NSF.nume_functie
+      FROM ${this.TABLE} S
+      LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+        ON S.id_departament = NSD.id
+      JOIN nomenclatoare.nom_salarii_functii NSF
+        ON S.id_functie = NSF.id
+      ${whereSQL}
+      ORDER BY S.id DESC;
+    `;
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+
+  async countEmployees(data, id_firma) {
+    let whereClauses = [];
+    let values = [];
+    let idx = 1;
+    if(data.data_angajarii) {
+      values.push(data.data_angajarii);
+      whereClauses.push(`S.data_angajarii = $${idx}`);
+      idx++;
+    }
+    
+    if(data.sex) {
+      values.push(data.sex);
+      whereClauses.push(`S.sex = $${idx}`);
+      idx++;
+    }
+    if(data.activ !== undefined) {
+      values.push(data.activ);
+      whereClauses.push(`S.activ = $${idx}`);
+      idx++;
+    }
+    values.push(id_firma);
+
+    const query = `
+      SELECT COUNT(*) AS total FROM salarizare.salariati S
+      WHERE S.id_firma = $${idx}
+      ${whereClauses.length ? ' AND ' + whereClauses.join(' AND ') : ''}
+            `;
+    const { rows } = await pool.query(query, values);
+    return  rows[0].total;
   }
 };

@@ -21,8 +21,7 @@ export const HolidaysController = {
     },
     async create(req, res, next) {  
         try {
-            const holidayData = req.body;
-            const newHoliday = await HolidaysService.create(holidayData);
+            const newHoliday = await HolidaysService.create(req.body);
             res.status(201).json(newHoliday);
         } catch (error) {
             next(error);

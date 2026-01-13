@@ -128,5 +128,18 @@ export const EmployeesController = {
       } catch (err) {
         next(err);
       }
+    },
+
+    async countEmployees(req, res, next) {
+      try {
+        
+        const data = await EmployeesService.countEmployees(req.query, req.params.id);
+        res.status(200).json({
+          success: true,
+          data: data
+        });
+      } catch (err) {
+        next(err);
+      }
     }
 };

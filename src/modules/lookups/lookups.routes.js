@@ -10,5 +10,6 @@ router.get("/contract/type", auth, LookupsController.getContractType);
 router.get("/dashboard/count/:id", auth, LookupsController.dashboardCount);
 router.get("/hours/worked", auth, LookupsController.hoursWorked);
 router.get("/payment/type", auth, LookupsController.paymentType);
-router.get("/months/ofyear", auth, LookupsController.monthsOfYear);
+router.get("/working/days", auth, LookupsController.workingDays);
+
 export default router;

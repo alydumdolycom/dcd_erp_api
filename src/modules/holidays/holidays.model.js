@@ -29,32 +29,86 @@ export const HolidaysModel = {
         return rows;
     },
 
-    async create(holidayData) {
-        // Database logic to insert a new holiday
+    async countHolidaysPerEmployee(id_salariat) {
         const query = `
-                INSERT INTO ${this.Table} 
-                (id_salariat, zile_co, zile_co_plata, baza_calcul, anul, luna, perioada, co_plata, co_compensare, id_modalitate_plata, nou, data_borderou, data_operare)
-                VALUES 
-                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-                RETURNING *`;
-        const values = [
-            holidayData.id_salariat,
-            holidayData.zile_co,
-            holidayData.zile_co_plata,
-            holidayData.baza_calcul,
-            holidayData.anul,
-            holidayData.luna,
-            holidayData.perioada,
-            holidayData.co_plata,
-            holidayData.co_compensare,
-            holidayData.id_modalitate_plata,
-            holidayData.nou,
-            holidayData.data_borderou,
-            holidayData.data_operare
-        ];
-        // Execute query with holidayData and return new holiday    
+            SELECT COUNT(*) AS total_concedii
+            FROM ${this.Table}
+            WHERE id_salariat = $1; 
+        `;
+        const values = [id_salariat];
         const { rows } = await pool.query(query, values);
-        return rows;
+        return rows[0].total_concedii || 0;
+    },
+
+    async findEmployeePaymentMethod(id) {
+        const employees = `
+        SELECT SMP.id FROM salarizare.salariati S
+            LEFT JOIN salarizare.salariati_modplata SMP ON S.id = SMP.id_salariat
+            LEFT JOIN nomenclatoare.nom_salarii_modplata N ON N.id = SMP.id_modplata
+        WHERE S.id = $1
+            LIMIT 1;
+        `;
+        const values = [id];
+        const { rows } = await pool.query(employees, values);
+        return rows[0] || null;
+    },
+
+    async create(data) {
+        const client = await pool.connect();
+        const salariat = await this.findEmployeePaymentMethod(data.id_salariat);
+        try {
+            await client.query("BEGIN");
+
+            const query = `
+            INSERT INTO ${this.Table}
+            (
+                id_salariat,
+                zile_co,
+                zile_co_plata,
+                baza_calcul,
+                anul,
+                luna,
+                perioada,
+                co_plata,
+                co_compensare,
+                id_modalitate_plata,
+                nou,
+                data_borderou,
+                data_operare
+            )
+            VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            RETURNING *;
+            `;
+
+            const values = [
+                data.id_salariat,
+                data.zile_co,
+                data.zile_co_plata,
+                data.baza_calcul,
+                data.anul,
+                data.luna,
+                data.perioada,
+                data.co_plata,
+                data.co_compensare,
+                salariat.id,
+                data.nou,
+                data.data_borderou,
+                data.data_operare
+            ];
+
+            const { rows } = await client.query(query, values);
+
+            await client.query("COMMIT");
+            return rows[0];
+
+        } catch (error) {
+            await client.query("ROLLBACK");
+            console.error("Create concediu_odihna failed:", error);
+            throw error;
+        } finally {
+            client.release();
+        }
     },
 
     async update(id, holidayData) {

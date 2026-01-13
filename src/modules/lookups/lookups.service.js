@@ -10,8 +10,8 @@ export const LookupsService = {
     return await LookupsModel.getContractType();
   },
   
-  async monthsOfYear(){ 
-    return await LookupsModel.monthsOfYear();
+  async workingDays(){ 
+    return await LookupsModel.workingDays();
   },
   
   async hoursWorked(){

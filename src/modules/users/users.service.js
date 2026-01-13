@@ -59,6 +59,18 @@ export const UsersService = {
   },
 
   async assignRoleToUser(userId, roleId) {
-      return await UserModel.assignRoleToUser(userId, roleId);
-  }  
+    return await UserModel.assignRoleToUser(userId, roleId);
+  },
+
+  async getUserRoles(userId) {
+    return await RoleModel.userRoles(userId);
+  },
+
+  async getUserRoles(userId) {
+    return await RoleModel.getRoles(userId);
+  },
+  
+  async syncRoles(id, roles) {
+    return await RoleModel.syncRoles(id, roles);
+  }
 };

@@ -41,6 +41,7 @@ export const EmployeesService = {
   async editEmployee(id, mode) {
     return await EmployeesModel.updateEmployeeMode(id, mode);
   },
+
   async updateEmployee(id, payload) {
     let paymentMethod = {};
     
@@ -114,5 +115,9 @@ export const EmployeesService = {
 
   async modEditEmployee(employeeData) {
     return await EmployeesModel.modEditEmployee(employeeData);
+  },
+
+  async countEmployees(data, id_firma) {
+    return await EmployeesModel.countEmployees(data, id_firma); 
   }
 };

@@ -76,55 +76,5 @@ export const RoleModel = {
         [id]
     );
     return rows[0];
-  },
-
-  async userRoles(userId) {
-    const { rows } = await pool.query(
-        `SELECT r.* FROM permisiuni.roluri r
-         JOIN permisiuni.utilizatori_roluri ur ON r.id_rol = ur.rol_id 
-          WHERE ur.utilizator_id = $1`,
-        [userId]
-    );
-    return rows;
-  },
-
-  async getByUser(userId) {
-    const { rows } = await pool.query(`
-      SELECT r.id_rol, r.nume_rol
-      FROM permisiuni.roluri r
-      JOIN permisiuni.utilizatori_roluri ur ON ur.id_rol = r.id_rol
-	    JOIN admin.utilizatori u ON u.id_utilizator = ur.id_utilizator
-		WHERE ur.id_utilizator = $1
-    `, [userId]);
-
-    return rows;
-  },
-
-  async getRoles(userId) {
-    const { rows } = await pool.query(`
-      SELECT r.id_rol, r.nume_rol
-      FROM permisiuni.roluri r
-      JOIN permisiuni.utilizatori_roluri ur ON ur.id_rol = r.id_rol
-      WHERE ur.id_utilizator = $1
-    `, [userId]); 
-    return rows;
-  },
-  
-  async syncRoles(id, roles) {
-    // First, delete existing roles
-    await pool.query(
-      `DELETE FROM admin.utilizatori_roles WHERE id_utilizator = $1`,
-      [id]
-    );
-
-    // Then, insert new roles
-    for (const roleId of roles) { 
-      await pool.query(
-        `INSERT INTO admin.utilizatori_roles (id_utilizator, id_rol) VALUES ($1, $2)`,
-        [id, roleId]
-      );
-    }
-
-    return await this.findById(id);
   }
 };

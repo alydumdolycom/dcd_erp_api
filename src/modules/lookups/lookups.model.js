@@ -23,7 +23,7 @@ export const LookupsModel = {
     return await pool.query(query)
   },
 
-  async monthsOfYear(){
+  async workingDays(){
     const query = `
       SELECT * FROM nomenclatoare.nom_luni
       ORDER BY inchis_salarii DESC
