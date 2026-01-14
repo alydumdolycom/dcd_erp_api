@@ -9,4 +9,5 @@ router.get("/:id", DepartmentsController.getById);
 router.post("/", DepartmentsController.create);
 router.patch("/:id", DepartmentsController.update);
 router.delete("/:id", DepartmentsController.delete);
+
 export default router;

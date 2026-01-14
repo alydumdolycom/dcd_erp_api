@@ -2,7 +2,8 @@ import pool from "../../config/db.js";
 
 export const DepartmentsModel = {
   TABLE: "nomenclatoare.nom_salarii_departamente",
-    async all() {
+
+  async all() {
     const query = `
       SELECT    
         id,
@@ -13,6 +14,7 @@ export const DepartmentsModel = {
     const { rows } = await pool.query(query);
     return rows;
   },
+
   async create({ nume_departament, observatii }) {
     const query = `
       INSERT INTO ${this.TABLE} (nume_departament, observatii)
@@ -23,6 +25,7 @@ export const DepartmentsModel = {
     const { rows } = await pool.query(query, values);
     return rows[0];
   },
+
   async update(id, { nume_departament, observatii }) {
     const query = `
       UPDATE ${this.TABLE}
@@ -33,7 +36,9 @@ export const DepartmentsModel = {
     const values = [nume_departament, observatii, id];
     const { rows } = await pool.query(query, values);
     return rows[0];
-  },  async findById(id) {
+  }, 
+   
+  async findById(id) {
     const query = `
       SELECT
         id,

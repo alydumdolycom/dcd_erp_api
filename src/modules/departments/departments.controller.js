@@ -21,6 +21,7 @@ export const DepartmentsController = {
       next(err);
     }
   },
+
   async getById(req, res, next) {
     try {
         const { id } = req.params;
@@ -33,6 +34,7 @@ export const DepartmentsController = {
       next(err);
     }
   },
+
   async create(req, res, next) {
     try {   
         const { nume_departament, observatii } = req.body;
@@ -42,6 +44,7 @@ export const DepartmentsController = {
       next(err);
     } 
   },
+
   async update(req, res, next) {
     try { 
         const { id } = req.params;
@@ -55,6 +58,7 @@ export const DepartmentsController = {
       next(err);
     }
   },
+  
   async delete(req, res, next) {
     try { 
         const { id } = req.params;
