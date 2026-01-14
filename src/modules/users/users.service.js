@@ -3,8 +3,9 @@ import { UserModel } from "./users.model.js";
 import { RolesService } from "../roles/roles.service.js";
 
 export const UsersService = {
-  async getAll(query) {
-    return await UserModel.all(query);
+
+  async getAll(data) {
+    return await UserModel.all(data);
   },
 
   async getById(id) {
@@ -42,12 +43,10 @@ export const UsersService = {
     if (data.nume_complet) {
       const byName = await UserModel.findByName(data.nume_complet);
       if (byName && String(byName.id_utilizator) !== String(id)) {
-        return { error: "Numele Complet deja folosit", code: "NAME_EXISTS" };
+        return { error: "Numele complet deja folosit", code: "NAME_EXISTS" };
       }
     }
-
-    const updated = await UserModel.update(id, data);
-    return { data: updated };
+    return await UserModel.update(id, data);
   },
 
   async softDelete(id) {
@@ -58,19 +57,11 @@ export const UsersService = {
     return await UserModel.syncRoles(userId, roles);
   },
 
-  async assignRoleToUser(userId, roleId) {
-    return await UserModel.assignRoleToUser(userId, roleId);
+  async assignRoleToUser(userId, roles) {
+    return await UserModel.assignRoleToUser(userId, roles);
   },
 
   async getUserRoles(userId) {
-    return await RoleModel.userRoles(userId);
-  },
-
-  async getUserRoles(userId) {
-    return await RoleModel.getRoles(userId);
-  },
-  
-  async syncRoles(id, roles) {
-    return await RoleModel.syncRoles(id, roles);
+    return await UserModel.getRoles(userId);
   }
 };

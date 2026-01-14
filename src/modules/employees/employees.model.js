@@ -541,36 +541,5 @@ export const EmployeesModel = {
     `;
     const { rows } = await pool.query(query, values);
     return rows;
-  },
-
-  async countEmployees(data, id_firma) {
-    let whereClauses = [];
-    let values = [];
-    let idx = 1;
-    if(data.data_angajarii) {
-      values.push(data.data_angajarii);
-      whereClauses.push(`S.data_angajarii = $${idx}`);
-      idx++;
-    }
-    
-    if(data.sex) {
-      values.push(data.sex);
-      whereClauses.push(`S.sex = $${idx}`);
-      idx++;
-    }
-    if(data.activ !== undefined) {
-      values.push(data.activ);
-      whereClauses.push(`S.activ = $${idx}`);
-      idx++;
-    }
-    values.push(id_firma);
-
-    const query = `
-      SELECT COUNT(*) AS total FROM salarizare.salariati S
-      WHERE S.id_firma = $${idx}
-      ${whereClauses.length ? ' AND ' + whereClauses.join(' AND ') : ''}
-            `;
-    const { rows } = await pool.query(query, values);
-    return  rows[0].total;
   }
 };

@@ -17,5 +17,5 @@ router.patch("/:id", auth, EmployeesController.update);
 router.delete("/:id", auth, EmployeesController.delete);
 router.get("/employee/company", auth, EmployeesController.employeeCompany);
 router.post("/mod/edit/employee", auth, EmployeesController.modEditEmployee);
-router.get("/:id/count", auth, EmployeesController.countEmployees);
+
 export default router;

@@ -6,32 +6,34 @@ import { UsersService } from "./users.service.js";
 
 export const UserController = {
 
-  async getAll() {
+  async getAll(req, res, next) {
     try {
-      const users = await UsersService.getAll();
-      return users;
+      const users = await UsersService.getAll(req.params);
+      return res.json({
+        success: true,
+        data: users
+      });
     } catch (err) {
-      console.error("Get all users error:", err);
-      throw err;
+      next({ status: 500, message: "Eroare server." });
     }
   },
   // CREATE (Admin adds a user)
   async create(req, res) {
     try {
-      const { nume_complet, email, parola_hash } = req.body;
-      const newUser = await UsersService.create({ nume_complet, email, parola_hash });
-      if (newUser.error) {
-        if (newUser.code === "EMAIL_EXISTS" || newUser.code === "NAME_EXISTS") {
+      const user = await UsersService.create(req.body);
+      if (user.error) {
+        if (user.code === "EMAIL_EXISTS" || user.code === "NAME_EXISTS") {
           return res.status(400).json({   
             success: false,
-            message: newUser.error
+            message: user.error
           });
         }
       }
+      
       return res.status(201).json({
         success: true,
         message: "Utilizator creat cu succes.",
-        data: newUser
+        data: user
       });
 
     } catch (error) {
@@ -97,13 +99,12 @@ export const UserController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-
-      const updated = await UsersService.update(id, req.body);
+      const data = await UsersService.update(id, req.body);
 
       return res.json({
         success: true,
         message: "Informatiile au fost actualizate.",
-        data: updated
+        data: data
       });
 
     } catch (err) {

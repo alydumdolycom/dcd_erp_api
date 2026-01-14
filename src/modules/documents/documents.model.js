@@ -7,7 +7,8 @@ export const DocumentsModel = {
         const query = `
                 SELECT * FROM ${this.Table}
                 LEFT JOIN salarizare.salariati 
-                ON salarizare.salariati.id = ${this.Table}.id_salariat
+                    ON salarizare.salariati.id = ${this.Table}.id_salariat
+                LEFT JOIN nomenclatoare.nom_salarii_departamente ON nomenclatoare.nom_salarii_departamente.id = salarizare.salariati.id_departament
                 WHERE salarizare.salariati.id_firma = $1`;
         const values = [id_firma];
         const { rows } = await pool.query(query, values);

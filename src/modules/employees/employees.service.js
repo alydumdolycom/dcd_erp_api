@@ -115,9 +115,5 @@ export const EmployeesService = {
 
   async modEditEmployee(employeeData) {
     return await EmployeesModel.modEditEmployee(employeeData);
-  },
-
-  async countEmployees(data, id_firma) {
-    return await EmployeesModel.countEmployees(data, id_firma); 
   }
 };
