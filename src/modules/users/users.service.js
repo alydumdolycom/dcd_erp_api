@@ -63,5 +63,9 @@ export const UsersService = {
 
   async getUserRoles(userId) {
     return await UserModel.getRoles(userId);
+  },
+
+  async getPermissions(userId) {
+    return await UserModel.getPermissions(userId);
   }
 };

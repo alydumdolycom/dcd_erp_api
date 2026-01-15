@@ -69,28 +69,29 @@ export const UserController = {
     try {
       const { id } = req.params;
       const user = await UsersService.getById(id);
-      const roles = await RolesService.getUserRoles(id);
-      const permissions = await PermissionsService.getUserPermissions(id);
 
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "Utilizatorul nu a fost găsit."
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Utilizatorul nu a fost găsit."
+      });
       }
 
+      const roles = await UsersService.getUserRoles(id);
+      const permissions = await UsersService.getPermissions(id);
+
       return res.json({
-        success: true,
-        data: user,
-        roles: roles,
-        permissions: permissions
+      success: true,
+      data: user,
+      roles: roles,
+      permissions: permissions
       });
 
     } catch (err) {
       console.error("Find user error:", err);
       return res.status(500).json({
-        success: false,
-        message: "Eroare server."
+      success: false,
+      message: "Eroare server."
       });
     }
   },

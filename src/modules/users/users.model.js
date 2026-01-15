@@ -250,5 +250,17 @@ export const UserModel = {
       WHERE ur.id_utilizator = $1
     `, [userId]); 
     return rows;
+  },
+
+  async getPermissions(userId) {
+    const { rows } = await pool.query(` 
+        SELECT P.name FROM permisiuni.roluri_permisiuni RP
+        LEFT JOIN permisiuni.permisiuni P  ON P.id = RP.id_permisiune
+        LEFT JOIN permisiuni.roluri R ON R.id_rol = RP.id_rol
+        LEFT JOIN permisiuni.utilizatori_roluri UR ON UR.id_rol = R.id_rol
+        LEFT JOIN admin.utilizatori U ON U.id_utilizator = UR.id_utilizator
+        WHERE U.id_utilizator = $1`, 
+      [userId]); 
+    return rows;
   }
 };
