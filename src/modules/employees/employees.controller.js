@@ -39,13 +39,17 @@ export const EmployeesController = {
           data: result.data
         });
       } catch (err) {
-        next(err);
+        next({
+          status: 500,
+          message: "A aparut o eroare la incarcarea listei de salariati",
+          details: err.message
+        });
       }
     },
 
     async getById(req, res, next) {
       try {
-        const employee = await EmployeesService.findById(req.params.id); 
+        const employee = await EmployeesService.findById(req.params.id);
         if (!employee) { 
           return res.status(404).json({ message: "Salariatul nu a fost gasit" });
         }
@@ -73,7 +77,7 @@ export const EmployeesController = {
       }
     },
 
-    async update(req, res) {
+    async update(req, res, next) {
       const { id } = req.params;
 
       const employee = await EmployeesService.updateEmployee(
@@ -95,7 +99,7 @@ export const EmployeesController = {
       });
     },
   
-    async delete(req, res) {
+    async delete(req, res, next) {
       const { id } = req.params;
       const deleted = await EmployeesService.deleteEmployee(Number(id));
       if (!deleted) {

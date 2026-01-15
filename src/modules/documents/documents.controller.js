@@ -4,7 +4,7 @@ export const DocumentsController = {
     
     async getAll(req, res, next) { 
         try {
-            const data = await DocumentsService.getAll(req.params.id_firma);
+            const data = await DocumentsService.getAll(req.params.id_firma, req.query);
             res.send(data);
         } catch (error) {
             next({ message: "Error fetching documents", error });

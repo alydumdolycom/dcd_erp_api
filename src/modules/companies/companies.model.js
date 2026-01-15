@@ -13,26 +13,22 @@ export const CompaniesModel = {
     const result = await pool.query(query, [nume]);
     return result.rows[0];
   },
-  async findByCui(cui) {
+  
+  async findByCif(cif) {
     const query = `
       SELECT *
       FROM ${this.TABLE} C
-      WHERE cui = $1
+      WHERE cif = $1
     `;
-    const result = await pool.query(query, [cui]);
+    const result = await pool.query(query, [cif]);
     return result.rows[0];
   },
   async all({
-    page = 1,
-    limit = 10,
     search = "",
     filters = {},
     sortBy = "id",
     sortOrder = "DESC"
   }) {
-    page = Number(page);
-    limit = Number(limit);
-    const offset = (page - 1) * limit;
 
     // =========================
     // ALLOWED SORT COLUMNS (SECURITY)
@@ -87,7 +83,7 @@ export const CompaniesModel = {
       : "";
 
     // =========================
-    // DATA QUERY
+    // DATA QUERY (NO PAGINATION)
     // =========================
     const dataQuery = `
       SELECT
@@ -97,41 +93,18 @@ export const CompaniesModel = {
         F.implicit,
         F.an_start,
         F.an_sfarsit
-      FROM ${this.TABLE} F
+      FROM admin.firme F
       ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir}
-      LIMIT $${values.length + 1}
-      OFFSET $${values.length + 2};
     `;
 
-    // =========================
-    // COUNT QUERY
-    // =========================
-    const countQuery = `
-      SELECT COUNT(*)
-      FROM ${this.TABLE} F
-      ${whereSQL};
-    `;
-
-    const dataValues = [...values, limit, offset];
-
-    const [dataResult, countResult] = await Promise.all([
-      pool.query(dataQuery, dataValues),
-      pool.query(countQuery, values)
-    ]);
-
-    const total = Number(countResult.rows[0].count);
+    const result = await pool.query(dataQuery, values);
 
     return {
-      data: dataResult.rows,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      data: result.rows
     };
   },
+
   async findById(id) {
     const query = `
       SELECT *
@@ -141,56 +114,61 @@ export const CompaniesModel = {
     const result = await pool.query(query, [id]);
     return result.rows[0];
   },
+
   async create(data) {
+    console.log(data)
     const query = `
       INSERT INTO admin.firme (
         nume,
         cif,
         implicit,
-        an_start,
-        an_sfarsit
-      ) VALUES ($1, $2, $3, $4, $5)
+        an_start
+      ) VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
     const values = [
       data.nume,
       data.cif,
       data.implicit,
-      data.an_start,
-      data.an_sfarsit 
+      data.an_start
     ];
+    console.log(values)
+    
     const result = await pool.query(query, values);
     return result.rows[0];
   },
+
   async update(id, firmeData) {
+    // Build dynamic SET clause for PATCH (partial update)
+    const allowedFields = ["nume", "cif", "implicit", "an_start", "an_sfarsit"];
+    const setClauses = [];
+    const values = [id];
+    let idx = 2;
+
+    for (const field of allowedFields) {
+      if (firmeData[field] !== undefined) {
+      setClauses.push(`${field} = $${idx}`);
+      values.push(firmeData[field]);
+      idx++;
+      }
+    }
+
+    if (setClauses.length === 0) {
+      throw new Error("No valid fields provided for update.");
+    }
+
     const query = `
       UPDATE admin.firme
-      SET nume = $2,
-          cif = $3,
-          implicit = $4,
-          an_start = $5,
-          an_sfarsit = $6
+      SET ${setClauses.join(", ")}
       WHERE id = $1
       RETURNING *;
     `;
-    const values = [
-      id,
-      firmeData.nume,
-      firmeData.cif,
-      firmeData.implicit,
-      firmeData.an_start,
-      firmeData.an_sfarsit
-    ];
     const result = await pool.query(query, values);
     return result.rows[0];
   },
+
   async delete(id) {
-    const query = `
-      DELETE FROM ${this.TABLE}
-      WHERE id = $1
-      RETURNING *;
-    `;
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const query = `DELETE FROM ${this.TABLE} WHERE id = $1;`;
+    await pool.query(query, [id]);
   }
 };

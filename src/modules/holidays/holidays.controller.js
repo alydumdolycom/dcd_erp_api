@@ -3,8 +3,8 @@ import { HolidaysService } from './holidays.service.js';
 export const HolidaysController = {
     async getAll(req, res, next) {
         try {
-            const holidays = await HolidaysService.getAll();
-            res.status(200).json(holidays);
+            const rows = await HolidaysService.getAll();
+            res.status(200).json(rows);
         } catch (error) {
             next(error);
         }
@@ -12,13 +12,16 @@ export const HolidaysController = {
 
     async getById(req, res, next) {
         try {
-            const { id } = req.params;
-            const holiday = await HolidaysService.getById(id);
-            res.status(200).json(holiday);
+            const row = await HolidaysService.getById(req.params.id);
+            if (!row) {
+            return res.status(404).json({ message: 'Informatiile nu au fost gasite' });
+            }
+            res.status(200).json(row);
         } catch (error) {
             next(error);
         }
     },
+
     async create(req, res, next) {  
         try {
             const newHoliday = await HolidaysService.create(req.body);

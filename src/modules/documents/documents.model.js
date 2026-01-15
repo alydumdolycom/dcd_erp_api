@@ -3,14 +3,16 @@ import pool from "../../config/db.js";
 export const DocumentsModel = {
     Table: "salarizare.acte_aditionale",
     // Define your document schema and methods here
-    async all(id_firma) {
+    async all(id_firma, params) {
         const query = `
                 SELECT * FROM ${this.Table}
-                LEFT JOIN salarizare.salariati 
-                    ON salarizare.salariati.id = ${this.Table}.id_salariat
-                LEFT JOIN nomenclatoare.nom_salarii_departamente ON nomenclatoare.nom_salarii_departamente.id = salarizare.salariati.id_departament
-                WHERE salarizare.salariati.id_firma = $1`;
-        const values = [id_firma];
+                    LEFT JOIN salarizare.salariati S
+	            ON S.id = ${this.Table}.id_salariat
+	                LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
+		        ON NSD.id = S.id_departament
+                    WHERE  S.id_firma = $1 AND S.id_departament = $2
+                `;
+        const values = [id_firma, params.id_departament];
         const { rows } = await pool.query(query, values);
         return rows || null;
     },

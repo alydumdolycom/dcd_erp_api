@@ -1,9 +1,9 @@
 import { DocumentsModel } from "./documents.model.js";
 
 export const DocumentsService = {
-    async getAll(id_firma) {
+    async getAll(id_firma, params) {
         // Logic to get all documents
-        const rows = await DocumentsModel.all(id_firma);
+        const rows = await DocumentsModel.all(id_firma, params);
         return rows;
     },
 

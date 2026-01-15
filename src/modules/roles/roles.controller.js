@@ -15,7 +15,7 @@ export const RolesController = {
             const role = await  RolesService.getRoleById(req.params.id);    
             if (!role) {
                 return  res.status(404).json({
-                    message: "Nu a fost gasit",
+                    message: "Informatiile nu au fost gasite",
                     data: null,
                     success: false,
                     status: 404
@@ -42,6 +42,15 @@ export const RolesController = {
 
     async update(req, res, next) { 
         try {
+            const existingRole = await RolesService.getRoleById(req.params.id);
+            if (!existingRole) {
+            return res.status(404).json({
+                message: "Informatiile nu au fost gasite",
+                data: null,
+                success: false,
+                status: 404
+            });
+            }
             const role = await RolesService.updateRole(req.params.id, req.body);
             return res.json(role);
         } catch (err) {
@@ -51,8 +60,17 @@ export const RolesController = {
     
     async delete(req, res, next) { 
         try {
+            const existingRole = await RolesService.getRoleById(req.params.id);
+            if (!existingRole) {
+            return res.status(404).json({
+                message: "Informatiile nu au fost gasite",
+                data: null,
+                success: false,
+                status: 404
+            });
+            }
             await RolesService.deleteRole(req.params.id);
-            return res.json({ message: `Sters ${req.params.id}` });
+            return res.status(204).send();
         } catch (err) {
             next(err);
         }

@@ -7,7 +7,8 @@ export const DepartmentsModel = {
     const query = `
       SELECT    
         id,
-        nume_departament
+        nume_departament, 
+        observatii
       FROM ${this.TABLE}
       ORDER BY id ASC
     `;
@@ -27,28 +28,68 @@ export const DepartmentsModel = {
   },
 
   async update(id, { nume_departament, observatii }) {
+    // Build dynamic SET clause for PATCH-like updates
+    const fields = [];
+    const values = [];
+    let idx = 1;
+
+    if (nume_departament !== undefined) {
+      fields.push(`nume_departament = $${idx++}`);
+      values.push(nume_departament);
+    }
+    if (observatii !== undefined) {
+      fields.push(`observatii = $${idx++}`);
+      values.push(observatii);
+    }
+
+    if (fields.length === 0) {
+      throw new Error("No fields to update");
+    }
+
     const query = `
       UPDATE ${this.TABLE}
-      SET nume_departament = $1, observatii = $2
-      WHERE id = $3
+      SET ${fields.join(", ")}
+      WHERE id = $${idx}
       RETURNING *;
     `;
-    const values = [nume_departament, observatii, id];
+    values.push(id);
     const { rows } = await pool.query(query, values);
     return rows[0];
   }, 
    
   async findById(id) {
     const query = `
-      SELECT
+      SELECT    
         id,
-        nume_department
+        nume_departament, 
+        observatii
       FROM ${this.TABLE}
-        WHERE id = $1
-        LIMIT 1;
+      WHERE id = $1
     `;
-
     const { rows } = await pool.query(query, [id]);
+    return rows[0] || null;;  
+  },
+
+  async findOne({ nume_departament }) {
+    const query = `
+      SELECT    
+        id,
+        nume_departament, 
+        observatii
+      FROM ${this.TABLE}
+      WHERE nume_departament = $1
+    `;
+    const { rows } = await pool.query(query, [nume_departament]);
     return rows[0] || null;
+  },
+
+  async delete(id) {
+    const query = `
+      DELETE FROM ${this.TABLE}
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [id]);
+    return rows[0];
   }
 }

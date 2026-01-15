@@ -62,7 +62,11 @@ export const EmployeesService = {
   },
 
   async findById(id) {
-    return EmployeesModel.findById(id);
+    const data = await EmployeesModel.findById(id);
+    if (!data) {
+      return null;
+    }
+    return data;
   },
 
   async create(data) {
@@ -72,8 +76,8 @@ export const EmployeesService = {
     if (!data.cnp) addError(errors, "cnp", "obligatoriu");
     if (!data.nume) addError(errors, "nume", "obligatoriu");
     if (!data.prenume) addError(errors, "prenume", "obligatoriu");
-    if (!data.salar_baza) addError(errors, "prenume", "obligatoriu");
-    if (!data.salar_net) addError(errors, "prenume", "obligatoriu");
+    if (!data.salar_baza) addError(errors, "salar_baza", "obligatoriu");
+    if (!data.salar_net) addError(errors, "salar_net", "obligatoriu");
     if (!data.data_angajarii) addError(errors, "data_angajarii", "obligatoriu");
     if (data.data_angajarii && data.data_incetarii && data.data_angajarii > data.data_incetarii) {
       addError(errors, "data_incetarii", "Data incetarii trebuie sa fie dupa data angajarii");
@@ -100,7 +104,7 @@ export const EmployeesService = {
     }
 
     if (Object.keys(errors).length > 0) {
-      return { errors };
+      return { success: false, errors };
     }
     return EmployeesModel.create(data);
   },

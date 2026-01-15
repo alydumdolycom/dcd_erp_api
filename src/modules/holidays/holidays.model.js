@@ -5,13 +5,17 @@ export const HolidaysModel = {
     async all() {
         // Database logic to get all holidays
         const query = `
-                    SELECT 
-                        SCO.*, 
-                        S.id, S.nume, S.prenume 
-                    FROM ${this.Table} as SCO
-                    LEFT JOIN salarizare.salariati S
-                        ON SCO.id_salariat = S.id
-                    ORDER BY SCO.id DESC`;
+            SELECT 
+                SCO.*, 
+                S.id as id_salariat, S.nume, S.prenume, 
+                NSD.nume_departament
+            FROM salarizare.concedii_odihna as SCO
+            LEFT JOIN salarizare.salariati S
+                ON SCO.id_salariat = S.id
+            LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
+                ON NSD.id = S.id_departament
+            ORDER BY S.nume, S.prenume
+        `;
         // Execute query and return results
         const { rows } = await pool.query(query);
         return rows;
@@ -19,14 +23,25 @@ export const HolidaysModel = {
 
     async findById(id) {
         // Database logic to find a holiday by ID
+        const find = await pool.query(`SELECT * FROM ${this.Table} WHERE id = $1`, [id]);
+        if (find.rows.length === 0) {
+            return null;
+        }
         const query = `
-                    SELECT * FROM ${this.Table} 
-                    LEFT JOIN salarizare.salariati 
-                        ON ${this.Table}.id_salariat = salarizare.salariati.id
-                    WHERE ${this.Table}.id = $1`;
-        // Execute query with id and return result
+            SELECT 
+                SCO.*, 
+                S.id as id_salariat, S.nume, S.prenume, 
+                NSD.nume_departament
+            FROM salarizare.concedii_odihna as SCO
+            LEFT JOIN salarizare.salariati S
+                ON SCO.id_salariat = S.id
+            LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
+                ON NSD.id = S.id_departament
+            WHERE SCO.id = $1
+            ORDER BY S.nume, S.prenume`;
+        
         const { rows } = await pool.query(query, [id]);
-        return rows;
+        return rows[0];
     },
 
     async countHolidaysPerEmployee(id_salariat) {
