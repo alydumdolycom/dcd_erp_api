@@ -22,8 +22,8 @@ export const RolesService = {
         return await RoleModel.create(data);   
     },
 
-    async updateRole(id, roleData) {
-        return await RoleModel.update(id, roleData);   
+    async updateRole(id, data) {
+        return await RoleModel.update(id, data);   
     },
 
     async deleteRole(id) {

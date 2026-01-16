@@ -16,6 +16,5 @@ router.post(
 router.patch("/:id", auth, EmployeesController.update);
 router.delete("/:id", auth, EmployeesController.delete);
 router.get("/employee/company", auth, EmployeesController.employeeCompany);
-router.post("/mod/edit/employee", auth, EmployeesController.modEditEmployee);
 
 export default router;

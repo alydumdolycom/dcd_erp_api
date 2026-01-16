@@ -1,15 +1,22 @@
 import { PermissionModel } from "./permissions.model.js";
 
 export const PermissionsService = { 
-    async getAllPermissions(id_utilizator) { 
+
+    async getAll() { 
         // Logic to get all permissions from the database
-        const permissions = await PermissionModel.getByRoleIds(id_utilizator); 
+        const permissions = await PermissionModel.getAll(); 
+        return permissions; 
+    },
+    
+    async getAllPermissions(roleIds) { 
+        // Logic to get all permissions from the database
+        const permissions = await PermissionModel.getByRoleIds(roleIds); 
         return permissions; 
     },
 
-    async getUserPermissions(id_utilizator) {
+    async getUserPermissions(roleId) {
         // Logic to get user-specific permissions from the database
-        const userPermissions = await PermissionModel.getByUserId(id_utilizator); 
+        const userPermissions = await PermissionModel.getRolePermissions(roleId); 
         return userPermissions; 
     },
 

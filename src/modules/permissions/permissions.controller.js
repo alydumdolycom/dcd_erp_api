@@ -3,7 +3,7 @@ export const PermissionsController = {
 
     async getAll(req, res, next)  { 
         try {   
-            const permissions = await PermissionsService.getAllPermissions();
+            const permissions = await PermissionsService.getAll();
             return res.json(permissions);
         } catch (err) {
             next(err);
@@ -28,26 +28,23 @@ export const PermissionsController = {
     },
 
     async create(req, res, next) {  
-            try {
+        try {
             const permission = await PermissionsService.create(req.body);
             res.status(201).json(permission);
-            } catch (err) {
+        } catch (err) {
             next({
                 status: 500,        
                 message: "A aparut o eroare la salvarea informatiilor",
                 details: err.message
             });
-            }   
+        }   
     },
 
     async update(req, res, next) { 
         try {   
             const permission = await PermissionsService.updatePermission(req.params.id, req.body);
             return res.json(permission);
-        }
-
-
-            catch (err) {       
+        } catch (err) {       
             next(err);
         }
     },
@@ -56,7 +53,7 @@ export const PermissionsController = {
         try {   
             await PermissionsService.deletePermission(req.params.id);
             return res.json({ message: `Sters ${req.params.id}` });
-        }   catch (err) {   
+        } catch (err) {       
             next(err);
         }
     }   

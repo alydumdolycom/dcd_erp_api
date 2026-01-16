@@ -107,12 +107,13 @@ export const AuthController = {
       path: "/",
       maxAge: 8 * 60 * 60 * 1000 // 8h
     });
-    // const abilities = await AccessService.resolveAbilities(result.user.id_utilizator);
+
+    const access = await AccessService.resolveAbilities(result.user.id_utilizator);
     // Return user and success
     return res.json({
       success: true,
       user: result.user,
-      // abilities: abilities,
+      access: access,
       token: result.accessToken
     });
   },

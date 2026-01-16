@@ -38,27 +38,14 @@ export const EmployeesService = {
     return await EmployeesModel.getEmployeeCompany(id);
   },
 
-  async editEmployee(id, mode) {
-    return await EmployeesModel.updateEmployeeMode(id, mode);
-  },
-
-  async updateEmployee(id, payload) {
-    let paymentMethod = {};
-    
-    paymentMethod.cont_bancar = payload.cont_bancar;
-    paymentMethod.id_modplata = payload.id_modplata;
-    paymentMethod.activ = payload.activ;
-    delete payload.cont_bancar;
-    delete payload.id_modplata;
-    delete payload.activ;  
-    const employeeData = { ...payload };
-    const employee = await EmployeesModel.update(id, payload, paymentMethod);
-
-    if (!employee) {
+  async update(id, data) {
+    // Patch method: update only provided fields
+    const row = await EmployeesModel.find(id);
+    if (!row) {
       return null;
     }
-
-    return employee;
+    const updatedRow = await EmployeesModel.update(id, data);
+    return updatedRow;
   },
 
   async findById(id) {

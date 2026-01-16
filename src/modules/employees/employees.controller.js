@@ -78,30 +78,26 @@ export const EmployeesController = {
     },
 
     async update(req, res, next) {
-      const { id } = req.params;
-
-      const employee = await EmployeesService.updateEmployee(
-        Number(id),
-        req.body
-      );
-
-      if (!employee) {
-        return res.status(404).json({
-          success: false,
-          message: "Nu a fost gasit"
+      try {
+        const { id } = req.params;
+        const data = await EmployeesService.update(id, req.body);
+        
+        return res.status(200).json({
+          success: true,
+          data: data
+        });
+      } catch (err) {
+        next({
+          status: 500,  
+          message: "Eroare la server",
+          details: err.message
         });
       }
-
-      return res.status(200).json({
-        success: true,
-        message: "Informatiile au fost actualizate",
-        data: employee
-      });
     },
   
     async delete(req, res, next) {
       const { id } = req.params;
-      const deleted = await EmployeesService.deleteEmployee(Number(id));
+      const deleted = await EmployeesService.delete(id);
       if (!deleted) {
         return res.status(404).json({
           success: false,
@@ -117,17 +113,6 @@ export const EmployeesController = {
     async employeeCompany(req, res, next) {
       try {
         const data = await EmployeesService.getEmployeeCompany(req.user.id);
-        res.json(data);
-      } catch (err) {
-        next(err);
-      }
-    },
-  
-    async modEditEmployee(req, res, next) {
-      req.body.id_utilizator = req.user.id;
-      req.body.ip = req.ip;
-      try {
-        const data = await EmployeesService.modEditEmployee(req.body);
         res.json(data);
       } catch (err) {
         next(err);

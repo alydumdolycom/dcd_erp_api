@@ -2,8 +2,9 @@ import { HolidaysService } from './holidays.service.js';
 
 export const HolidaysController = {
     async getAll(req, res, next) {
+        const { id_firma, id_departament, nume, prenume, an, luna } = req.query;
         try {
-            const rows = await HolidaysService.getAll();
+            const rows = await HolidaysService.getAll({ id_firma, id_departament, nume, prenume, an, luna });
             res.status(200).json(rows);
         } catch (error) {
             next(error);

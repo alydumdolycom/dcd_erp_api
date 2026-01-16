@@ -38,36 +38,82 @@ export const RoleModel = {
     return rows[0];
   },
 
-  async update(id, roleData) {
+  async update(id, data) {
     const fields = [];
     const values = [];
     let index = 1;
 
-    if (roleData.nume_rol !== undefined) {
+    // Only handle permissions if data.permissions is provided
+    if (Array.isArray(data.permissions)) {
+      // Normalize permissions to integers and remove duplicates
+      const newPerms = Array.from(new Set(data.permissions.map(Number)));
+
+      // Fetch current permissions for the role
+      const { rows: currentPerms } = await pool.query(
+      `SELECT id_permisiune FROM permisiuni.roluri_permisiuni WHERE id_rol = $1`,
+      [id]
+      );
+      const currentPermIds = currentPerms.map(row => Number(row.id_permisiune));
+
+      // Permissions to add: in newPerms but not in currentPermIds
+      const permsToAdd = newPerms.filter(permId => !currentPermIds.includes(permId));
+      // Permissions to remove: in currentPermIds but not in newPerms
+      const permsToRemove = currentPermIds.filter(permId => !newPerms.includes(permId));
+
+      // Add new permissions
+      if (permsToAdd.length > 0) {
+      const insertValues = permsToAdd.map(permId => `(${id}, ${permId})`).join(", ");
+      await pool.query(
+        `INSERT INTO permisiuni.roluri_permisiuni (id_rol, id_permisiune)
+         VALUES ${insertValues}
+         ON CONFLICT DO NOTHING`
+      );
+      }
+
+      // Remove permissions not present in newPerms
+      if (permsToRemove.length > 0) {
+      await pool.query(
+        `DELETE FROM permisiuni.roluri_permisiuni
+         WHERE id_rol = $1 AND id_permisiune = ANY($2::int[])`,
+        [id, permsToRemove]
+      );
+      }
+    }
+
+    if (data.nume_rol !== undefined) {
       fields.push(`nume_rol = $${index++}`);
-      values.push(roleData.nume_rol);
+      values.push(data.nume_rol);
     }
 
-    if (roleData.descriere !== undefined) {
+    if (data.descriere !== undefined) {
       fields.push(`descriere = $${index++}`);
-      values.push(roleData.descriere);
+      values.push(data.descriere);
     }
 
-    if (fields.length === 0) {
-      throw new Error("No fields to update");
-    }
-
-    values.push(id);
-
-    const query = `
+    let updatedRole = null;
+    if (fields.length > 0) {
+      values.push(id);
+      const query = `
       UPDATE ${this.TABLE}
       SET ${fields.join(", ")}
       WHERE id_rol = $${index}
       RETURNING *;
-    `;
+      `;
+      const { rows } = await pool.query(query, values);
+      updatedRole = rows[0];
+    } else {
+      // If no fields to update, just fetch the current role
+      updatedRole = await this.findById(id);
+    }
 
-    const { rows } = await pool.query(query, values);
-    return rows[0];
+    // Fetch all permissions for this role
+    const { rows: permissions } = await pool.query(
+      `SELECT p.* FROM permisiuni.permisiuni p
+       INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune
+       WHERE rp.id_rol = $1`,
+      [id]
+    );
+    return { ...updatedRole, permissions };
   },
 
   async delete(id) {

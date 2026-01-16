@@ -2,9 +2,9 @@ import { HolidaysModel } from "./holidays.model.js";
 import { EmployeesModel } from "../employees/employees.model.js";
 
 export const HolidaysService = {
-    async getAll() {
+    async getAll({ id_firma, id_departament, nume, prenume, an, luna }) {
         // Logic to retrieve all holidays
-        const rows = await HolidaysModel.all();
+        const rows = await HolidaysModel.all({ id_firma, id_departament, nume, prenume, an, luna });
         return rows;
     },
 

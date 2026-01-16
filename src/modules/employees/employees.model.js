@@ -11,104 +11,6 @@ export const EmployeesModel = {
     return rows[0] || null;
   },
 
-  // async all({
-  //   id_firma,
-  //   search = "",
-  //   filters = {},
-  //   sortBy = "id",
-  //   sortOrder = "DESC"
-  // }) {
-  //   // =========================
-  //   // ALLOWED SORT COLUMNS (SECURITY)
-  //   // =========================
-  //   const allowedSort = {
-  //     id: "S.id",
-  //     id_firma: "S.id_firma",
-  //     nume: "S.nume",
-  //     prenume: "S.prenume",
-  //     data_angajarii: "S.data_angajarii"
-  //   };
-
-  //   const sortColumn = allowedSort[sortBy] || "S.id";
-  //   const sortDir = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
-
-  //   let whereClauses = [];
-  //   let values = [];
-
-  //   // =========================
-  //   // SEARCH
-  //   // =========================
-  //   if (search) {
-  //     values.push(`%${search}%`);
-  //     whereClauses.push(`
-  //       (
-  //         S.nume ILIKE $${values.length}
-  //         OR S.prenume ILIKE $${values.length}
-  //         OR S.cnp ILIKE $${values.length}
-  //       )
-  //     `);
-  //   }
-
-  //   // =========================
-  //   // FILTERS
-  //   // =========================
-  //   if (id_firma) {
-  //     values.push(id_firma);
-  //     whereClauses.push(`S.id_firma = $${values.length}`);
-  //   }
-
-  //   if (filters.id_departament) {
-  //     values.push(filters.id_departament);
-  //     whereClauses.push(`S.id_departament = $${values.length}`);
-  //   }
-
-  //   if (filters.id_functie) {
-  //     values.push(filters.id_functie);
-  //     whereClauses.push(`S.id_functie = $${values.length}`);
-  //   }
-
-  //   if (filters.activ !== undefined) {
-  //     values.push(filters.activ);
-  //     whereClauses.push(`S.activ = $${values.length}`);
-  //   }
-
-  //   const whereSQL = whereClauses.length
-  //     ? `WHERE ${whereClauses.join(" AND ")}`
-  //     : "";
-
-  //   // =========================
-  //   // DATA QUERY
-  //   // =========================
-  //   const query = `
-  //     SELECT
-  //       S.id,
-  //       S.id_firma,
-  //       S.nume,
-  //       S.prenume,
-  //       S.cnp,
-  //       TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
-  //       S.salar_net,
-  //       S.salar_baza,
-  //       S.sector,
-  //       S.data_incetarii,
-  //       S.data_determinata,
-
-  //       NSD.id AS id_departament,
-  //       NSD.nume_departament,
-  //       NSF.nume_functie
-
-  //     FROM ${this.TABLE} S
-  //     LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
-  //       ON S.id_departament = NSD.id
-  //     JOIN nomenclatoare.nom_salarii_functii NSF
-  //       ON S.id_functie = NSF.id
-  //     ${whereSQL}
-  //     ORDER BY ${sortColumn} ${sortDir};
-  //   `;
-
-  //   const { rows } = await pool.query(query, values);
-  //   return rows;
-  // },
   async all({
     id_firma,
     search = "",
@@ -374,6 +276,14 @@ export const EmployeesModel = {
     return result.rows[0];
   },
 
+  async find(id) {
+    const { rows } = await pool.query(
+      `SELECT * FROM ${this.TABLE} WHERE id = $1 LIMIT 1`,
+      [id]
+    );
+    return rows[0] || null;
+  },
+  
   async findById(id) {
     const employees = `
       SELECT
@@ -430,18 +340,6 @@ export const EmployeesModel = {
     return await pool.query(query, values);
   },
   
-  async updateEmployeeMode(id, mode) {
-    const query = `
-      UPDATE salarizare.salariati
-      SET
-        mod_editare = $2
-      WHERE id = $1
-      RETURNING *;
-    `;
-    const values = [id, mode];
-    return await pool.query(query, values);
-  },
-
   async modEditEmployee(employeeData) {
     const {id_utilizator, resursa, id_resursa, ip} = employeeData;
     if(employeeData.mod == 'edit') {

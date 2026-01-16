@@ -1,4 +1,5 @@
 // src/modules/users/users.controller.js
+import { AccessService } from "../permissions/acces.service.js";
 import { PermissionsService } from "../permissions/permissions.service.js";
 import { RoleModel } from "../roles/roles.model.js";
 import { RolesService } from "../roles/roles.service.js";
@@ -71,20 +72,19 @@ export const UserController = {
       const user = await UsersService.getById(id);
 
       if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Utilizatorul nu a fost găsit."
-      });
+        return res.status(404).json({
+          success: false,
+          message: "Utilizatorul nu a fost găsit."
+        });
       }
 
-      const roles = await UsersService.getUserRoles(id);
-      const permissions = await UsersService.getPermissions(id);
-
+      // const roles = await UsersService.getUserRoles(id);
+      // const permissions = await UsersService.getPermissions(id);
+      const access = await AccessService.resolveAbilities(user.id_utilizator);
       return res.json({
-      success: true,
-      data: user,
-      roles: roles,
-      permissions: permissions
+        success: true,
+        data: user,
+        access: access
       });
 
     } catch (err) {

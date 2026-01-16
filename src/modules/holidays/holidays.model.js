@@ -2,22 +2,50 @@ import pool from "../../config/db.js";
 
 export const HolidaysModel = {
     Table: 'salarizare.concedii_odihna',
-    async all() {
+    async all({ id_firma, id_departament, nume, prenume, an, luna }) {
         // Database logic to get all holidays
-        const query = `
+        // Always filter by id_firma
+        
+        // Build base query and dynamic filters
+        let query = `
             SELECT 
-                SCO.*, 
-                S.id as id_salariat, S.nume, S.prenume, 
-                NSD.nume_departament
+            SCO.*, 
+            S.id as id_salariat, S.nume, S.prenume, 
+            NSD.nume_departament, NSD.id as id_departament
             FROM salarizare.concedii_odihna as SCO
             LEFT JOIN salarizare.salariati S
-                ON SCO.id_salariat = S.id
-            LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
-                ON NSD.id = S.id_departament
-            ORDER BY S.nume, S.prenume
+            ON SCO.id_salariat = S.id
+            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+            ON NSD.id = S.id_departament
+            WHERE S.id_firma = $1
         `;
-        // Execute query and return results
-        const { rows } = await pool.query(query);
+        const values = [id_firma];
+        let idx = 2;
+
+        if (id_departament) {
+            query += ` AND S.id_departament = $${idx++}`;
+            values.push(id_departament);
+        }
+        if (nume) {
+            query += ` AND S.nume ILIKE $${idx++}`;
+            values.push(`%${nume}%`);
+        }
+        if (prenume) {
+            query += ` AND S.prenume ILIKE $${idx++}`;
+            values.push(`%${prenume}%`);
+        }
+        if (an) {
+            query += ` AND SCO.anul = $${idx++}`;
+            values.push(an);
+        }
+        if (luna) {
+            query += ` AND SCO.luna = $${idx++}`;
+            values.push(luna);
+        }
+
+        query += ` ORDER BY S.nume, S.prenume`;
+
+        const { rows } = await pool.query(query, values);
         return rows;
     },
 

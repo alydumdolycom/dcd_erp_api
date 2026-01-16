@@ -3,7 +3,7 @@ import { DocumentsController } from "./documents.controller.js";
 
 const router = Router();
 
-router.get("/:id_firma", DocumentsController.getAll);
+router.get("/", DocumentsController.getAll);
 router.post("/", DocumentsController.create);
 router.get("/:id", DocumentsController.getById);
 router.patch("/:id", DocumentsController.update);

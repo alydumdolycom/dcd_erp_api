@@ -3,16 +3,29 @@ import pool from "../../config/db.js";
 export const DocumentsModel = {
     Table: "salarizare.acte_aditionale",
     // Define your document schema and methods here
-    async all(id_firma, params) {
-        const query = `
-                SELECT * FROM ${this.Table}
-                    LEFT JOIN salarizare.salariati S
-	            ON S.id = ${this.Table}.id_salariat
-	                LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
-		        ON NSD.id = S.id_departament
-                    WHERE  S.id_firma = $1 AND S.id_departament = $2
-                `;
-        const values = [id_firma, params.id_departament];
+    async all({ id_firma, id_departament, search }) {
+        let query = `
+            SELECT * FROM salarizare.acte_aditionale
+            LEFT JOIN salarizare.salariati S
+                ON S.id = salarizare.acte_aditionale.id_salariat
+            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+                ON NSD.id = S.id_departament
+            WHERE S.id_firma = $1
+        `;
+        const values = [id_firma];  
+        
+        let idx = 2;
+
+        if (id_departament) {
+            query += ` AND S.id_departament = $${idx}`;
+            values.push(id_departament);
+            idx++;
+        }
+        if (search) {
+            query += ` AND (S.nume ILIKE $${idx} OR S.prenume ILIKE $${idx} OR S.cnp ILIKE $${idx})`;
+            values.push(`%${search}%`);
+            idx++;
+        }
         const { rows } = await pool.query(query, values);
         return rows || null;
     },
@@ -52,8 +65,8 @@ export const DocumentsModel = {
         const rows = await pool.query(`
             SELECT * FROM ${this.Table}
             LEFT JOIN salarizare.salariati 
-                ON salarizare.salariati.id = ${this.Table}.salariat_id
-            WHERE ${this.Table}.id = ?
+                ON salarizare.salariati.id = ${this.Table}.id_salariat
+            WHERE ${this.Table}.id = $1
         `, [id]);
         return rows[0];
     },

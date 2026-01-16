@@ -2,7 +2,14 @@ import pool from "../../config/db.js";
 
 export const PermissionModel = {
 
- async getByRoleIds(id_utilizator) {
+  async getAll() {
+    const { rows } = await pool.query(`
+      SELECT * FROM permisiuni.permisiuni ORDER BY id ASC 
+    `);
+    return rows;
+  },    
+
+  async getByRoleIds(id_utilizator) {
     if (!id_utilizator) return [];
 
     const values = [id_utilizator];
@@ -65,5 +72,16 @@ export const PermissionModel = {
       `DELETE FROM permisiuni.permisiuni WHERE id = $1`,
       values
     );
-  } 
+  },
+
+  async getRolePermissions(id_rol) {
+    const values = [id_rol];
+    const { rows } = await pool.query(`
+      SELECT p.*
+      FROM permisiuni.permisiuni p
+      JOIN permisiuni.roluri_permisiuni rp ON rp.id_permisiune = p.id
+      WHERE rp.id_rol = $1
+    `, values);
+    return rows;
+  }
 };

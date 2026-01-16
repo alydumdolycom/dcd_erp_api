@@ -224,7 +224,8 @@ export const UserModel = {
     const { rows } = await pool.query(
         `SELECT r.* FROM permisiuni.roluri r
           JOIN permisiuni.utilizatori_roluri ur ON r.id_rol = ur.id_rol 
-          WHERE ur.id_utilizator = $1`,
+          WHERE ur.id_utilizator = $1
+          ORDER BY r.id_rol ASC;`,
         [userId]
     );
     return rows;
@@ -252,15 +253,24 @@ export const UserModel = {
     return rows;
   },
 
-  async getPermissions(userId) {
+  async getPermissions(roleId) {
     const { rows } = await pool.query(` 
-        SELECT P.name FROM permisiuni.roluri_permisiuni RP
-        LEFT JOIN permisiuni.permisiuni P  ON P.id = RP.id_permisiune
-        LEFT JOIN permisiuni.roluri R ON R.id_rol = RP.id_rol
-        LEFT JOIN permisiuni.utilizatori_roluri UR ON UR.id_rol = R.id_rol
-        LEFT JOIN admin.utilizatori U ON U.id_utilizator = UR.id_utilizator
-        WHERE U.id_utilizator = $1`, 
-      [userId]); 
+        SELECT
+          r.id_rol,
+          r.nume_rol,
+          r.descriere,
+          p.name
+
+        FROM admin.utilizatori u
+        JOIN permisiuni.utilizatori_roluri ur ON ur.id_utilizator = u.id_utilizator
+        JOIN permisiuni.roluri r ON r.id_rol = ur.id_rol
+        JOIN permisiuni.roluri_permisiuni rp ON rp.id_rol = r.id_rol
+        JOIN permisiuni.permisiuni p ON p.id = rp.id_permisiune
+
+        WHERE r.id_rol = $1
+        ORDER BY r.id_rol;
+`, 
+      [roleId]); 
     return rows;
   }
 };
