@@ -49,16 +49,23 @@ export const UserModel = {
       ]);
       const user = userResult.rows[0];
       const userId = user.id_utilizator;
-      console.log("Created user with ID:", userId);
-      console.log("Assigning roles:", roles);
 
       // Insert roles if provided
       if (Array.isArray(roles)) {
         for (const roleId of roles) {
-          await client.query(
-          `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
-          [userId, roleId]
-          );
+          // Check if role exists
+          const { rowCount } = await client.query(
+            `SELECT R.id_rol FROM permisiuni.roluri as R WHERE id_rol = $1 LIMIT 1`,
+            [roleId]
+              );
+          if (rowCount > 0) {
+            await client.query(
+              `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
+              [userId, roleId]
+            );
+          } else {
+            return false;
+          }
         }
       }
 
