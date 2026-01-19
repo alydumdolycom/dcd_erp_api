@@ -272,5 +272,26 @@ export const UserModel = {
 `, 
       [roleId]); 
     return rows;
-  }
+  },
+
+  async getUserWithAccess(userId) {
+    const { rows } = await pool.query(`
+      SELECT r.id_rol, r.nume_rol
+        FROM permisiuni.roluri r
+        JOIN permisiuni.utilizatori_roluri ur ON ur.id_rol = r.id_rol
+        JOIN admin.utilizatori u ON u.id_utilizator = ur.id_utilizator
+      WHERE ur.id_utilizator = $1;
+    `, [userId]);   
+    return rows;
+  },
+
+  async getUserPermissions(userId) {
+    const { rows } = await pool.query(` 
+        SELECT U.id_utilizator, P.name FROM permisiuni.utilizatori_permisiuni UP
+        LEFT JOIN admin.utilizatori U ON U.id_utilizator = UP.id_utilizator
+        LEFT JOIN permisiuni.permisiuni  P ON  P.id = UP.id_permisiune
+        WHERE U.id_utilizator = $1;`
+      , [userId]); 
+    return rows;
+  }   
 };

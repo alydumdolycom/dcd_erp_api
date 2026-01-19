@@ -7,7 +7,13 @@ export const RolesService = {
     },
 
     async getRoleById(id) {
-        return await RoleModel.findById(id);
+
+        const role = await RoleModel.findById(id);
+        if (!role) {
+            return null;
+        }
+
+        return role;
     },
 
     async create(data) {
@@ -27,6 +33,15 @@ export const RolesService = {
     },
 
     async deleteRole(id) {
+        // Check if the role is used (assuming a method RoleModel.isRoleUsed)
+        const isUsed = await RoleModel.roleUsed(id);      
+        if (isUsed) {
+            return true; // Role is used, cannot delete
+        }   
         return await RoleModel.delete(id);   
+    },
+
+    async getRolePermissions(roleId) {
+        return await RoleModel.getRolePermissions(roleId);
     }
 };

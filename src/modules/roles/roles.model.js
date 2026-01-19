@@ -20,22 +20,59 @@ export const RoleModel = {
   },
   
   async findById(id) {
+    // Fetch the role by id
     const { rows } = await pool.query(
-        `SELECT * FROM ${this.TABLE} WHERE id_rol = $1 LIMIT 1`,
-        [id]
+      `SELECT * FROM ${this.TABLE} WHERE id_rol = $1 LIMIT 1`,
+      [id]
     );
+    const role = rows[0];
+    if (!role) return null;
+
+    // Fetch permissions associated with this role
+    const { rows: permissions } = await pool.query(
+      `SELECT p.* FROM permisiuni.permisiuni p
+       INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune
+       WHERE rp.id_rol = $1`,
+      [id]
+    );
+
+    // Return role with permissions array
+    return { ...role, permissions };
     return rows[0] || null;
   },
 
   async create(roleData) {  
-    const { nume_rol, descriere } = roleData;
+    const { nume_rol, descriere, permissions } = roleData;
+    // Insert the role
     const { rows } = await pool.query(
-        `INSERT INTO ${this.TABLE} (nume_rol, descriere)
-         VALUES ($1, $2)    
-            RETURNING *`,
-        [nume_rol, descriere]
+      `INSERT INTO ${this.TABLE} (nume_rol, descriere)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [nume_rol, descriere]
     );
-    return rows[0];
+    const role = rows[0];
+
+    // Insert permissions if provided and is an array
+    if (Array.isArray(permissions) && permissions.length > 0) {
+      const permValues = permissions
+      .map(permId => `(${role.id_rol}, ${Number(permId)})`)
+      .join(", ");
+      await pool.query(
+      `INSERT INTO permisiuni.roluri_permisiuni (id_rol, id_permisiune)
+       VALUES ${permValues}
+       ON CONFLICT DO NOTHING`
+      );
+    }
+
+    // Fetch all permissions for this role
+    const { rows: perms } = await pool.query(
+      `SELECT p.* FROM permisiuni.permisiuni p
+       INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune
+       WHERE rp.id_rol = $1`,
+      [role.id_rol]
+    );
+
+    return { ...role, permissions: perms };
   },
 
   async update(id, data) {
@@ -122,5 +159,25 @@ export const RoleModel = {
         [id]
     );
     return rows[0];
+  },
+
+  async roleUsed(id) {
+    // Check if the role is assigned to any users
+    const { rows } = await pool.query(
+      `SELECT COUNT(*) FROM permisiuni.roluri_permisiuni WHERE id_rol = $1`,
+      [id]
+    );
+    const count = parseInt(rows[0].count, 10);
+    return count > 0;
+  },
+
+  async getRolePermissions(roleId) {
+    const { rows } = await pool.query(
+      `SELECT p.* FROM permisiuni.permisiuni p
+       INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune  
+        WHERE rp.id_rol = $1`,
+      [roleId]
+    );
+    return rows;
   }
 };

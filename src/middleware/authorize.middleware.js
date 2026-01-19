@@ -1,39 +1,52 @@
-const { getUserById } = require('../services/user.service'); // Example user service
-const { getPermissionByName } = require('../services/permission.service'); // Example permission service
+// src/middleware/authorize.middleware.js
+import { RolesService } from "../modules/roles/roles.service.js";
+import { UsersService } from "../modules/users/users.service.js";
 
 /**
- * Middleware to authorize user based on required permission.
- * Usage: authorize('PERMISSION_NAME')
+ * Authorization middleware
+ * Usage: authorize("companies.read")
  */
-function authorize(requiredPermission) {
-    return async (req, res, next) => {
-        try {
-            const userId = req.user && req.user.id;
-            if (!userId) {
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
+export function authorize(requiredPermission) {
+  return async (req, res, next) => {
+    try {
+      // 1️⃣ Must be authenticated first
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({
+          message: "Access interzis"
+        });
+      }
 
-            const user = await getUserById(userId);
-            if (!user || !user.roles) {
-                return res.status(403).json({ message: 'Forbidden' });
-            }
+      const userId = req.user.id;
+      // 2️⃣ Load user with roles + permissions
+      const user = await UsersService.getUserAccess(userId);
+      if (!user || !user[0].nume_rol) {
+        return res.status(403).json({
+          message: "Access interzis"
+        });
+      }
 
-            // Aggregate permissions from all roles
-            const userPermissions = user.roles
-                .flatMap(role => role.permissions || []);
+      // 3️⃣ Collect all permissions from all roles
+      // user.access is now an array of roles: [{ id_rol, nume_rol }]
+      // For each role, fetch its permissions from UsersService.getRolePermissions
+      let permissions = [];
+      for (const role of user) {
+        const rolePermissions = await RolesService.getRolePermissions(role.id_rol);
+        permissions.push(...rolePermissions.map(perm => perm.name));
+      }
 
-            // Check if user has the required permission
-            const hasPermission = userPermissions.includes(requiredPermission);
-
-            if (!hasPermission) {
-                return res.status(403).json({ message: 'Forbidden' });
-            }
-
-            next();
-        } catch (error) {
-            res.status(500).json({ message: 'Internal Server Error' });
-        }
-    };
+      const userPermissions = await UsersService.getPermissions(userId);
+      permissions.push(...userPermissions.map(perm => perm.name));
+      if (!permissions.includes(requiredPermission)) {
+        return res.status(403).json({
+          message: "Access interzis"
+        });
+      }
+      next();
+    } catch (err) {
+      console.error("Eroare la autorizare:", err);
+      return res.status(500).json({
+        message: "Eroare internă a serverului"
+      });
+    }
+  };
 }
-
-module.exports = authorize;

@@ -16,11 +16,11 @@ export const UsersService = {
     // Business logic: ensure unique email & name
     const existingEmail = await UserModel.findByEmail(data.email);
     if (existingEmail) {
-      return { error: "Email already in use", code: "EMAIL_EXISTS" };
+      return { error: "Email deja folosit", code: "EMAIL_EXISTS" };
     }
     const existingName = await UserModel.findByName(data.nume_complet);
     if (existingName) {
-      return { error: "Nume complet already in use", code: "NAME_EXISTS" };
+      return { error: "Nume complet deja exista", code: "NAME_EXISTS" };
     }
     const user = await UserModel.create(data);
     // Assign role after user creation
@@ -67,5 +67,9 @@ export const UsersService = {
 
   async getPermissions(userId) {
     return await UserModel.getPermissions(userId);
+  },
+
+  async getUserAccess(userId) {
+    return UserModel.getUserWithAccess(userId);
   }
 };

@@ -60,17 +60,25 @@ export const RolesController = {
     
     async delete(req, res, next) { 
         try {
-            const existingRole = await RolesService.getRoleById(req.params.id);
-            if (!existingRole) {
-            return res.status(404).json({
-                message: "Informatiile nu au fost gasite",
-                data: null,
-                success: false,
-                status: 404
-            });
+            const findRole = await RolesService.getRoleById(req.params.id);
+            if (!findRole) {
+                return res.status(404).json({
+                    message: "Informatiile nu au fost gasite",
+                    data: null,
+                    success: false,
+                    status: 404
+                });
             }
-            await RolesService.deleteRole(req.params.id);
-            return res.status(204).send();
+            const used = await RolesService.deleteRole(req.params.id);
+            if(used === true) {
+                return res.status(400).json({
+                    message: "Rolul nu poate fi sters deoarece este utilizat.",
+                    data: null,
+                    success: false,
+                    status: 400
+                });
+            }
+            return res.json({ message: "Informatiile au fost sterse cu succes" });
         } catch (err) {
             next(err);
         }
