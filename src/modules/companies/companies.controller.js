@@ -1,6 +1,13 @@
 import { CompaniesService } from './companies.service.js';
 
+/*
+  Companies Controller
+*/
 export const CompaniesController = {
+  
+  /*
+    Get all companies
+  */
   async getAll(req, res, next) {
     try {
       const { search, sortBy, filters } = req.query;
@@ -20,6 +27,9 @@ export const CompaniesController = {
     }
   },
 
+  /*
+    Get company by ID
+  */
   async getBy(req, res, next) {    
     try {
       const find = await CompaniesService.getById(req.params.id);
@@ -41,6 +51,9 @@ export const CompaniesController = {
     }
   },
 
+  /*
+    Create a new company
+  */
   async create(req, res, next) {
     try {
       const employee = await CompaniesService.create(req.body);
@@ -58,6 +71,9 @@ export const CompaniesController = {
     }
   },
 
+  /*
+    Update company by ID
+  */
   async update (req, res) {
     const { id } = req.params;  
     const data = req.body;
@@ -85,6 +101,9 @@ export const CompaniesController = {
     }
   },
 
+  /*
+    Delete company by ID
+  */
   async delete(req, res, next) {
     // Logic to delete a company
     try {

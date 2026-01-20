@@ -1,19 +1,25 @@
 import { addError } from "../../utils/validators.js";
 import { DepartmentsModel } from "./departments.model.js";
 
+/*
+  Service for managing departments.
+*/
 export const DepartmentsService = {
 
+  /* Retrieve all departments with optional search and sorting */
   async getAll({ search, sortBy, sortOrder }) {
     // Simulated database call  
     const data = await DepartmentsModel.all();
     return data;
   },
 
+  /* Retrieve a department by its ID */
   async getById(id) {
     const data = await DepartmentsModel.findById(id);
     return data;
   },
 
+  /* Create a new department with validation */
   async create(departmentData) {
     const errors = {};
   
@@ -32,11 +38,13 @@ export const DepartmentsService = {
     return data;
   },
 
+  /* Update an existing department by ID */
   async update(id, departmentData) {
     const data = await DepartmentsModel.update(id, departmentData);
     return data;
   },
   
+  /* Delete a department by ID */
   async delete(id) {
     const data = await DepartmentsModel.delete(id);
     return data;

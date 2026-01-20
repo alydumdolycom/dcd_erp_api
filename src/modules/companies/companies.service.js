@@ -1,12 +1,17 @@
-
 import { addError } from "../../utils/validators.js";
 import { CompaniesModel } from "./companies.model.js";
 
+/*
+  Companies Service
+*/
 export const CompaniesService = {
+  
+  /* Get all companies with optional search, sorting, and filtering */
   async getAll({ search, sortBy, filters }) {
- // Business rules can live here
     return CompaniesModel.all({ search, sortBy, filters });
   },
+
+  /* Create a new company with validation */
   async create(data) {
     const errors = {};
 
@@ -30,14 +35,17 @@ export const CompaniesService = {
     return CompaniesModel.create(data);
   },
 
+  /* Get a company by its ID */
   async getById(id) {
     return CompaniesModel.findById(id);
   },
 
+  /* Update an existing company */
   async update(id, data) {
     return CompaniesModel.update(id, data);
   },
 
+  /* Delete a company by its ID */
   async delete(id) {
     await CompaniesModel.delete(id);
   }

@@ -1,13 +1,17 @@
 import { EmployeesService } from "./employees.service.js";
-
+/*
+  Controller for managing employees.
+*/
 export const EmployeesController = {
-    async getAll(req, res, next) {
+  
+  /* Retrieve all employees with optional search, sorting, and filtering */
+  async getAll(req, res, next) {
       try {
         const {
           search = "",
-          sortBy = res.query?.defaultSortBy || "id",
+          sortBy = req.query?.defaultSortBy || "id",
           id_firma,
-          sortOrder =  res.sortOrder || "asc",
+          sortOrder =  req.query?.sortOrder || "asc",
           data_angajarii,
           // filters
           id_departament,
@@ -45,77 +49,101 @@ export const EmployeesController = {
           details: err.message
         });
       }
-    },
+  },
 
-    async getById(req, res, next) {
-      try {
-        const employee = await EmployeesService.findById(req.params.id);
-        if (!employee) { 
-          return res.status(404).json({ message: "Salariatul nu a fost gasit" });
-        }
-        res.json(employee);
-      } catch (err) {
-        next(err);
+  /* Retrieve a single employee by ID */
+  async getById(req, res, next) {
+    try {
+      const employee = await EmployeesService.findById(req.params.id);
+      if (!employee) { 
+        return res.status(404).json({ message: "Salariatul nu a fost gasit" });
       }
-    },
-    
-    async create(req, res, next) {
-
-      try {
-        const employee = await EmployeesService.create(req.body);
-        res.status(201).json({
-          success: true,
-          message: "Informatiile au fost salvate",
-          data: employee
-        });
-      } catch (err) {
-        next({
-          status: 500,
-          message: "A aparut o eroare la salvarea informatiilor",
-          details: err.message
-        });
-      }
-    },
-
-    async update(req, res, next) {
-      try {
-        const { id } = req.params;
-        const data = await EmployeesService.update(id, req.body);
-        
-        return res.status(200).json({
-          success: true,
-          data: data
-        });
-      } catch (err) {
-        next({
-          status: 500,  
-          message: "Eroare la server",
-          details: err.message
-        });
-      }
-    },
+      res.json(employee);
+    } catch (err) {
+      next(err);
+    }
+  },
   
-    async delete(req, res, next) {
+  /* Create a new employee */
+  async create(req, res, next) {
+
+    try {
+      const employee = await EmployeesService.create(req.body);
+      res.status(201).json({
+        success: true,
+        message: "Informatiile au fost salvate",
+        data: employee
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la salvarea informatiilor",
+        details: err.message
+      });
+    }
+  },
+
+  /* Update an existing employee */
+  async update(req, res, next) {
+    try {
       const { id } = req.params;
-      const deleted = await EmployeesService.delete(id);
-      if (!deleted) {
-        return res.status(404).json({
-          success: false,
-          message: "Nu a fost gasit"
-        });
-      }
+      const data = await EmployeesService.update(id, req.body);
+      
       return res.status(200).json({
         success: true,
-        message: "Informatiile au fost sterse"
+        data: data
       });
-    },
-    
-    async employeeCompany(req, res, next) {
-      try {
-        const data = await EmployeesService.getEmployeeCompany(req.user.id);
-        res.json(data);
-      } catch (err) {
-        next(err);
-      }
+    } catch (err) {
+      next({
+        status: 500,  
+        message: "Eroare la server",
+        details: err.message
+      });
     }
+  },
+
+  /* Delete an employee by ID */
+  async delete(req, res, next) {
+    const { id } = req.params;
+    const deleted = await EmployeesService.delete(id);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Nu a fost gasit"
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Informatiile au fost sterse"
+    });
+  },
+  
+  /* Get the company information of the logged-in employee */
+  async employeeCompany(req, res, next) {
+    try {
+      const data = await EmployeesService.getEmployeeCompany(req.user.id);
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async modEditEmployee(req, res, next) {
+    try { 
+      const employeeData = req.body;
+      req.body.id_utilizator = req.user.id;
+      const updatedEmployee = await EmployeesService.modEditEmployee(employeeData);
+      res.status(200).json({
+        success: true,
+        message: "Informatiile au fost actualizate",
+        data: updatedEmployee
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la actualizarea informatiilor",
+        details: err.message
+      });
+    }
+  }
 };

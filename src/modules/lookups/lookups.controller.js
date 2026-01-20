@@ -1,7 +1,11 @@
 import { LookupsService } from "./lookups.service.js";
 
+/*
+ * Lookups Controller
+ */
 export const LookupsController = {
 
+  /* Get Payment Types */
   async paymentType(req, res, next) {
     try {
       const data = await LookupsService.paymentType();  
@@ -11,6 +15,7 @@ export const LookupsController = {
     } 
   },
   
+  /* Get Contract Types */
   async getContractType(req, res, next) {
     try {
       const data = await LookupsService.getContractType();
@@ -20,6 +25,7 @@ export const LookupsController = {
     }
   },
   
+  /* Get Hours Worked */
   async hoursWorked(req, res, next) {
     try {
       const data = await LookupsService.hoursWorked();
@@ -29,6 +35,7 @@ export const LookupsController = {
     }
   },
 
+  /* Get Working Days */
   async workingDays(req, res, next) {
     try {
       const data = await LookupsService.workingDays();
@@ -38,6 +45,7 @@ export const LookupsController = {
     } 
   },
   
+  /* Get Cities */
   async getCities(req, res, next) {
     try {
       const data = await LookupsService.getCities();
@@ -47,6 +55,7 @@ export const LookupsController = {
     }
   },
 
+  /* Get Towns by City ID */
   async getTowns(req, res, next) {
     try {
       const data = await LookupsService.getTowns(req.params.id);
@@ -56,6 +65,7 @@ export const LookupsController = {
     }
   },
   
+  /* Get Dashboard Counts */
   async dashboardCount(req, res, next) {
     const companyId = req.params.id;
     try {

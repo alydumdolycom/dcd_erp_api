@@ -1,12 +1,11 @@
 import Joi from "joi";
 
+/* Validation schema for creating a new employee */
 export const createEmployeeSchema = {
   body: Joi.object({
     id_firma: Joi.number().integer().required(),
-
     nume: Joi.string().min(2).max(100).required(),
     prenume: Joi.string().min(2).max(100).required(),
-
     cnp: Joi.string()
       .length(13)
       .pattern(/^[0-9]+$/)

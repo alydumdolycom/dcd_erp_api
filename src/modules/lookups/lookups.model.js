@@ -1,7 +1,9 @@
 import pool from "../../config/db.js";
 
+/* Lookups Model */
 export const LookupsModel = {
 
+  /* Get payment types */
   async paymentType() {
     const query = `
       SELECT MSPTYPE.* FROM nomenclatoare.nom_salarii_modplata AS MSPTYPE
@@ -9,6 +11,7 @@ export const LookupsModel = {
     return await pool.query(query);
   },
 
+  /* Get contract types */
   async getContractType() {
     const query = `
       SELECT NSTCYPE.* FROM nomenclatoare.nom_salarii_tipcontract AS NSTCYPE
@@ -16,6 +19,7 @@ export const LookupsModel = {
     return await pool.query(query);
   },
 
+  /* Get hours worked types */
   async hoursWorked() {
     const query = `
       SELECT NSWH.* FROM nomenclatoare.nom_salarii_ore_norma AS NSWH
@@ -23,6 +27,7 @@ export const LookupsModel = {
     return await pool.query(query)
   },
 
+  /* Get working days */
   async workingDays(){
     const query = `
       SELECT * FROM nomenclatoare.nom_luni
@@ -32,6 +37,7 @@ export const LookupsModel = {
     return rows;
   },
 
+  /* Get departments */
   async getDepartments() {
     const { rows } = await pool.query(
       `SELECT id, nume_departament FROM nomenclatoare.nom_salarii_departamente ORDER BY nume_departament`
@@ -39,6 +45,7 @@ export const LookupsModel = {
     return rows;
   },
 
+  /* Insert department */
   async insertDepartment(departmentData) {
     const { nume_departament, observatii } = departmentData;
     const query = `
@@ -50,12 +57,14 @@ export const LookupsModel = {
     return rows[0];
   },
 
+  /* Get cities */
   async getCities() {
     let sql = `SELECT id, judet FROM nomenclatoare.nom_judete`;
     const { rows } = await pool.query(sql);
     return rows;
   },
 
+  /* Get towns by city id */
   async getTowns(id) {
     const sql = `
       SELECT id, localitate FROM nomenclatoare.nom_localitati
@@ -66,6 +75,7 @@ export const LookupsModel = {
     return rows;
   },
 
+  /* Get job types */
   async getJobTypes() {
     const { rows } = await pool.query(
       `SELECT id, nume_functie FROM nomenclatoare.nom_salarii_functii ORDER BY nume_functie`
@@ -73,6 +83,7 @@ export const LookupsModel = {
     return rows;
   },
 
+  /* Save job types */
   async saveJobTypes(jobTypesData) {
     const { id, nume_functie, observatii, cod_cor, functie_cor } = jobTypesData;
     let query, values;
@@ -95,6 +106,7 @@ export const LookupsModel = {
     return rows[0];
   },
   
+  /* Count employees for a company */
   async countEmployees(companyId) {
     const query = `
       SELECT COUNT(*) AS count FROM salarizare.salariati WHERE id_firma = $1
@@ -103,6 +115,7 @@ export const LookupsModel = {
     return parseInt(rows[0].count, 10);
   },
 
+  /* Count users */
   async countUsers() {
     const query = `
       SELECT COUNT(*) AS count FROM admin.utilizatori
@@ -110,7 +123,8 @@ export const LookupsModel = {
     const { rows } = await pool.query(query);
     return parseInt(rows[0].count);
   },
-
+  
+  /* Count roles */
   async countRoles() {
     const query = `
       SELECT COUNT(*) AS count FROM permisiuni.roluri

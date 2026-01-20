@@ -1,7 +1,12 @@
 import pool from "../../config/db.js";
 
+/* Holidays Model
+Table: salarizare.concedii_odihna
+*/
 export const HolidaysModel = {
     Table: 'salarizare.concedii_odihna',
+    
+    /* Get all holidays with optional filters */
     async all({ id_firma, id_departament, nume, prenume, an, luna }) {
         // Database logic to get all holidays
         // Always filter by id_firma
@@ -49,6 +54,7 @@ export const HolidaysModel = {
         return rows;
     },
 
+    /* Find holiday by ID */
     async findById(id) {
         // Database logic to find a holiday by ID
         const find = await pool.query(`SELECT * FROM ${this.Table} WHERE id = $1`, [id]);
@@ -72,6 +78,7 @@ export const HolidaysModel = {
         return rows[0];
     },
 
+    /* Count holidays for a specific employee */
     async countHolidaysPerEmployee(id_salariat) {
         const query = `
             SELECT COUNT(*) AS total_concedii
@@ -83,6 +90,7 @@ export const HolidaysModel = {
         return rows[0].total_concedii || 0;
     },
 
+    /* Find employee's payment method */
     async findEmployeePaymentMethod(id) {
         const employees = `
         SELECT SMP.id FROM salarizare.salariati S
@@ -96,6 +104,7 @@ export const HolidaysModel = {
         return rows[0] || null;
     },
 
+    /* Create a new holiday record */
     async create(data) {
         const client = await pool.connect();
         const salariat = await this.findEmployeePaymentMethod(data.id_salariat);
@@ -154,6 +163,7 @@ export const HolidaysModel = {
         }
     },
 
+    /* Update an existing holiday record */
     async update(id, holidayData) {
         // Database logic to update an existing holiday
         // Build dynamic SET clause for PATCH (partial update)
@@ -180,6 +190,7 @@ export const HolidaysModel = {
         return rows;
     },
 
+    /* Delete a holiday record */
     async delete(id) {
         // Database logic to delete a holiday
         const query = ` 

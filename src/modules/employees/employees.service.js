@@ -1,7 +1,10 @@
 import { EmployeesModel } from "./employees.model.js";
 import { addError } from "../../utils/validators.js";
+
+/* Service for managing employees */
 export const EmployeesService = {
 
+  /* Get all employees with optional filters and sorting */
   async getAll({ 
           search,
           sortBy,
@@ -34,10 +37,12 @@ export const EmployeesService = {
     return { data };
   },
 
+  /* Get company details for a specific employee */
   async getEmployeeCompany(id){ 
     return await EmployeesModel.getEmployeeCompany(id);
   },
 
+  /* Update employee details with provided data */
   async update(id, data) {
     // Patch method: update only provided fields
     const row = await EmployeesModel.find(id);
@@ -48,6 +53,7 @@ export const EmployeesService = {
     return updatedRow;
   },
 
+  /* Find an employee by ID */
   async findById(id) {
     const data = await EmployeesModel.findById(id);
     if (!data) {
@@ -56,6 +62,7 @@ export const EmployeesService = {
     return data;
   },
 
+  /* Create a new employee with validation */
   async create(data) {
     const errors = {};
 
@@ -96,14 +103,17 @@ export const EmployeesService = {
     return EmployeesModel.create(data);
   },
 
+  /* Update employee details */
   async update(id, data) {
     return EmployeesModel.update(id, data);
   },
 
+  /* Delete an employee by ID */
   async delete(id) {
     return EmployeesModel.delete(id);
   },
 
+  /* Modify and edit employee details */
   async modEditEmployee(employeeData) {
     return await EmployeesModel.modEditEmployee(employeeData);
   }

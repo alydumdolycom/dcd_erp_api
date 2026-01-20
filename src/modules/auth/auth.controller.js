@@ -4,12 +4,22 @@ import { AuthService } from "./auth.service.js";
 import { AuthValidation } from "./auth.validation.js";
 import { hashToken } from "../../utils/tokenHash.js";
 import { UserModel } from "../users/users.model.js";
-// import { RoleModel } from "../roles/roles.model.js";
 import { AccessService } from "../permissions/acces.service.js";
 
+/*
+  AUTH CONTROLLER - controler pentru autentificare
+  - Gestionează cererile legate de autentificare, înregistrare, deconectare, reîmprospătare token, recuperare și resetare parolă
+*/
 export const AuthController = {
 
-// controllers/auth.controller.js
+/*
+  REFRESH TOKEN - reîmprospătare token
+  - Verifică dacă token-ul de reîmprospătare este prezent în cookie-uri
+  - Verifică dacă token-ul este valid și nu a fost revocat
+  - Dacă este valid, generează un nou token de acces și un nou token de reîmprospătare
+  - Revocă token-ul de reîmprospătare vechi
+  - Returnează noul token de acces și setează noul token de reîmprospătare în cookie-uri
+*/
   async refresh(req, res) {
     const refreshToken = req.cookies.refresh_token;
 
@@ -75,6 +85,12 @@ export const AuthController = {
     });
   },
 
+  /*
+    REGISTER - înregistrare utilizator
+    - Validează datele de intrare
+    - Creează un nou utilizator în baza de date
+    - Returnează un mesaj de succes și detaliile utilizatorului creat
+  */
   async register(req, res) {
     const errors = AuthValidation.register(req.body);
     if (errors.length) return res.status(400).json({ errors });
@@ -89,6 +105,14 @@ export const AuthController = {
     });
   },
 
+  /*
+    LOGIN - autentificare utilizator
+    - Validează datele de intrare
+    - Verifică dacă utilizatorul există și parola este corectă
+    - Generează un token de acces și un token de reîmprospătare
+    - Setează token-ul de reîmprospătare în cookie-uri
+    - Returnează detaliile utilizatorului, token-ul de acces și abilitățile acestuia
+  */
   async login(req, res) {
 
     const errors = AuthValidation.login(req.body);
@@ -118,6 +142,13 @@ export const AuthController = {
     });
   },
   
+  /*
+    LOGOUT - deconectare utilizator
+    - Preia token-ul de reîmprospătare din cookie-uri
+    - Revocă token-ul de reîmprospătare în baza de date
+    - Șterge cookie-ul de token de reîmprospătare
+    - Returnează un mesaj de succes
+  */
   async logout(req, res) {
     const refreshToken = req.cookies.refresh_token;
 
@@ -139,6 +170,12 @@ export const AuthController = {
       });
   },
 
+  /*
+    RECOVER PASSWORD - recuperare parolă
+    - Validează datele de intrare
+    - Trimite un email cu instrucțiuni de recuperare a parolei
+    - Returnează un mesaj de succes
+  */
   async recover(req, res) {
     const errors = AuthValidation.recover(req.body);
     if (errors.length) return res.status(400).json({ errors });
@@ -152,6 +189,12 @@ export const AuthController = {
     });
   },
 
+  /*
+    RESET PASSWORD - resetare parolă
+    - Validează datele de intrare
+    - Resetează parola utilizatorului folosind token-ul de resetare
+    - Returnează un mesaj de succes
+  */
   async resetPassword(req, res) {
     const errors = AuthValidation.reset(req.body);
     if (errors.length) return res.status(400).json({ errors });

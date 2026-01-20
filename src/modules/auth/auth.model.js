@@ -2,8 +2,18 @@ import pool from "../../config/db.js";
 import bcrypt from "bcrypt";
 import { hashPassword, comparePassword } from "../../utils/hash.js";
 
+/*
+  AUTH MODEL - model pentru autentificare
+  - Interacționează cu baza de date pentru operațiuni legate de autentificare, cum ar fi găsirea utilizatorilor, salvarea token-urilor de reîmprospătare și gestionarea parolelor
+*/
 export const AuthModel = {
     TABLE: "admin.utilizatori",
+
+    /*
+    FIND USER - găsire utilizator
+      - Caută un utilizator în baza de date după numele complet și verifică parola
+      - Returnează detaliile utilizatorului dacă autentificarea este reușită
+    */
     async findUser(nume_complet, parola_hash ) {
       
       const result = await pool.query(
@@ -35,6 +45,10 @@ export const AuthModel = {
       };
   },
 
+  /*
+  SAVE RECOVERY TOKEN - salvare token de recuperare
+    - Salvează token-ul de recuperare și timpul de expirare pentru un utilizator specificat prin email
+  */
   async saveRecoveryToken(email, token) {
     return pool.query(
       `
@@ -46,6 +60,11 @@ export const AuthModel = {
     );
   },
 
+  /*
+  FIND BY RECOVERY TOKEN - găsire după token de recuperare
+    - Caută un utilizator în baza de date folosind token-ul de recuperare și verifică dacă token-ul nu a expirat
+    - Returnează detaliile utilizatorului dacă token-ul este valid
+  */
   async findByRecoveryToken(token) {
     const result = await pool.query(
       `
@@ -58,6 +77,10 @@ export const AuthModel = {
     return result.rows[0] || null;
   },
 
+  /*
+  UPDATE PASSWORD - actualizare parolă
+    - Actualizează parola unui utilizator specificat prin ID și resetează token-ul de recuperare și timpul de expirare
+  */
   async updatePassword(id, newPassword) {
     const hashed = hashPassword(newPassword);
 
@@ -71,6 +94,10 @@ export const AuthModel = {
     );
   },
 
+  /*
+    SAVE REFRESH TOKEN - salvare token de reîmprospătare
+      - Salvează token-ul de reîmprospătare în baza de date pentru un utilizator specificat
+  */
   async saveRefreshToken({ userId, tokenHash, expiresAt }) {
     await pool.query(
       `
@@ -81,6 +108,10 @@ export const AuthModel = {
     );
   },
 
+  /*
+    REMOVE TOKEN - eliminare token
+      - Revocă token-ul de reîmprospătare specificat prin hash și șterge cookie-ul corespunzător
+  */
   async removeToken() {
     await pool.query(
       `UPDATE nomenclatoare.refresh_tokens SET revoked = NOW() WHERE token_hash = $1`,
@@ -91,6 +122,10 @@ export const AuthModel = {
     res.json({ success: true });
   },
 
+  /*
+    REVOKE - revocare token
+      - Marchează token-ul de reîmprospătare specificat prin hash ca revocat în baza de date
+  */
   async revoke(token_hash) {
     await pool.query(`
       UPDATE nomenclatoare.refresh_tokens
@@ -100,6 +135,11 @@ export const AuthModel = {
     `, [token_hash]);
   },
   
+  /*
+    FIND VALID - găsire validă
+      - Caută un token de reîmprospătare valid în baza de date folosind hash-ul token-ului
+      - Returnează detaliile token-ului dacă este valid și nu a expirat sau nu a fost revocat
+  */
   async findValid(token_hash) {
     const result = await pool.query(`
       SELECT *

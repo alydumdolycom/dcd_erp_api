@@ -1,7 +1,9 @@
 import pool from "../../config/db.js";
 
+/* Permission Model */
 export const PermissionModel = {
 
+  /* Get all permissions */
   async getAll() {
     const { rows } = await pool.query(`
       SELECT * FROM permisiuni.permisiuni ORDER BY id ASC 
@@ -9,6 +11,7 @@ export const PermissionModel = {
     return rows;
   },    
 
+  /* Get permissions by role IDs */
   async getByRoleIds(id_utilizator) {
     if (!id_utilizator) return [];
 
@@ -25,6 +28,7 @@ export const PermissionModel = {
     return rows;
   },
 
+  /* Get permissions by user ID */
   async getByUserId(id_utilizator) {
     if (!id_utilizator) return [];  
     const values = [id_utilizator];
@@ -39,6 +43,7 @@ export const PermissionModel = {
     return rows;
   },
 
+  /* Create a new permission */
   async create(data) {
     const values = [data.nume, data.descriere];
     const { rows } = await pool.query(
@@ -48,6 +53,7 @@ export const PermissionModel = {
     return rows[0];
   },
 
+  /* Get permission by ID */
   async getById(id) {
     const values = [id];
     const { rows } = await pool.query(
@@ -57,6 +63,7 @@ export const PermissionModel = {
     return rows[0];
   },
 
+  /* Update permission by ID */
   async update(id, data) {
     const values = [data.nume, data.descriere, id];
     const { rows } = await pool.query(
@@ -66,6 +73,7 @@ export const PermissionModel = {
     return rows[0];
   },
 
+  /* Delete permission by ID */
   async delete(id) {
     const values = [id];
     await pool.query(
@@ -74,6 +82,7 @@ export const PermissionModel = {
     );
   },
 
+  /* Get permissions for a specific role */
   async getRolePermissions(id_rol) {
     const values = [id_rol];
     const { rows } = await pool.query(`

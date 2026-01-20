@@ -4,8 +4,12 @@ import { AuthModel } from "./auth.model.js";
 import { UserModel } from "../users/users.model.js";
 import { hashToken } from "../../utils/tokenHash.js";
 
+/*
+  AuthService handles user registration, login, password recovery, and logout.
+*/
 export const AuthService = {
 
+  /* Registers a new user if the email is not already in use. */
   async register(data) {
     const userExists = await AuthModel.findUser(data.email);
     if (userExists) return { error: "Email deja folosit." };
@@ -13,6 +17,7 @@ export const AuthService = {
     return await UserModel.create(data);
   },
 
+  /* Logs in a user by verifying credentials and issuing tokens. */
   async login(nume_complet, parola_hash) {
     const user = await AuthModel.findUser(nume_complet, parola_hash);
     if (!user) return { error: "Utilizator inexistent." };
@@ -52,6 +57,7 @@ export const AuthService = {
     };
   },
 
+  /* Sends a password recovery token to the user's email. */
   async sendRecovery(email) {
     const user = await AuthModel.findByEmail(email);
     if (!user) return { error: "Email inexistent." };
@@ -63,6 +69,7 @@ export const AuthService = {
     return { email, token };
   },
 
+  /* Resets the user's password using the recovery token. */
   async resetPassword(token, newPassword) {
     const user = await AuthModel.findByRecoveryToken(token);
     if (!user) return { error: "Token expirat sau invalid." };
@@ -72,6 +79,7 @@ export const AuthService = {
     return { success: true };
   },
   
+  /* Logs out the user by revoking the refresh token. */
   async logout(refreshToken) {
     if (!refreshToken) return;
     const tokenHash = hashToken(refreshToken);

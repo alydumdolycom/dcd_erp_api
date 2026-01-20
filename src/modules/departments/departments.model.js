@@ -1,8 +1,13 @@
 import pool from "../../config/db.js";
 
+/*
+  Model for managing departments in the database.
+  Table: nomenclatoare.nom_salarii_departamente
+*/
 export const DepartmentsModel = {
   TABLE: "nomenclatoare.nom_salarii_departamente",
 
+  /* Retrieve all department records */
   async all() {
     const query = `
       SELECT    
@@ -16,6 +21,7 @@ export const DepartmentsModel = {
     return rows;
   },
 
+  /* Create a new department record */
   async create({ nume_departament, observatii }) {
     const query = `
       INSERT INTO ${this.TABLE} (nume_departament, observatii)
@@ -27,6 +33,7 @@ export const DepartmentsModel = {
     return rows[0];
   },
 
+  /* Update an existing department record */
   async update(id, { nume_departament, observatii }) {
     // Build dynamic SET clause for PATCH-like updates
     const fields = [];
@@ -57,6 +64,7 @@ export const DepartmentsModel = {
     return rows[0];
   }, 
    
+  /* Find a department by its ID */
   async findById(id) {
     const query = `
       SELECT    
@@ -70,6 +78,7 @@ export const DepartmentsModel = {
     return rows[0] || null;;  
   },
 
+  /* Find a department by its name */
   async findOne({ nume_departament }) {
     const query = `
       SELECT    
@@ -83,6 +92,7 @@ export const DepartmentsModel = {
     return rows[0] || null;
   },
 
+  /* Delete a department by its ID */
   async delete(id) {
     const query = `
       DELETE FROM ${this.TABLE}

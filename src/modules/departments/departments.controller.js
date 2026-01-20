@@ -1,7 +1,11 @@
 import { DepartmentsService } from "./departments.service.js";
 
+/*
+Controller pentru gestionarea departamentelor
+*/
 export const DepartmentsController = {
 
+  /* Obtine toate departamentele cu optiuni de cautare si sortare */
   async getAll(req, res, next) {
     try {   
         const { 
@@ -23,6 +27,7 @@ export const DepartmentsController = {
     }
   },
 
+  /* Obtine un departament dupa ID */
   async getById(req, res, next) {
     try {
         const { id } = req.params;
@@ -36,6 +41,7 @@ export const DepartmentsController = {
     }
   },
 
+  /* Creeaza un nou departament */
   async create(req, res, next) {
     try {   
         const { nume_departament, observatii } = req.body;
@@ -49,6 +55,7 @@ export const DepartmentsController = {
     } 
   },
 
+  /* Actualizeaza un departament existent */
   async update(req, res, next) {
     try { 
         const { id } = req.params;
@@ -67,6 +74,7 @@ export const DepartmentsController = {
     }
   },
   
+  /* Sterge un departament dupa ID */
   async delete(req, res, next) {
     try { 
         const { id } = req.params;

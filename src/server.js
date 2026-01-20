@@ -15,20 +15,20 @@ dotenv.config({
 });
 
 // Import module routers
-import usersRoutes from "./modules/users/users.routes.js";
-import rolesRoutes from "./modules/roles/roles.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import usersRoutes from "./modules/users/users.routes.js";
+import rolesRoutes from "./modules/roles/index.js";
 import employeesRoutes from "./modules/employees/index.js";
 import lookupsRoutes from "./modules/lookups/index.js";
-import companiesRoutes from "./modules/companies/companies.routes.js";
+import companiesRoutes from "./modules/companies/index.js";
 import departmentsRoutes from "./modules/departments/departments.routes.js";
 import jobsRoutes from "./modules/jobs/jobs.routes.js";
 import permissionsRoutes from "./modules/permissions/permissions.routes.js";
-import paymentsRoutes from "./modules/payments/payments.routes.js";
+import paymentsRoutes from "./modules/payments/index.js";
 import accountRoutes from "./modules/account/account.routes.js";
-import documentsRoutes from "./modules/documents/documents.routes.js";
-import holidaysRoutes from "./modules/holidays/holidays.routes.js";
-
+import documentsRoutes from "./modules/documents/index.js";
+import holidaysRoutes from "./modules/holidays/index.js";
+import medicalHolidaysRoutes from "./modules/MedicalHolidays/MedicalHolidays.routes.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -68,7 +68,7 @@ app.use("/api/permissions", auth, permissionsRoutes);
 app.use("/api/payments", auth, paymentsRoutes);
 app.use("/api/documents", auth, documentsRoutes);
 app.use("/api/holidays", auth, holidaysRoutes);
-
+app.use("/api/medical/holidays", auth, medicalHolidaysRoutes);
 // Health check
 app.get("/health", (req, res) => {
     res.json({ status: "OK", uptime: process.uptime() });

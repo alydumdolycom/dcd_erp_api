@@ -1,8 +1,9 @@
 import pool from "../../config/db.js";
 
+/* Payments Model */
 export const PaymentsModel = {
     Table: "salarizare.salariati_modplata",
-    // Define your payment model structure here
+    /* Get all payment methods */
     async all() {
         const { rows } = await pool.query(
         `SELECT * FROM ${this.Table}`
@@ -10,6 +11,7 @@ export const PaymentsModel = {
         return rows;
     },
 
+    /* create a new payment method */
     async create(paymentData) {
         try {   
             const { id_salariat, id_modplata, cont_bancar, activ } = paymentData;
@@ -24,6 +26,7 @@ export const PaymentsModel = {
         }
     },
 
+    /* update payment method */
     async update(id, paymentData) {
         const fields = [];
         const values = [];
@@ -66,6 +69,7 @@ export const PaymentsModel = {
         return rows[0];
     },
 
+    /* delete payment method */
     async delete(id) {
         await pool.query(
         `DELETE FROM salarizare.salariati_modplata

@@ -1,6 +1,9 @@
 import { HolidaysService } from './holidays.service.js';
 
+/* Controller for managing holidays */
 export const HolidaysController = {
+
+    /* Get all holidays with optional filters */
     async getAll(req, res, next) {
         const { id_firma, id_departament, nume, prenume, an, luna } = req.query;
         try {
@@ -11,6 +14,7 @@ export const HolidaysController = {
         }
     },
 
+    /* Get holiday by ID */
     async getById(req, res, next) {
         try {
             const row = await HolidaysService.getById(req.params.id);
@@ -23,6 +27,7 @@ export const HolidaysController = {
         }
     },
 
+    /* Create a new holiday */
     async create(req, res, next) {  
         try {
             const newHoliday = await HolidaysService.create(req.body);
@@ -32,6 +37,7 @@ export const HolidaysController = {
         }   
     },
 
+    /* Update an existing holiday */
     async update(req, res, next) {
         try {
             const { id } = req.params;
@@ -45,6 +51,7 @@ export const HolidaysController = {
 
     },
 
+    /* Delete a holiday */
     async delete(req, res, next) {  
         try {
             const { id } = req.params;

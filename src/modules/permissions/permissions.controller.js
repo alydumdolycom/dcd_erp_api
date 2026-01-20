@@ -1,6 +1,9 @@
 import { PermissionsService } from "./permissions.service.js";
+
+/* Permissions Controller */
 export const PermissionsController = {
 
+    /* Get all permissions */
     async getAll(req, res, next)  { 
         try {   
             const permissions = await PermissionsService.getAll();
@@ -10,6 +13,7 @@ export const PermissionsController = {
         }       
     },
 
+    /* Get permission by ID */
     async getById(req, res, next) { 
         try {       
             const permission = await  PermissionsService.getPermissionById(req.params.id);
@@ -27,6 +31,7 @@ export const PermissionsController = {
         }   
     },
 
+    /* Create new permission */
     async create(req, res, next) {  
         try {
             const permission = await PermissionsService.create(req.body);
@@ -40,6 +45,7 @@ export const PermissionsController = {
         }   
     },
 
+    /* Update permission by ID */
     async update(req, res, next) { 
         try {   
             const permission = await PermissionsService.updatePermission(req.params.id, req.body);
@@ -49,6 +55,7 @@ export const PermissionsController = {
         }
     },
     
+    /* Delete permission by ID */
     async delete(req, res, next) { 
         try {   
             await PermissionsService.deletePermission(req.params.id);

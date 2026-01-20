@@ -1,8 +1,12 @@
 import pool from "../../config/db.js";
 
+/*
+  Employees Model
+*/
 export const EmployeesModel = {
   TABLE: "salarizare.salariati",
 
+  /* Find employee by CNP */
   async findByCnp(cnp) {
     const { rows } = await pool.query(
       `SELECT id FROM ${this.TABLE} WHERE cnp = $1 LIMIT 1`,
@@ -11,6 +15,7 @@ export const EmployeesModel = {
     return rows[0] || null;
   },
 
+  /* Get all employees with filtering, sorting, and searching */
   async all({
     id_firma,
     search = "",
@@ -129,6 +134,7 @@ export const EmployeesModel = {
     return rows;
   },
 
+  /* Create new employee with payment method */
   async create(data) {
     try {
       await pool.query("BEGIN");
@@ -254,6 +260,7 @@ export const EmployeesModel = {
     }   
   },
   
+  /* Update employee data */
   async update(id, employeeData) {
     const fields = [];
     const values = [];
@@ -276,6 +283,7 @@ export const EmployeesModel = {
     return result.rows[0];
   },
 
+  /* Find employee by ID */
   async find(id) {
     const { rows } = await pool.query(
       `SELECT * FROM ${this.TABLE} WHERE id = $1 LIMIT 1`,
@@ -284,6 +292,7 @@ export const EmployeesModel = {
     return rows[0] || null;
   },
   
+  /* Get detailed employee info by ID */
   async findById(id) {
     const employees = `
       SELECT
@@ -327,6 +336,7 @@ export const EmployeesModel = {
     return rows[0] || null;
   },
 
+  /* Get companies associated with an employee */
   async getEmployeeCompany(id) {
     const query = `
       SELECT F.id, F.nume FROM utilizatori AS U
@@ -340,21 +350,24 @@ export const EmployeesModel = {
     return await pool.query(query, values);
   },
   
+  /* Log employee data edit or cancel edit */
   async modEditEmployee(employeeData) {
     const {id_utilizator, resursa, id_resursa, ip} = employeeData;
+    // verifica daca exista deja un log pentru acest utilizator si resursa
     if(employeeData.mod == 'edit') {
       const query = `
-        INSERT INTO admin.resource_edit_logs(
-            id_utilizator, resursa, id_resursa, ip)
-          VALUES ($1, $2, $3, $4) RETURNING *;
+       INSERT INTO admin.resource_edit_logs(
+        id_utilizator, resursa, id_resursa, editat_la, ip)
+        VALUES ($1, $2, $3, NOW(), $4);
       `;
       const values = [id_utilizator, resursa, id_resursa, ip];
       await pool.query(query, values);
     } 
 
+    // verifica daca exista deja
     if(employeeData.mod == 'cancel') {
         const query = `
-          DELETE FROM admin.resource_edit_logs
+          DELETE FROM admin.resource_edit_logs  
           WHERE id_utilizator = $1 AND resursa = $2 AND id_resursa = $3;
       `;
       const values = [id_utilizator, resursa, id_resursa];
@@ -363,7 +376,7 @@ export const EmployeesModel = {
     return { success: true };
   },
 
-  // filter employees by multiple optional criteria by month and year of hiring
+  /* Get employees by various filters */
   async getEmployeesByFilters({
             id_firma,
             id_departament,

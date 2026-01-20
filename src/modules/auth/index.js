@@ -1,3 +1,2 @@
-import routes from "./auth.routes.js";
-
-export default { routes };
+import authRoutes from "./auth.routes.js";
+export default authRoutes;

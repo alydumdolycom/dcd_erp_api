@@ -1,45 +1,49 @@
 import { PermissionModel } from "./permissions.model.js";
 
+/* 
+Permissions Service
+Handles business logic related to permissions.
+*/
 export const PermissionsService = { 
 
+    /* Get All Permissions */
     async getAll() { 
-        // Logic to get all permissions from the database
         const permissions = await PermissionModel.getAll(); 
         return permissions; 
     },
     
+    /* Get All Permissions by Role IDs */
     async getAllPermissions(roleIds) { 
-        // Logic to get all permissions from the database
         const permissions = await PermissionModel.getByRoleIds(roleIds); 
         return permissions; 
     },
 
+    /* Get User-Specific Permissions */
     async getUserPermissions(roleId) {
         // Logic to get user-specific permissions from the database
         const userPermissions = await PermissionModel.getRolePermissions(roleId); 
         return userPermissions; 
     },
-
+    /* Create New Permission */
     async create(data) { 
-        // Logic to create a new permission in the database
         const newPermission = await PermissionModel.create(data); 
         return newPermission; 
     },
 
+    /* Get Permission by ID */
     async getPermissionById(id) { 
-        // Logic to get a permission by ID from the database
         const permission = await PermissionModel.getById(id); 
         return permission; 
     },
 
+    /* Update Permission */
     async updatePermission(id, data) { 
-        // Logic to update a permission in the database
         const updatedPermission = await PermissionModel.update(id, data); 
         return updatedPermission; 
     },
 
+    /* Delete Permission */
     async deletePermission(id) { 
-        // Logic to delete a permission from the database
         await PermissionModel.delete(id); 
         return; 
     }
