@@ -6,14 +6,10 @@ export const MedicalHolidaysModel = {
     async all(id_firma) {
         const { rows } = await pool.query(
             `SELECT CM.*, S.nume, S.prenume FROM ${this.Table} as CM
-<<<<<<< HEAD
              LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id
              WHERE S.id_firma = $1
              ORDER BY CM.id DESC;`,
             [id_firma] 
-=======
-             LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id`
->>>>>>> 163a85e802ae57a9b6497dd8b8c916b772c98063
         );
         return rows;
     },
@@ -40,11 +36,7 @@ export const MedicalHolidaysModel = {
                 ) VALUES (
                     $1, $2, $3, $4, $5,
                     $6, $7, $8, $9, $10,
-<<<<<<< HEAD
                     $11, $12
-=======
-                    $11
->>>>>>> 163a85e802ae57a9b6497dd8b8c916b772c98063
                 )
                 RETURNING *;
             `;
