@@ -1,4 +1,4 @@
-import { MedicalHolidaysModel } from './medicalHolidays.model.js';   
+import { MedicalHolidaysModel } from './MedicalHolidays.model.js';   
 export const MedicalHolidaysService = {
     async getAll() {
         const rows =  await MedicalHolidaysModel.all();
