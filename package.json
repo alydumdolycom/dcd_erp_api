@@ -23,7 +23,8 @@
     "jsonwebtoken": "^9.0.3",
     "mailgun.js": "^12.4.0",
     "nodemailer": "^7.0.12",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "puppeteer": "^24.35.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

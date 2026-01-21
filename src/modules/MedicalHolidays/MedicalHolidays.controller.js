@@ -3,8 +3,7 @@ import { MedicalHolidaysService } from './MedicalHolidays.service.js';
 export const MedicalHolidaysController = {
     async getAll(req, res, next) {
         try {
-            // Logic to get all medical holidays
-            const data = await MedicalHolidaysService.getAll();
+            const data = await MedicalHolidaysService.getAll(req.query.id_firma);
             res.status(200).json(data);
         } catch (error) {
             next(error);
@@ -13,7 +12,7 @@ export const MedicalHolidaysController = {
     
     async create(req, res, next) {
         try {
-            // Logic to create a new medical holiday
+            req.body.id_utilizator = req.user.id;
             const data = await MedicalHolidaysService.create(req.body);
             res.status(201).json(data);
         } catch (error) {
@@ -23,7 +22,7 @@ export const MedicalHolidaysController = {
 
     async update(req, res, next) {
         try {
-            // Logic to update a medical holiday
+            req.body.id_utilizator = req.user.id;
             const data = await MedicalHolidaysService.update(req.params.id, req.body);
             res.status(200).json(data);
         } catch (error) {
@@ -33,7 +32,7 @@ export const MedicalHolidaysController = {
 
     async delete(req, res, next) {
         try {
-            // Logic to delete a medical holiday
+            req.body.id_utilizator = req.user.id;
             await MedicalHolidaysService.delete(req.params.id);
             res.status(204).send();
         } catch (error) {

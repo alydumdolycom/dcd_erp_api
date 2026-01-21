@@ -21,6 +21,7 @@ export const UserController = {
   // CREATE (Admin adds a user)
   async create(req, res) {
     try {
+      console.log(req.body)
       const user = await UsersService.create(req.body);
       if (user.error) {
         if (user.code === "EMAIL_EXISTS" || user.code === "NAME_EXISTS") {

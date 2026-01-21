@@ -43,13 +43,19 @@ export const UserModel = {
         RETURNING id_utilizator, nume_complet, email, activ, creat_la;
         `;
       const userResult = await client.query(userSql, [
-      nume_complet,
-      email,
-      await hashPassword(parola_hash)
+        nume_complet,
+        email,
+        await hashPassword(parola_hash)
       ]);
       const user = userResult.rows[0];
       const userId = user.id_utilizator;
-
+      if (data.id_firma) {
+        await client.query(
+          `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)
+           VALUES ($1, $2, $3)`,
+          [userId, data.id_firma, 1]
+        );
+      }
       // Insert roles if provided
       if (Array.isArray(roles)) {
         for (const roleId of roles) {

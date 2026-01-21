@@ -6,7 +6,8 @@ export const createUserSchema = Joi.object({
   email: Joi.string().trim().email().required(),
   parola_hash: Joi.string().min(4).required(), // plain password input on create
   activ: Joi.boolean().default(true),
-  roles: Joi.array().items(Joi.number().integer()).default([])
+  roles: Joi.array().items(Joi.number().integer()).default([]),
+  id_firma: Joi.number().integer().optional()
 });
 
 export const updateUserSchema = Joi.object({
@@ -14,5 +15,6 @@ export const updateUserSchema = Joi.object({
   email: Joi.string().trim().email().optional(),
   parola_hash: Joi.string().min(4).optional(), // plain password input on update
   activ: Joi.boolean().optional(),
-  roles: Joi.array().items(Joi.string()).optional()
+  roles: Joi.array().items(Joi.number().integer()).optional(),
+  id_firma: Joi.number().integer().optional()
 });

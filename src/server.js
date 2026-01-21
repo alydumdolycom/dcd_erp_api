@@ -29,6 +29,7 @@ import accountRoutes from "./modules/account/account.routes.js";
 import documentsRoutes from "./modules/documents/index.js";
 import holidaysRoutes from "./modules/holidays/index.js";
 import medicalHolidaysRoutes from "./modules/MedicalHolidays/MedicalHolidays.routes.js";
+import { GeneratePDFController }  from "./utils/GeneratePDFController.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -73,7 +74,7 @@ app.use("/api/medical/holidays", auth, medicalHolidaysRoutes);
 app.get("/health", (req, res) => {
     res.json({ status: "OK", uptime: process.uptime() });
 });
-
+app.get("/generate-pdf", GeneratePDFController.generate);
 // Start server
 const PORT = process.env.PORT || 5000;
 
