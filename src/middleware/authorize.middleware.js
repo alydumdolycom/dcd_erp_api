@@ -19,6 +19,7 @@ export function authorize(requiredPermission) {
       const userId = req.user.id;
       // 2️⃣ Load user with roles + permissions
       const user = await UsersService.getUserAccess(userId);
+      console.log("User access info:", user);
       if (!user || !user[0].nume_rol) {
         return res.status(403).json({
           message: "Access interzis"

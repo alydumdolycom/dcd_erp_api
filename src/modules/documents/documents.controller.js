@@ -8,7 +8,6 @@ export const DocumentsController = {
             const data = await DocumentsService.getAll({ id_firma, id_departament, search });
             res.send({
                 data,
-                message: "Informatii acte aditionale obtinute cu succes",
                 code: 200
             });
         } catch (error) {

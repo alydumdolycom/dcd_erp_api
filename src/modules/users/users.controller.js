@@ -9,10 +9,10 @@ export const UserController = {
 
   async getAll(req, res, next) {
     try {
-      const users = await UsersService.getAll(req.query);
+      const data = await UsersService.getAll(req.query);
       return res.json({
         success: true,
-        data: users
+        data: data
       });
     } catch (err) {
       next({ status: 500, message: "Eroare server." });
@@ -69,9 +69,10 @@ export const UserController = {
   async find(req, res) {
     try {
       const { id } = req.params;
-      const user = await UsersService.getById(id);
+      const data = await UsersService.getById(id);
+      data.companies = await UsersService.getUserCompanies(data.id_utilizator);
 
-      if (!user) {
+      if (!data) {
         return res.status(404).json({
           success: false,
           message: "Utilizatorul nu a fost găsit."
@@ -80,10 +81,10 @@ export const UserController = {
 
       // const roles = await UsersService.getUserRoles(id);
       // const permissions = await UsersService.getPermissions(id);
-      const access = await AccessService.resolveAbilities(user.id_utilizator);
+      const access = await AccessService.resolveAbilities(data.id_utilizator);
       return res.json({
         success: true,
-        data: user,
+        data: data,
         access: access
       });
 
@@ -100,6 +101,7 @@ export const UserController = {
   async update(req, res) {
     try {
       const { id } = req.params;
+      console.log(req.body);
       const data = await UsersService.update(id, req.body);
 
       return res.json({

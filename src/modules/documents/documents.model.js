@@ -5,11 +5,11 @@ export const DocumentsModel = {
     // Define your document schema and methods here
     async all({ id_firma, id_departament, search }) {
         let query = `
-            SELECT * FROM salarizare.acte_aditionale
+            SELECT AA.id AS act_id, AA.*, S.id as id_salariat, S.*, NSD.id as nsd_id, NSD.* FROM salarizare.acte_aditionale AS AA
             LEFT JOIN salarizare.salariati S
-                ON S.id = salarizare.acte_aditionale.id_salariat
+            ON S.id = AA.id_salariat
             LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
-                ON NSD.id = S.id_departament
+            ON NSD.id = S.id_departament
             WHERE S.id_firma = $1
         `;
         const values = [id_firma];  

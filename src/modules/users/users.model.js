@@ -65,13 +65,6 @@ export const UserModel = {
       ]);
       const user = userResult.rows[0];
       const userId = user.id_utilizator;
-      if (data.id_firma) {
-        await client.query(
-          `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)
-           VALUES ($1, $2, $3)`,
-          [userId, data.id_firma, 1]
-        );
-      }
       // Insert roles if provided
       if (Array.isArray(roles)) {
         for (const roleId of roles) {
@@ -88,6 +81,17 @@ export const UserModel = {
           } else {
             return false;
           }
+        }
+      }
+
+      if(data.companies && data.companies.length > 0) {
+        for (const company of data.companies) { 
+          await client.query(
+            `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)  
+              VALUES ($1, $2)
+            ON CONFLICT (id_utilizator, id_firma) DO NOTHING;`,
+            [userId, company]
+          );
         }
       }
 
@@ -159,7 +163,7 @@ export const UserModel = {
 
   // update user
   async update(id, data) {
-    let { nume_complet, email, parola_hash, activ, roles } = data;
+    let { nume_complet, email, parola_hash, activ, roles, companies } = data;
     const fields = [];
     const values = [];
     let idx = 1;  
@@ -201,18 +205,53 @@ export const UserModel = {
       } else {
         const data = await this.findById(id);
       }
+
+      // Sync companies: insert new, delete removed
+      if (Array.isArray(companies)) {
+        // Fetch current companies
+        const { rows: currentRows } = await client.query(
+          `SELECT id_firma FROM admin.utilizatori_acces_firme WHERE id_utilizator = $1`,
+          [id]
+        );
+        const currentCompanies = currentRows.map(r => r.id_firma);
+
+        // Companies to add
+        const toAdd = companies.filter(c => !currentCompanies.includes(c));
+        // Companies to remove
+        const toRemove = currentCompanies.filter(c => !companies.includes(c));
+
+        // Insert new companies
+        for (const company of toAdd) {
+          await client.query(
+        `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)
+          VALUES ($1, $2)
+        ON CONFLICT (id_utilizator, id_firma) DO NOTHING;`,
+        [id, company]
+          );
+        }
+
+        // Remove companies not in the new list
+        if (toRemove.length > 0) {
+          await client.query(
+        `DELETE FROM admin.utilizatori_acces_firme
+          WHERE id_utilizator = $1 AND id_firma = ANY($2::int[])`,
+        [id, toRemove]
+          );
+        }
+      }
       // Handle roles update in transaction
         await client.query(
           `DELETE FROM permisiuni.utilizatori_roluri WHERE id_utilizator = $1`,
           [id]
         );
+      if(Array.isArray(roles) && roles.length > 0) {
         for (const roleId of roles) {
           await client.query(
           `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
           [id, roleId]
           );
         }
-
+      }
       await client.query('COMMIT');
       return data;
     } catch (err) {
@@ -322,5 +361,17 @@ export const UserModel = {
         WHERE U.id_utilizator = $1;`
       , [userId]); 
     return rows;
-  }   
+  }, 
+
+  async getUserCompanies(userId) {
+    const { rows } = await pool.query(`
+      SELECT 
+        F.nume
+      FROM admin.utilizatori AS U
+        LEFT JOIN admin.utilizatori_acces_firme UAF ON U.id_utilizator = UAF.id_utilizator
+        LEFT JOIN admin.firme AS F ON F.id = UAF.id_firma
+      WHERE U.id_utilizator = $1;
+    `, [userId]);
+    return rows;
+  },    
 };

@@ -30,7 +30,7 @@ export const DocumentsService = {
         await DocumentsModel.delete(id);
     },
 
-        async getEmployeeDocs(id_employee) {
+    async getEmployeeDocs(id_employee) {
         // Logic to get documents for a specific employee
         const rows = await DocumentsModel.findByEmployeeId(id_employee);
         return rows;

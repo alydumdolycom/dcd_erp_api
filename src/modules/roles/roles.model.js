@@ -174,8 +174,8 @@ export const RoleModel = {
   async getRolePermissions(roleId) {
     const { rows } = await pool.query(
       `SELECT p.* FROM permisiuni.permisiuni p
-       INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune  
-        WHERE rp.id_rol = $1`,
+      INNER JOIN permisiuni.roluri_permisiuni rp ON p.id = rp.id_permisiune  
+      WHERE rp.id_rol = $1`,
       [roleId]
     );
     return rows;
