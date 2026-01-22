@@ -12,11 +12,27 @@ export const UserModel = {
     const { nume_complet, email, activ, search } = data || {};
 
     if(search) {
-      whereClauses.push(`(salarizare.nume_complet ILIKE '%' || $${idx} || '%' OR salarizare.email ILIKE '%' || $${idx} || '%')`);
+      whereClauses.push(`(utilizatori.nume_complet ILIKE '%' || $${idx} || '%' OR utilizatori.email ILIKE '%' || $${idx} || '%')`);
       values.push(search);
       idx++;
     }
 
+    if(nume_complet) {
+      whereClauses.push(`utilizatori.nume_complet = $${idx}`);
+      values.push(nume_complet);
+      idx++;
+    }
+    if(email) {
+      whereClauses.push(`utilizatori.email = $${idx}`);
+      values.push(email);
+      idx++;
+    } 
+    
+    if(activ !== undefined) {
+      whereClauses.push(`utilizatori.activ = $${idx}`);
+      values.push(activ);
+      idx++;
+    }
     const query = `
       SELECT id_utilizator, nume_complet, email, activ, creat_la
       FROM ${this.TABLE}
