@@ -71,6 +71,8 @@ export const UserController = {
       const { id } = req.params;
       const data = await UsersService.getById(id);
       data.companies = await UsersService.getUserCompanies(data.id_utilizator);
+      data.permissions = await UsersService.getUserPermissions(data.id_utilizator);
+      data.roles = await UsersService.getUserRoles(data.id_utilizator);
 
       if (!data) {
         return res.status(404).json({
@@ -81,11 +83,9 @@ export const UserController = {
 
       // const roles = await UsersService.getUserRoles(id);
       // const permissions = await UsersService.getPermissions(id);
-      const access = await AccessService.resolveAbilities(data.id_utilizator);
       return res.json({
         success: true,
-        data: data,
-        access: access
+        data: data
       });
 
     } catch (err) {

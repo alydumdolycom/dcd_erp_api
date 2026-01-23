@@ -135,7 +135,6 @@ export const AuthController = {
     const access = await AccessService.resolveAbilities(result.user.id_utilizator);
     // Return user and success
     return res.json({
-      success: true,
       user: result.user,
       access: access,
       token: result.accessToken

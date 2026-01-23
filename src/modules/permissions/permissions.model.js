@@ -86,7 +86,7 @@ export const PermissionModel = {
   async getRolePermissions(id_rol) {
     const values = [id_rol];
     const { rows } = await pool.query(`
-      SELECT p.*
+      SELECT p.id, p.name
       FROM permisiuni.permisiuni p
       JOIN permisiuni.roluri_permisiuni rp ON rp.id_permisiune = p.id
       WHERE rp.id_rol = $1

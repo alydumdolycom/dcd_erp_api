@@ -75,5 +75,9 @@ export const UsersService = {
 
   async getUserCompanies(userId) {
     return UserModel.getUserCompanies(userId);
-  }
+  },
+
+  async getUserPermissions(userId) {
+    return UserModel.getUserPermissions(userId);
+  } 
 };

@@ -223,19 +223,19 @@ export const UserModel = {
         // Insert new companies
         for (const company of toAdd) {
           await client.query(
-        `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)
-          VALUES ($1, $2)
-        ON CONFLICT (id_utilizator, id_firma) DO NOTHING;`,
-        [id, company]
+            `INSERT INTO admin.utilizatori_acces_firme (id_utilizator, id_firma)
+              VALUES ($1, $2)
+            ON CONFLICT (id_utilizator, id_firma) DO NOTHING;`,
+            [id, company]
           );
         }
 
         // Remove companies not in the new list
         if (toRemove.length > 0) {
           await client.query(
-        `DELETE FROM admin.utilizatori_acces_firme
-          WHERE id_utilizator = $1 AND id_firma = ANY($2::int[])`,
-        [id, toRemove]
+            `DELETE FROM admin.utilizatori_acces_firme
+              WHERE id_utilizator = $1 AND id_firma = ANY($2::int[])`,
+            [id, toRemove]
           );
         }
       }
@@ -249,6 +249,20 @@ export const UserModel = {
           await client.query(
           `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
           [id, roleId]
+          );
+        }
+      }
+
+      // Sync permissions: remove all previous, then insert only those provided
+      await client.query(
+        `DELETE FROM permisiuni.utilizatori_permisiuni WHERE id_utilizator = $1`,
+        [id]
+      );
+      if (Array.isArray(data.permissions) && data.permissions.length > 0) {
+        for (const permissionId of data.permissions) {
+          await client.query(
+        `INSERT INTO permisiuni.utilizatori_permisiuni (id_utilizator, id_permisiune) VALUES ($1, $2)`,
+        [id, permissionId]
           );
         }
       }
@@ -355,7 +369,7 @@ export const UserModel = {
 
   async getUserPermissions(userId) {
     const { rows } = await pool.query(` 
-        SELECT U.id_utilizator, P.name FROM permisiuni.utilizatori_permisiuni UP
+        SELECT P.id, P.name FROM permisiuni.utilizatori_permisiuni UP
         LEFT JOIN admin.utilizatori U ON U.id_utilizator = UP.id_utilizator
         LEFT JOIN permisiuni.permisiuni  P ON  P.id = UP.id_permisiune
         WHERE U.id_utilizator = $1;`
