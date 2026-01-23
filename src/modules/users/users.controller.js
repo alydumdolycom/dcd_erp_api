@@ -49,11 +49,11 @@ export const UserController = {
   // GET ALL (pagination, filters)
   async index(req, res) {
     try {
-      const result = await UsersService.get(req.query);
+      const result = await UsersService.getAll(req.query);
 
       return res.json({
         success: true,
-        ...result
+        data: result.data,
       });
 
     } catch (err) {
@@ -84,7 +84,6 @@ export const UserController = {
       // const roles = await UsersService.getUserRoles(id);
       // const permissions = await UsersService.getPermissions(id);
       return res.json({
-        success: true,
         data: data
       });
 

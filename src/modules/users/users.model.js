@@ -245,10 +245,10 @@ export const UserModel = {
           [id]
         );
       if(Array.isArray(roles) && roles.length > 0) {
-        for (const roleId of roles) {
+        for (const role of roles) {
           await client.query(
           `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
-          [id, roleId]
+          [id, role]
           );
         }
       }
@@ -351,7 +351,7 @@ export const UserModel = {
 
         WHERE r.id_rol = $1
         ORDER BY r.id_rol;
-`, 
+      `, 
       [roleId]); 
     return rows;
   },

@@ -57,6 +57,7 @@ export const AuthController = {
       { expiresIn: "7d" }
     );
     const abilities = await AccessService.resolveAbilities(user.id_utilizator);
+    const permissions = await AccessService.getUserPermissions(user.id_utilizator); 
     await AuthModel.saveRefreshToken({
       userId: payload.id,
       tokenHash: hashToken(newRefreshToken),
@@ -82,6 +83,7 @@ export const AuthController = {
     return res.json({
       token: newAccessToken,
       abilities: abilities,
+      permissions: permissions
     });
   },
 
