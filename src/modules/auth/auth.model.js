@@ -101,7 +101,7 @@ export const AuthModel = {
   async saveRefreshToken({ userId, tokenHash, expiresAt }) {
     await pool.query(
       `
-      INSERT INTO nomenclatoare.refresh_tokens (id_utilizator, token_hash, expires_at)
+      INSERT INTO admin.refresh_tokens (id_utilizator, token_hash, expires_at)
       VALUES ($1, $2, $3)
       `,
       [userId, tokenHash, expiresAt]
@@ -114,7 +114,7 @@ export const AuthModel = {
   */
   async removeToken() {
     await pool.query(
-      `UPDATE nomenclatoare.refresh_tokens SET revoked = NOW() WHERE token_hash = $1`,
+      `UPDATE admin.refresh_tokens SET revoked = NOW() WHERE token_hash = $1`,
       [matched.token_hash]
     );
 
@@ -128,7 +128,7 @@ export const AuthModel = {
   */
   async revoke(token_hash) {
     await pool.query(`
-      UPDATE nomenclatoare.refresh_tokens
+      UPDATE admin.refresh_tokens
       SET revoked_at = NOW()
       WHERE token_hash = $1
         AND revoked_at IS NULL
@@ -143,7 +143,7 @@ export const AuthModel = {
   async findValid(token_hash) {
     const result = await pool.query(`
       SELECT *
-      FROM nomenclatoare.refresh_tokens
+      FROM admin.refresh_tokens
       WHERE token_hash = $1
         AND revoked_at IS NULL
         AND expires_at > NOW()

@@ -4,16 +4,17 @@ import { PermissionsService } from "./permissions.service.js";
 export const AccessService = {
   async resolveAbilities(userId) {
     const roles = await UserModel.userRoles(userId);
-    const rolePermissions = []; 
+    const permissions = []; 
     const userPermissions = await UserModel.getUserPermissions(userId);
     
     for (const role of roles) {
-      const permissions = await PermissionsService.getUserPermissions(role.id_rol);
-      role.permissions = permissions;
-      role.permissions = [...role.permissions, ...userPermissions];
-      rolePermissions.push(role);
+      const rolePermissions = await UserModel.getRolePermissions(role.id_rol);
+      permissions.push(...rolePermissions);
     }
      
-    return rolePermissions;
+    return {
+      permissions,
+      userPermissions
+    };
   }
 };

@@ -163,7 +163,7 @@ export const UserModel = {
 
   // update user
   async update(id, data) {
-    let { nume_complet, email, parola_hash, activ, roles, companies } = data;
+    let { nume_complet, email, parola_hash, activ, roles, companies, permissions } = data;
     const fields = [];
     const values = [];
     let idx = 1;  
@@ -247,8 +247,8 @@ export const UserModel = {
       if(Array.isArray(roles) && roles.length > 0) {
         for (const role of roles) {
           await client.query(
-          `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
-          [id, role]
+            `INSERT INTO permisiuni.utilizatori_roluri (id_utilizator, id_rol) VALUES ($1, $2)`,
+            [id, role]
           );
         }
       }
@@ -258,11 +258,11 @@ export const UserModel = {
         `DELETE FROM permisiuni.utilizatori_permisiuni WHERE id_utilizator = $1`,
         [id]
       );
-      if (Array.isArray(data.permissions) && data.permissions.length > 0) {
-        for (const permissionId of data.permissions) {
+      if (Array.isArray(permissions) && permissions.length > 0) {
+        for (const permission of permissions) {
           await client.query(
-        `INSERT INTO permisiuni.utilizatori_permisiuni (id_utilizator, id_permisiune) VALUES ($1, $2)`,
-        [id, permissionId]
+            `INSERT INTO permisiuni.utilizatori_permisiuni (id_utilizator, id_permisiune) VALUES ($1, $2)`,
+            [id, permission]
           );
         }
       }
@@ -388,4 +388,14 @@ export const UserModel = {
     `, [userId]);
     return rows;
   },    
+
+  async getRolePermissions(roleId) {
+    const { rows } = await pool.query(` 
+        SELECT P.id, P.name FROM permisiuni.roluri_permisiuni RP
+        LEFT JOIN permisiuni.roluri R ON R.id_rol = RP.id_rol   
+        LEFT JOIN permisiuni.permisiuni  P ON  P.id = RP.id_permisiune
+        WHERE R.id_rol = $1;`
+      , [roleId]); 
+    return rows;
+  }
 };

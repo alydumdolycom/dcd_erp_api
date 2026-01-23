@@ -100,7 +100,6 @@ export const UserController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      console.log(req.body);
       const data = await UsersService.update(id, req.body);
 
       return res.json({
@@ -110,7 +109,6 @@ export const UserController = {
       });
 
     } catch (err) {
-      console.error("Update user error:", err);
       return res.status(500).json({
         success: false,
         message: "Eroare server."
