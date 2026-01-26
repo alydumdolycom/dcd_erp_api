@@ -62,7 +62,11 @@ export const UsersService = {
   },
 
   async getUserRoles(userId) {
-    return await UserModel.getRoles(userId);
+    const roles = await UserModel.getRoles(userId);
+    for (const role of roles) {
+      role.permissions = await UserModel.getRolePermissions(role.id_rol);
+    }
+    return roles;
   },
 
   async getPermissions(userId) {

@@ -4,9 +4,8 @@ import FormData from "form-data"; // form-data v4.0.1
 import Mailgun from "mailgun.js"; // mailgun.js v11.1.0
 import nodemailer from "nodemailer";
 export const AccountController = {
+
   async forgotPassword(req, res, next) {
-
-
     // 1. Configure the transporter with your Mailgun credentials
     const transporter = nodemailer.createTransport({
         host: process.env.MAILGUN_HOST, // Mailgun SMTP hostname

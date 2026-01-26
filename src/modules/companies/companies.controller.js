@@ -40,8 +40,8 @@ export const CompaniesController = {
         });
       }
       // Logic to retrieve a company by ID
-      const company = await CompaniesService.getById(req.params.id);
-      res.send(company);
+      const data = await CompaniesService.getById(req.params.id);
+      res.send(data);
     } catch (err) {
       next({
         status: 500,

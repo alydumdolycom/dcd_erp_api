@@ -73,12 +73,46 @@ export const EmployeesService = {
     if (!data.salar_baza) addError(errors, "salar_baza", "obligatoriu");
     if (!data.salar_net) addError(errors, "salar_net", "obligatoriu");
     if (!data.data_angajarii) addError(errors, "data_angajarii", "obligatoriu");
+
     if (data.data_angajarii && data.data_incetarii && data.data_angajarii > data.data_incetarii) {
       addError(errors, "data_incetarii", "Data incetarii trebuie sa fie dupa data angajarii");
     }
-    // FORMAT
-    if (data.cnp && data.cnp.length !== 13) {
-      addError(errors, "cnp", "Trebuie sa aiba 13 caractere");
+
+    if (!data.cnp) {
+      addError(errors, "cnp", "CNP este obligatoriu");
+    } else {
+      // 2. length
+      if (data.cnp.length !== 13) {
+        addError(errors, "cnp", "Trebuie să aibă exact 13 caractere");
+      }
+
+
+      // 3. numeric
+      if (!/^\d+$/.test(data.cnp)) {
+        addError(errors, "cnp", "Trebuie să conțină doar cifre");
+      }
+
+
+      // 4. first digit valid
+      if (!/^[1-9]/.test(data.cnp)) {
+        addError(errors, "cnp", "Prima cifră este invalidă");
+      }
+
+
+      // 5. valid date inside CNP (simplificat)
+      const year = parseInt(data.cnp.substring(1, 3), 10);
+      const month = parseInt(data.cnp.substring(3, 5), 10);
+      const day = parseInt(data.cnp.substring(5, 7), 10);
+
+
+      if (month < 1 || month > 12) {
+        addError(errors, "cnp", "Luna din CNP este invalidă");
+      }
+
+
+      if (day < 1 || day > 31) {
+       addError(errors, "cnp", "Ziua din CNP este invalidă");
+      }
     }
 
     if (data.salar_net && isNaN(Number(data.salar_net))) {
@@ -89,12 +123,17 @@ export const EmployeesService = {
       addError(errors, "salar_baza", "Trebuie sa fie un numar");
     }
 
+
     // DATABASE UNIQUE CHECK
     if (data.cnp) {
       const existing = await EmployeesModel.findByCnp(data.cnp);
       if (existing) {
         addError(errors, "cnp", "CNP deja exista");
       }
+    }
+
+    if(data.id_modplata == 2 && (!data.cont_bancar || data.cont_bancar.trim() === "")) {
+      addError(errors, "cont_bancar", "Contul bancar este obligatoriu");
     }
 
     if (Object.keys(errors).length > 0) {

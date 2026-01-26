@@ -106,17 +106,36 @@ export const CompaniesModel = {
   },
 
   async findById(id) {
-    const query = `
-      SELECT *
-      FROM admin.firme
-      WHERE id = $1
-    `;
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    try { 
+      const query = `
+        SELECT * FROM admin.firme AS F 
+        WHERE F.id = $1
+      `;
+      const result = await pool.query(query, [id]);
+
+      // Check if company exists first
+      if (!result.rows[0]) return null;
+
+      const companyDetails = await pool.query(`
+        SELECT * FROM admin.firme_detalii FD
+        WHERE FD.id_firma = $1` , [id]);
+      const data = {
+        ...result.rows[0]
+        // strada: companyDetails.rows[2].valoare + " " + companyDetails.rows[3].valoare,
+        // oras: companyDetails.rows[4].valoare,
+        // functia: companyDetails.rows[7].valoare,
+        // nume: companyDetails.rows[8].valoare,
+        // prenume: companyDetails.rows[9].valoare,
+      };
+
+      return data;
+    } catch (error) {
+      console.error("Error in findById:", error);
+      throw error;
+    }
   },
 
   async create(data) {
-    console.log(data)
     const query = `
       INSERT INTO admin.firme (
         nume,
@@ -140,23 +159,23 @@ export const CompaniesModel = {
 
   async update(id, firmeData) {
     // Build dynamic SET clause for PATCH (partial update)
-    const allowedFields = ["nume", "cif", "implicit", "an_start", "an_sfarsit"];
+    const allowedFields = ["nume", "cif", "implicit", "an_start", "an_sfarsit", "adresa"];
     const setClauses = [];
     const values = [id];
     let idx = 2;
 
     for (const field of allowedFields) {
       if (firmeData[field] !== undefined) {
-      setClauses.push(`${field} = $${idx}`);
-      values.push(firmeData[field]);
-      idx++;
+        setClauses.push(`${field} = $${idx}`);
+        values.push(firmeData[field]);
+        idx++;
       }
     }
 
     if (setClauses.length === 0) {
       throw new Error("No valid fields provided for update.");
     }
-
+    console.log(values)
     const query = `
       UPDATE admin.firme
       SET ${setClauses.join(", ")}
