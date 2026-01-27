@@ -22,6 +22,10 @@ export const CompaniesService = {
         const existing = await CompaniesModel.find(data.nume);
         if (existing) addError(errors, "nume", "Firma deja exista");
     }
+
+    if(data.id_modplatarea > 1 && !data.cont_bancar) {
+      addError(errors, "id_modplata", "Obligatoriu cont bancar");
+    }
     // Check if CUI already exists
     if (data.cif) {
         const existing = await CompaniesModel.findByCif(data.cif);

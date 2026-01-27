@@ -29,6 +29,8 @@ import accountRoutes from "./modules/account/account.routes.js";
 import documentsRoutes from "./modules/documents/index.js";
 import holidaysRoutes from "./modules/holidays/index.js";
 import medicalHolidaysRoutes from "./modules/MedicalHolidays/MedicalHolidays.routes.js";
+import payroll from "./modules/payroll/payroll.routes.js";
+
 import { GeneratePDFController }  from "./utils/GeneratePDFController.js";
 // Middlewares
 app.use(express.json());
@@ -70,6 +72,8 @@ app.use("/api/payments", auth, paymentsRoutes);
 app.use("/api/documents", auth, documentsRoutes);
 app.use("/api/holidays", auth, holidaysRoutes);
 app.use("/api/medical/holidays", auth, medicalHolidaysRoutes);
+app.use("/api/payroll", auth, payroll);
+
 // Health check
 app.get("/health", (req, res) => {
     res.json({ status: "OK", uptime: process.uptime() });

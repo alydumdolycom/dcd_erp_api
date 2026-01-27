@@ -59,7 +59,7 @@ export const LookupsModel = {
 
   /* Get cities */
   async getCities() {
-    let sql = `SELECT id, judet FROM nomenclatoare.nom_judete`;
+    let sql = `SELECT id, judet FROM nomenclatoare.nom_judete order by judet ASC`;
     const { rows } = await pool.query(sql);
     return rows;
   },

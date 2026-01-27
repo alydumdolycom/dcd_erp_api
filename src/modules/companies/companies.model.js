@@ -151,7 +151,6 @@ export const CompaniesModel = {
       data.implicit,
       data.an_start
     ];
-    console.log(values)
     
     const result = await pool.query(query, values);
     return result.rows[0];
@@ -173,9 +172,8 @@ export const CompaniesModel = {
     }
 
     if (setClauses.length === 0) {
-      throw new Error("No valid fields provided for update.");
+      throw new Error("Nu au fost furnizate câmpuri valide pentru actualizare.");
     }
-    console.log(values)
     const query = `
       UPDATE admin.firme
       SET ${setClauses.join(", ")}
