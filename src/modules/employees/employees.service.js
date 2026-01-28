@@ -92,23 +92,19 @@ export const EmployeesService = {
         addError(errors, "cnp", "Trebuie să conțină doar cifre");
       }
 
-
       // 4. first digit valid
       if (!/^[1-9]/.test(data.cnp)) {
         addError(errors, "cnp", "Prima cifră este invalidă");
       }
-
 
       // 5. valid date inside CNP (simplificat)
       const year = parseInt(data.cnp.substring(1, 3), 10);
       const month = parseInt(data.cnp.substring(3, 5), 10);
       const day = parseInt(data.cnp.substring(5, 7), 10);
 
-
       if (month < 1 || month > 12) {
         addError(errors, "cnp", "Luna din CNP este invalidă");
       }
-
 
       if (day < 1 || day > 31) {
        addError(errors, "cnp", "Ziua din CNP este invalidă");
@@ -122,7 +118,6 @@ export const EmployeesService = {
     if (data.salar_baza && isNaN(Number(data.salar_baza))) {
       addError(errors, "salar_baza", "Trebuie sa fie un numar");
     }
-
 
     // DATABASE UNIQUE CHECK
     if (data.cnp) {

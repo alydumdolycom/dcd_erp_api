@@ -69,6 +69,7 @@ export const LookupsModel = {
     const sql = `
       SELECT id, localitate FROM nomenclatoare.nom_localitati
       WHERE id_judet = $1
+      order by localitate ASC
     `;
 
     const { rows } = await pool.query(sql, [id]);
