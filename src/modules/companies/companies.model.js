@@ -42,7 +42,7 @@ export const CompaniesModel = {
     };
 
     const sortColumn = allowedSort[sortBy] || "F.id";
-    const sortDir = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
+    const sortDir = sortOrder.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
     let whereClauses = [];
     let values = [];
