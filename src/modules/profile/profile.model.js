@@ -1,15 +1,16 @@
-const bcrypt = require('bcryptjs');
+import pool from "../../config/db.js";
+import { hashPassword } from "../../utils/hash.js";
 
 export const ProfileModel = {
-  TABLE: "utilizatori.profiluri",
+  TABLE: "admin.utilizatori",
   async findById(id_utilizator) {       
     const { rows } = await pool.query(
-        `SELECT * FROM ${this.TABLE} WHERE id_utilizator = $1 LIMIT 1`,
+        `SELECT  U.id_utilizator, U.nume_complet, U.email, U.activ  FROM ${this.TABLE} U
+         WHERE U.id_utilizator = $1 Limit 1`,
         [id_utilizator]
     );
     return rows[0] || null;
-  }
-,
+  },
 
   async update(id_utilizator, profileData) {  
     // Destructure fields from profileData
@@ -30,8 +31,8 @@ export const ProfileModel = {
     }
     if (parola_hash !== undefined) {
       fields.push(`parola_hash = $${idx++}`);
-      parola_hash = await hashPassword(parola_hash);
-      values.push(parola_hash);
+      const hashedPassword = await hashPassword(parola_hash);
+      values.push(hashedPassword);
     }
 
     if (fields.length === 0) {
@@ -41,7 +42,7 @@ export const ProfileModel = {
     values.push(id_utilizator);
 
     const query = `
-      UPDATE utilizatori
+      UPDATE ${this.TABLE}
       SET ${fields.join(', ')}
       WHERE id_utilizator = $${idx}
       RETURNING *

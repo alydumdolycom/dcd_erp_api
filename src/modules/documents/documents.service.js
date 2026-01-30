@@ -1,3 +1,4 @@
+import { UserModel } from "../users/users.model.js";
 import { DocumentsModel } from "./documents.model.js";
 
 export const DocumentsService = {

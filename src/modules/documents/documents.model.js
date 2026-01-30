@@ -4,44 +4,49 @@ export const DocumentsModel = {
     Table: "salarizare.acte_aditionale",
     // Define your document schema and methods here
     async all({ id_firma, id_departament, search }) {
-        let query = `
-            SELECT 
-                AA.id as act_id, AA.salariu_vechi, AA.salariu_nou, AA.salariu_baza, AA.spor_vechime, AA.spor_repaus, AA.spor_noapte, 
-                cast(AA.data_incepere as date) as data_incepere, cast(AA.data_act as date) as data_act, AA.numar_act, 
-                AA.operat,
-                cast(AA.data_incetare as date) as data_incetare, cast(AA.data_operare as date) as data_operare, AA.operat_de,
-                S.id as id_salariat, S.nume, S.prenume, S.cnp, S.prod_tesa, S.sex, S.id_functie, S.id_tip_contract, S.id_ore_norma,
-                S.salar_baza AS salar_init, S.data_contract, S.nr_contract,
-                S.id_departament, S.data_angajarii, S.data_incetarii, AA.numar_act,
-                NSD.id AS id_departament,
-                NSD.nume_departament,
-                NSF.nume_functie
-            FROM salarizare.acte_aditionale AS AA
-            LEFT JOIN salarizare.salariati S
-                ON S.id = AA.id_salariat
-            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
-                ON NSD.id = S.id_departament
-            LEFT JOIN nomenclatoare.nom_salarii_functii NSF 
-                ON NSF.id = S.id_functie
-            WHERE S.id_firma = $1
-            ORDER BY S.nume, S.prenume ASC
-        `;
-        const values = [id_firma];  
-        
-        let idx = 2;
+        try {
+            let query = `
+                SELECT 
+                    AA.id as act_id, AA.salariu_vechi, AA.salariu_nou, AA.salariu_baza, AA.spor_vechime, AA.spor_repaus, AA.spor_noapte, 
+                    cast(AA.data_incepere as date) as data_incepere, cast(AA.data_act as date) as data_act, AA.numar_act, 
+                    AA.operat,
+                    cast(AA.data_incetare as date) as data_incetare, cast(AA.data_operare as date) as data_operare, AA.operat_de,
+                    S.id as id_salariat, S.nume, S.prenume, S.cnp, S.prod_tesa, S.sex, S.id_functie, S.id_tip_contract, S.id_ore_norma,
+                    S.salar_baza AS salar_init, S.data_contract, S.nr_contract,
+                    S.id_departament, S.data_angajarii, S.data_incetarii, AA.numar_act,
+                    NSD.id AS id_departament,
+                    NSD.nume_departament,
+                    NSF.nume_functie
+                FROM salarizare.acte_aditionale AS AA
+                LEFT JOIN salarizare.salariati S
+                    ON S.id = AA.id_salariat
+                LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+                    ON NSD.id = S.id_departament
+                LEFT JOIN nomenclatoare.nom_salarii_functii NSF 
+                    ON NSF.id = S.id_functie
+                WHERE S.id_firma = ${id_firma}
+            `;
+            const values = [];
+            let idx = 1;
 
-        if (id_departament) {
-            query += ` AND S.id_departament = $${idx}`;
-            values.push(id_departament);
-            idx++;
+            if (id_departament) {
+                query += ` AND S.id_departament = $${idx}`;
+                values.push(id_departament);
+                idx++;
+            }
+            if (search) {
+                query += ` AND (S.nume ILIKE $${idx} OR S.prenume ILIKE $${idx} OR S.cnp ILIKE $${idx})`;
+                values.push(`%${search}%`);
+                idx++;
+            }
+
+            query += ` ORDER BY S.nume, S.prenume ASC`;
+
+            const { rows } = await pool.query(query, values);
+            return rows || null;
+        } catch (error) {
+            throw error;
         }
-        if (search) {
-            query += ` AND (S.nume ILIKE $${idx} OR S.prenume ILIKE $${idx} OR S.cnp ILIKE $${idx})`;
-            values.push(`%${search}%`);
-            idx++;
-        }
-        const { rows } = await pool.query(query, values);
-        return rows || null;
     },
     
     async create(data) {

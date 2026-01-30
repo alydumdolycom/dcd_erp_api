@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { DocumentsController } from "./documents.controller.js";
-
+import { auth } from "../../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", DocumentsController.getAll);

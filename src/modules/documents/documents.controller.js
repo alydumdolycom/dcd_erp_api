@@ -5,7 +5,7 @@ export const DocumentsController = {
     async getAll(req, res, next) { 
         try {
             const { id_firma, id_departament, search } = req.query;
-            const data = await DocumentsService.getAll({ id_firma, id_departament, search });
+            const data = await DocumentsService.getAll({id_firma, id_departament, search });
             res.send({
                 data,
                 code: 200

@@ -31,6 +31,7 @@ import holidaysRoutes from "./modules/holidays/index.js";
 import medicalHolidaysRoutes from "./modules/MedicalHolidays/MedicalHolidays.routes.js";
 import payroll from "./modules/payroll/payroll.routes.js";
 import advancePaymentsRoutes from "./modules/AdvancePayments/AdvancePayments.routes.js";
+import profileRoutes from "./modules/profile/profile.routes.js";
 
 import { GeneratePDFController }  from "./utils/GeneratePDFController.js";
 // Middlewares
@@ -75,6 +76,7 @@ app.use("/api/holidays", auth, holidaysRoutes);
 app.use("/api/medical/holidays", auth, medicalHolidaysRoutes);
 app.use("/api/payroll", auth, payroll);
 app.use("/api/advance/payments", auth, advancePaymentsRoutes);
+app.use("/api/profile", auth, profileRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

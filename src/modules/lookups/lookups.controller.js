@@ -80,5 +80,14 @@ export const LookupsController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  async getNomConstants(req, res, next) {
+    try {
+      const data = await LookupsService.getNomConstants();
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
   }
 };

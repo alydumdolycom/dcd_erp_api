@@ -132,5 +132,17 @@ export const LookupsModel = {
     `;
     const { rows } = await pool.query(query);
     return parseInt(rows[0].count);
+  },
+
+  async getNomConstants() {
+    const query = `
+      SELECT 
+      NC.id, NC.char_1, NC.char_2
+      FROM nomenclatoare.nom_constante as NC
+      WHERE  NC.tip = 'salarii campuri'
+      ORDER BY NC.char_1 ASC
+    `;
+    const { rows } = await pool.query(query);
+    return rows;
   }
 };

@@ -56,5 +56,9 @@ export const LookupsService = {
   /*  Count Roles  */
   async countRoles() {
     return await LookupsModel.countRoles();
+  },
+
+  async getNomConstants() {
+    return await LookupsModel.getNomConstants();
   }
 };

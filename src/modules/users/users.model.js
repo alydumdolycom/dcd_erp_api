@@ -313,6 +313,56 @@ export const UserModel = {
     return rows;
   },
 
+  // Returns roles with their permissions for a given userId
+  async userRolesWithPermissions(userId) {
+    // Get all roles for the user
+    const { rows: roles } = await pool.query(
+      `SELECT r.id_rol, r.nume_rol, r.descriere
+        FROM permisiuni.roluri r
+        JOIN permisiuni.utilizatori_roluri ur ON ur.id_rol = r.id_rol
+        WHERE ur.id_utilizator = $1
+        ORDER BY r.id_rol;`,
+      [userId]
+    );
+
+    if (!roles.length) return [];
+
+    // Get all permissions for these roles
+    const roleIds = roles.map(r => r.id_rol);
+    const { rows: permissions } = await pool.query(
+      `SELECT rp.id_rol, p.id as id_permisiune, p.name
+        FROM permisiuni.roluri_permisiuni rp
+        JOIN permisiuni.permisiuni p ON p.id = rp.id_permisiune
+        WHERE rp.id_rol = ANY($1::int[])`,
+      [roleIds]
+    );
+
+    // Group permissions by role
+    const roleMap = {};
+    roles.forEach(role => {
+      roleMap[role.id_rol] = {
+        role: {
+          id: role.id_rol,
+          name: role.nume_rol,
+          descriere: role.descriere,
+          permissions: []
+        }
+      };
+    });
+
+    permissions.forEach(perm => {
+      if (roleMap[perm.id_rol]) {
+        roleMap[perm.id_rol].role.permissions.push({
+          id: perm.id_permisiune,
+          name: perm.name
+        });
+      }
+    });
+
+    // Return as array: [{role: {...}}]
+    return Object.values(roleMap);
+  },
+
   async getByUser(userId) {
     const { rows } = await pool.query(`
       SELECT r.id_rol, r.nume_rol

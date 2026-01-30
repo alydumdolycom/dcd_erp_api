@@ -42,7 +42,6 @@ export const PayRollModel = {
     async create(data) {
         // Logic to create a new payroll record
         const values = Object.values(data);
-        console.log(values);
         const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
         const { rows } = await pool.query(
             `INSERT INTO ${this.Table} VALUES (${placeholders}) RETURNING *`,
@@ -64,7 +63,6 @@ export const PayRollModel = {
     },
 
     async findByDays(id_firma) {
-        console.log(id_firma)
         try {       
             const query = `SELECT * FROM salarizare.state_plata_header PH 
                             LEFT JOIN nomenclatoare.nom_luni NL 

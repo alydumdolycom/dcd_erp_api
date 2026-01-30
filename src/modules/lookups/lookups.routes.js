@@ -11,5 +11,5 @@ router.get("/dashboard/count/:id", auth, LookupsController.dashboardCount);
 router.get("/hours/worked", auth, LookupsController.hoursWorked);
 router.get("/payment/type", auth, LookupsController.paymentType);
 router.get("/working/days", auth, LookupsController.workingDays);
-
+router.get("/nom/constants", auth, LookupsController.getNomConstants);
 export default router;
