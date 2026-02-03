@@ -9,7 +9,7 @@ export const ProfileModel = {
          WHERE U.id_utilizator = $1 Limit 1`,
         [id_utilizator]
     );
-    return rows[0] || null;
+    return await rows[0] || null;
   },
 
   async update(id_utilizator, profileData) {  
@@ -38,9 +38,7 @@ export const ProfileModel = {
     if (fields.length === 0) {
       return false; // Nothing to update
     }
-
     values.push(id_utilizator);
-
     const query = `
       UPDATE ${this.TABLE}
       SET ${fields.join(', ')}

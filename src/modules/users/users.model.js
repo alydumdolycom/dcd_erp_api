@@ -22,6 +22,7 @@ export const UserModel = {
       values.push(nume_complet);
       idx++;
     }
+
     if(email) {
       whereClauses.push(`utilizatori.email = $${idx}`);
       values.push(email);
@@ -33,6 +34,7 @@ export const UserModel = {
       values.push(activ);
       idx++;
     }
+    
     const query = `
       SELECT id_utilizator, nume_complet, email, activ, creat_la
       FROM ${this.TABLE}

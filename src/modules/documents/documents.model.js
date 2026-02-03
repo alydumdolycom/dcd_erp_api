@@ -9,7 +9,7 @@ export const DocumentsModel = {
                 SELECT 
                     AA.id as act_id, AA.salariu_vechi, AA.salariu_nou, AA.salariu_baza, AA.spor_vechime, AA.spor_repaus, AA.spor_noapte, 
                     cast(AA.data_incepere as date) as data_incepere, cast(AA.data_act as date) as data_act, AA.numar_act, 
-                    AA.operat,
+                    AA.operat, AA.salariu_net,
                     cast(AA.data_incetare as date) as data_incetare, cast(AA.data_operare as date) as data_operare, AA.operat_de,
                     S.id as id_salariat, S.nume, S.prenume, S.cnp, S.prod_tesa, S.sex, S.id_functie, S.id_tip_contract, S.id_ore_norma,
                     S.salar_baza AS salar_init, S.data_contract, S.nr_contract,

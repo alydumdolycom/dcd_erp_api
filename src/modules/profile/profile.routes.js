@@ -4,7 +4,7 @@ import { ProfileController } from "./profile.controller.js";
 
 const router = Router();
 
-router.get("/", ProfileController.get);
+router.get("/me", ProfileController.get);
 router.post("/", ProfileController.update);
 
 export default router;  

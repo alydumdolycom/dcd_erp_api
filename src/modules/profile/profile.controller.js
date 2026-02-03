@@ -8,13 +8,14 @@ export const ProfileController = {
     async get(req, res, next) {
         try {
             const user = req.user;
-
-            const data = await ProfileService.getProfileById(user.id);
-            if (!data) {
-                return res.status(404).json({ message: 'Profile not found' });
+            const result = await ProfileService.getProfileById(user.id);
+            console.log(result);
+            if (!result) {
+                return next({ message: 'Informatiile nu au fost gasite', status: 404 });
             }
             res.status(200).json({
-                data
+                success: true,
+                data: result
             });
         } catch (error) {
             next({ message: 'Server error', error: error.message});
@@ -24,14 +25,18 @@ export const ProfileController = {
     /*
         * Update user profile information   
     */
-    async update(req, res) {
+    async update(req, res, next) {
         try {
             const user = req.user;
             const profileData = req.body;   
-            const updatedProfile = await ProfileService.updateProfileById(user.id, profileData);
-            res.status(200).json(updatedProfile);
+
+            const result = await ProfileService.updateProfile(user.id, profileData);
+            res.status(200).json({
+                success: true,
+                data: result
+            });
         } catch (error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
+            next({ message: 'Server error', error: error.message, status: 500 });
         }   
     }
 };

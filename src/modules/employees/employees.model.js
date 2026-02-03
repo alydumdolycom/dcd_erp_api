@@ -21,7 +21,7 @@ export const EmployeesModel = {
     search = "",
     filters = {},
     sortBy = "id",
-    sortOrder = "DESC",
+    sortOrder = "ASC",
     data_angajarii
   }) {
 
@@ -38,7 +38,7 @@ export const EmployeesModel = {
       cnp: "S.cnp"
     };
 
-    const sortColumn = allowedSort[sortBy] || "S.id";
+    const sortColumn = allowedSort[sortBy] || "S.nume";
     const sortDir = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
 
     let whereClauses = [];
@@ -181,11 +181,14 @@ export const EmployeesModel = {
           pers_deducere,
           observatii
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-        $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35,
-        $36, $37, $38, $39, $40)
+        VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 
+          TO_DATE($12, 'YYYY-MM-DD'), 
+          $13, $14, $15, TO_DATE($16, 'YYYY-MM-DD'), $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35,
+          $36, $37, $38, $39, $40
+        )
         RETURNING id;
-      `;
+            `;
         const values = [
             data.id_firma,
             data.nume,
@@ -242,7 +245,7 @@ export const EmployeesModel = {
             VALUES ($1, $2, $3, $4);
         `;
 
-        await pool.query(paymentQuery, paymentMethods);
+        return await pool.query(paymentQuery, paymentMethods);
     } catch (error) {
       // 🔥 If ANY query fails → rollback EVERYTHING
       await pool.query("ROLLBACK");
@@ -252,6 +255,7 @@ export const EmployeesModel = {
         code: error.code,
         detail: error.detail
       });
+      return error;
 
       throw error;
 
@@ -450,6 +454,67 @@ export const EmployeesModel = {
       ${whereSQL}
       ORDER BY S.id DESC;
     `;
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+
+  async getEmployeeFeatures({
+    search = "",
+    sortBy = "id",
+    id_firma
+  }) {
+
+      let whereClauses = ["S.id_firma = $1"];
+      let values = [id_firma];
+      let idx = 2;
+
+      if (search) {
+        whereClauses.push(`(
+          S.nume ILIKE $${idx} OR
+          S.prenume ILIKE $${idx} OR
+          S.cnp ILIKE $${idx}
+        )`);
+        values.push(`%${search}%`);
+        idx++;
+      }
+
+      const query = `
+        SELECT
+          S.id
+        FROM ${this.TABLE} S
+        WHERE ${whereClauses.join(" AND ")}
+        ORDER BY S.${sortBy} ASC;
+      `;
+    const result = await pool.query(query, values);
+    
+    return result.rows[0];
+  },
+
+  async getEmployeesList(id_firma) {
+    const query = `
+      SELECT 
+        S.id, 
+        S.nume, 
+        S.prenume, 
+        S.salar_net,
+        S.salar_baza,
+        S.are_garantie,
+        S.id_departament,
+        NSD.nume_departament,
+        SP.id AS id_stare_plata,
+        SP.avans_cass,
+        SP.avans_firma,
+        SP.asigurari,
+        SP.garantii,
+        SP.premii
+      FROM salarizare.salariati S
+      LEFT JOIN salarizare.state_plata SP ON SP.id_salariat = S.id
+      LEFT JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
+      WHERE S.id_firma = $1
+      AND S.data_incetarii IS NULL
+      ORDER BY S.nume ASC;
+    `;
+    const values = [id_firma];
     const { rows } = await pool.query(query, values);
     return rows;
   }
