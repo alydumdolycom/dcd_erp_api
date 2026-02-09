@@ -1,5 +1,6 @@
 import { MedicalHolidaysModel } from './MedicalHolidays.model.js';   
 export const MedicalHolidaysService = {
+    
     async getAll(id_firma) {
         const rows =  await MedicalHolidaysModel.all(id_firma);
         return rows;
@@ -18,5 +19,15 @@ export const MedicalHolidaysService = {
     async delete(id) {
         const row = await MedicalHolidaysModel.delete(id);
         return row;
-    }   
+    },
+
+    async getNomMedicalData() {
+        const rows = await MedicalHolidaysModel.getNomMedicalData();
+        return rows;
+    },
+
+    async getMedicalPrescription() {
+        const rows = await MedicalHolidaysModel.getMedicalPrescription();
+        return rows;
+    }
 };

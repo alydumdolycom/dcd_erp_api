@@ -232,8 +232,8 @@ export const EmployeesController = {
         message: "Nu a fost gasit"
       });
     }
-    return res.status(200).json({
-      success: true,
+    next({  
+      status: 200,
       message: "Informatiile au fost sterse"
     });
   },
@@ -329,5 +329,96 @@ export const EmployeesController = {
         details: err.message
       });
     }
+  },
+
+  async calculateBrutToNetSalary(req, res, next) {
+    const { brut, persoaneIntretinere, data } = req.body;
+    // datele din nomenclatoare.nom_taxe_cote
+    // cota_cas (1), cota_cass (2), cota_impozit (3)
+    // pasii pentru calcul:
+    /*
+      brut = salariul brut
+      cota_cas = procent din nomenclatoare.nom_taxe_cote pentru id_taxa=1
+      cota_cass = procent din nomenclatoare.nom_taxe_cote pentru id_taxa=2
+      cota_impozit = procent din nomenclatoare.nom_taxe_cote pentru id_taxa=3
+      */
+    const [dayStr, monthStr, yearStr] = req.body.data.split("-");
+    const month = parseInt(monthStr, 10); // 1
+    const year = parseInt(yearStr, 10);   // 2026
+    const checkDate = await EmployeesService.getPayRol(month,year);
+    if(!checkDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Nu exista stat de plata pentru luna si anul selectat"
+      });
+    }
+    // // 1. Get employee salary data
+    const taxe = await EmployeesService.getNomenclatoareData();
+
+    const cota_cas = taxe[0].procent;
+    const cota_cass = taxe[1].procent;
+    const cota_impozit = taxe[2].procent;
+    const persoane = persoaneIntretinere ?? 0;
+
+    const cas = Math.round((brut*cota_cas)/100);    // calcul fara zecimale
+    const cass = Math.round((brut*cota_cass)/100);    // calcul fara zecimale
+    const flag = "brut";
+    const suma = brut;
+    const result = await EmployeesService.deducere(flag, suma, persoane, data);
+    const bazaImpozitare = brut - cas - cass - result;
+    const impozit = Math.round((bazaImpozitare * cota_impozit)/100);
+    // // const net = parseInt(brut-cas-cass-impozit);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        net: result
+      }
+    });
+  },
+
+  async calculateNetToBrutSalary(req, res, next) {
+    const { net, persoaneIntretinere = 0, data } = req.body;
+
+    if (!net || isNaN(net) || net <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Valoare net invalidă"
+      });
+    }
+
+    // Parse data (format DD-MM-YYYY)
+    const [dayStr, monthStr, yearStr] = data.split("-");
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+
+    // Verifică existența statului de plată (luna și anul)
+    const checkDate = await EmployeesService.getPayRol(month, year);
+    if (!checkDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Nu există stat de plată pentru luna și anul selectat"
+      });
+    }
+     const taxe = await EmployeesService.getNomenclatoareData();
+
+    const cota_cas = taxe[0].procent;
+    const cota_cass = taxe[1].procent;
+    const cota_impozit = taxe[2].procent;
+
+    const cas = Math.round((net*cota_cas)/100);    // calcul fara zecimale
+    const cass = Math.round((net*cota_cass)/100);    // calcul fara zecimale
+    const flag = "net";
+    const persoane = persoaneIntretinere ?? 0;
+    const suma = net;
+    const result = await EmployeesService.deducere(flag, suma, persoane, data);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        brut: result
+      }
+    });
   }
 };

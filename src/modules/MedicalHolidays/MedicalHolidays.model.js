@@ -5,9 +5,15 @@ export const MedicalHolidaysModel = {
 
     async all(id_firma) {
         const { rows } = await pool.query(
-            `SELECT CM.*, S.nume, S.prenume FROM ${this.Table} as CM
-             LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id
-             WHERE S.id_firma = $1
+            `SELECT 
+                CM.*, 
+                S.nume, S.prenume,
+                NSD.nume_departament, NSD.id as id_departament
+            FROM ${this.Table} as CM
+                LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id
+                LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+                    ON NSD.id = S.id_departament    
+                WHERE S.id_firma = $1
              ORDER BY CM.id DESC;`,
             [id_firma] 
         );
@@ -82,5 +88,27 @@ export const MedicalHolidaysModel = {
         `;
         const { rows } = await pool.query(query, values);
         return rows[0];
-    }            
+    },
+    
+    async getNomMedicalData() { 
+        const { rows } = await pool.query(
+            `SELECT * FROM nomenclatoare.nom_medicale_cod_indemnizatie;`
+        );
+        return rows;
+    },
+    
+    async getMedicalPrescription() {
+        const { rows } = await pool.query(
+            `SELECT * FROM nomenclatoare.nom_medicale_loc_prescriere;`
+        );
+        return rows;
+    },
+
+    async delete(id) {
+        const query = `DELETE FROM ${this.Table} WHERE id = $1 RETURNING *;`;
+        const { rows } = await pool
+            .query(query, [id]);
+        return rows[0]; 
+    }
 };
+    

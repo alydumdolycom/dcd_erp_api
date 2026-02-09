@@ -33,16 +33,17 @@ import payroll from "./modules/payroll/payroll.routes.js";
 import advancePaymentsRoutes from "./modules/AdvancePayments/AdvancePayments.routes.js";
 import profileRoutes from "./modules/profile/profile.routes.js";
 
-import { GeneratePDFController }  from "./utils/GeneratePDFController.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = [
-    "*",
-    "http://localhost:3000",
-    "http://localhost:5000",
-  ];
-
+  "http://localhost:3000",
+  "http://165.232.138.233",
+  "http://localhost:5173", 
+  "http://localhost:8080",
+  "http://localhost:8081",
+  "http://localhost:8082"
+];
 app.use(cors({
   origin: function (origin, callback) {
     // allow Postman / server-to-server calls
@@ -71,6 +72,7 @@ app.use("/api/departments", auth, departmentsRoutes);
 app.use("/api/jobs", auth, jobsRoutes);
 app.use("/api/permissions", auth, permissionsRoutes);
 app.use("/api/payments", auth, paymentsRoutes);
+app.use("/api/account", auth, accountRoutes);
 app.use("/api/documents", auth, documentsRoutes);
 app.use("/api/holidays", auth, holidaysRoutes);
 app.use("/api/medical/holidays", auth, medicalHolidaysRoutes);
@@ -82,7 +84,7 @@ app.use("/api/profile", auth, profileRoutes);
 app.get("/health", (req, res) => {
     res.json({ status: "OK", uptime: process.uptime() });
 });
-app.get("/generate-pdf", GeneratePDFController.generate);
+
 // Start server
 const PORT = process.env.PORT || 5000;
 

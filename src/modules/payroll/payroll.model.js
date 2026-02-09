@@ -4,22 +4,29 @@ export const PayRollModel = {
     Table: 'salarizare.state_plata',
     async all(id_firma) {
         try {   
-            const query = `SELECT S.nume, S.prenume, S.id_firma, 
-                            SP.id,
-                            SP.id_salariat,
-                            SP.luna,
-                            SP.zile_lucrate,
-                            SP.zile_luna,
-                            SP.co_zile,
-                            SP.cm_zile_angajator,
-                            SP.cm_zile_cass,
-                            SP.suma_realizata,
-                            SP.co_calculat,
-                            SP.suma_medical_firma,
-                            SP.suma_medical_cass
+            const query = `SELECT 
+                                S.nume, S.prenume, S.id_firma, S.salar_baza,
+                                SP.id,
+                                SP.id_salariat,
+                                SP.luna,
+                                SP.zile_lucrate,
+                                SP.zile_luna,
+                                SP.co_zile,
+                                SP.cm_zile_angajator,
+                                SP.cm_zile_cass,
+                                SP.suma_realizata,
+                                SP.co_calculat,
+                                SP.suma_medical_firma,
+                                SP.suma_medical_cass,
+                                NSD.nume_departament,
+                                S.id_departament
                             FROM ${this.Table} SP
-                            LEFT JOIN salarizare.salariati S ON S.id = SP.id_salariat
-                            WHERE S.id_firma = $1`;
+                            LEFT JOIN salarizare.salariati S 
+                                ON S.id = SP.id_salariat
+                            LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
+                                ON NSD.id = S.id_departament
+                            
+                            WHERE S.id_firma  = $1`;
             const { rows } =  await pool.query(query, [id_firma]);
             return rows;
         } catch (error) {

@@ -13,15 +13,20 @@ export const HolidaysModel = {
         
         // Build base query and dynamic filters
         let query = `
-            SELECT 
-            SCO.*, 
-            S.id as id_salariat, S.nume, S.prenume, 
-            NSD.nume_departament, NSD.id as id_departament
+            SELECT DISTINCT 
+                SCO.*, 
+                S.id as id_salariat, S.nume, S.prenume, 
+                NSD.nume_departament, NSD.id as id_departament,
+                NSMP.mod_plata
             FROM salarizare.concedii_odihna as SCO
-            LEFT JOIN salarizare.salariati S
-            ON SCO.id_salariat = S.id
-            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
-            ON NSD.id = S.id_departament
+                LEFT JOIN salarizare.salariati S
+                    ON SCO.id_salariat = S.id
+                LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+                    ON NSD.id = S.id_departament 
+                LEFT JOIN salarizare.salariati_modplata SMP
+                    ON SCO.id_modalitate_plata = SMP.id
+                LEFT JOIN nomenclatoare.nom_salarii_modplata NSMP
+                    ON NSMP.id = SMP.id_modplata
             WHERE S.id_firma = $1
         `;
         const values = [id_firma];
@@ -65,16 +70,35 @@ export const HolidaysModel = {
             SELECT 
                 SCO.*, 
                 S.id as id_salariat, S.nume, S.prenume, 
-                NSD.nume_departament
+                NSD.nume_departament, NSD.id as id_departament,
+                SMP.cont_bancar
             FROM salarizare.concedii_odihna as SCO
             LEFT JOIN salarizare.salariati S
                 ON SCO.id_salariat = S.id
             LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
                 ON NSD.id = S.id_departament
+            LEFT JOIN salarizare.salariati_modplata SMP 
+                ON S.id = SMP.id_salariat
             WHERE SCO.id = $1
-            ORDER BY S.nume, S.prenume`;
+            ORDER BY S.nume, S.prenume DESC limit 1;`;
         
         const { rows } = await pool.query(query, [id]);
+        const paymentMethodsQuery = `
+            SELECT 
+                salarizare.salariati_modplata.cont_bancar,
+                salarizare.salariati_modplata.id_modplata,
+                salarizare.salariati_modplata.activ,
+                nomenclatoare.nom_salarii_modplata.mod_plata
+            FROM salarizare.salariati_modplata
+            LEFT JOIN nomenclatoare.nom_salarii_modplata
+            ON nomenclatoare.nom_salarii_modplata.id = salarizare.salariati_modplata.id_modplata
+            WHERE salarizare.salariati_modplata.id_salariat = $1;
+            `;
+        const paymentMethodsValues = [rows[0].id_salariat];
+        const paymentMethodsResult = await pool.query(paymentMethodsQuery, paymentMethodsValues);
+        if (rows[0]) {
+            rows[0].payment_methods = paymentMethodsResult.rows;
+        }
         return rows[0];
     },
 

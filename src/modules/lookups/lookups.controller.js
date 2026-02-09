@@ -89,5 +89,15 @@ export const LookupsController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  async updateNeedsRecalc(req, res, next) {
+    const id_firma = req.params.id;
+    try {   
+      const data = await LookupsService.updateNeedsRecalc(id_firma);
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
   }
 };

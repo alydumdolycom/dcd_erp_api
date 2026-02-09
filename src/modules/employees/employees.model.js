@@ -138,6 +138,14 @@ export const EmployeesModel = {
   async create(data) {
     try {
       await pool.query("BEGIN");
+        // Convert date fields to YYYY-MM-DD format if they exist
+        if (data.data_angajarii) {
+          data.data_angajarii = new Date(data.data_angajarii).toISOString().slice(0, 10);
+        }
+        if (data.data_contract) {
+          data.data_contract = new Date(data.data_contract).toISOString().slice(0, 10);
+        }
+
         const query = `
         INSERT INTO ${this.TABLE}  (
           id_firma,
@@ -255,7 +263,6 @@ export const EmployeesModel = {
         code: error.code,
         detail: error.detail
       });
-      return error;
 
       throw error;
 
@@ -517,5 +524,66 @@ export const EmployeesModel = {
     const values = [id_firma];
     const { rows } = await pool.query(query, values);
     return rows;
+  },
+
+  async delete(id) {
+    const query = `
+      DELETE FROM ${this.TABLE}
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const values = [id];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  },
+
+  async getNomenclatoareData() {
+    const query = `SELECT * FROM nomenclatoare.nom_taxe_cote;`;
+
+    const {rows} = await pool.query(query);
+    return rows
+  },
+
+  async deducere(flag, suma, persoaneIntretinere = 0, data) {
+    
+    // Convert data to YYYY-MM-DD format if it's a valid date
+      // dateString = "25-12-2023"
+    const parts = data.split('-');
+    const day = parts[0];
+    const month = parts[1];
+    const year = parts[2];
+    const formatedDate = `${year}-${month}-${day}`;
+    
+    if(flag === "brut") {
+      const query = `
+        SELECT salarizare.fn_brut_to_net($1::INTEGER, $2::SMALLINT, $3::DATE) as deducere;
+      `;
+      // Convert data to YYYY-MM-DD format if it's a valid date
+    
+      const values = [suma, persoaneIntretinere, formatedDate];
+      const {rows} = await pool.query(query, values);
+      return rows[0].deducere;    
+    }
+
+    if(flag === "net"){
+       const query = `
+        SELECT salarizare.fn_net_to_brut($1::INTEGER, $2::SMALLINT, $3::DATE) as deducere;
+      `;
+      // Convert data to YYYY-MM-DD format if it's a valid date
+    
+      const values = [suma, persoaneIntretinere, formatedDate];
+      const {rows} = await pool.query(query, values);
+      return rows[0].deducere;    
+    }
+  },
+
+  async getPayRol(month, year) {
+    const checkQuery = `
+        SELECT * FROM salarizare.state_plata_header
+        WHERE luna = $1 AND anul = $2 AND inchis = false
+        ORDER BY id ASC ;
+      `;
+      const { rows } = await pool.query(checkQuery, [month, year]);
+      return rows[0] || null;
   }
 };

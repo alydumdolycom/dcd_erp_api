@@ -144,5 +144,19 @@ export const LookupsModel = {
     `;
     const { rows } = await pool.query(query);
     return rows;
+  },
+
+  async updateNeedsRecalc(id_firma, id) {  
+    try { 
+      const query = ` 
+        UPDATE salarizare.state_plata_header
+        SET needs_recalc = true
+        WHERE id_firma = $1 AND id = $2
+      `;
+      const { rows } = await pool.query(query, [id_firma, id]);
+      return rows;
+    } catch (err) {
+      throw err;
+    }
   }
 };

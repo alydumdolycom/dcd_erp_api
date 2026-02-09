@@ -1,10 +1,16 @@
 import { MedicalHolidaysService } from './MedicalHolidays.service.js';
 
 export const MedicalHolidaysController = {
+
     async getAll(req, res, next) {
         try {
             const data = await MedicalHolidaysService.getAll(req.query.id_firma);
-            res.status(200).json(data);
+            
+            res.status(200).json({
+                success: true,
+                data: data,
+                nom_medical_data: nom_medical_data
+            });
         } catch (error) {
             next(error);
         }    
@@ -14,7 +20,10 @@ export const MedicalHolidaysController = {
         try {
             req.body.id_utilizator = req.user.id;
             const data = await MedicalHolidaysService.create(req.body);
-            res.status(201).json(data);
+            res.status(201).json({
+                success: true,
+                data
+            });
         } catch (error) {
             next(error);
         }
@@ -38,5 +47,19 @@ export const MedicalHolidaysController = {
         } catch (error) {
             next(error);
         }
-    }   
+    },
+
+    async getMedicalData(req, res, next) {
+        try {
+            const nom_medical_data = await MedicalHolidaysService.getNomMedicalData();
+            const nom_medical_prescription = await MedicalHolidaysService.getMedicalPrescription();
+            res.status(200).json({
+                success: true,
+                nom_medical_data,
+                nom_medical_prescription
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 };

@@ -55,6 +55,7 @@ export const DocumentsModel = {
                 data.id_salariat,
                 data.salariu_vechi,
                 data.salariu_baza,
+                data.salariu_net,
                 data.spor_vechime,
                 data.spor_repaus,
                 data.spor_noapte,
@@ -70,8 +71,8 @@ export const DocumentsModel = {
 
             const query = `
                 INSERT INTO ${this.Table} 
-                (id_salariat, salariu_vechi, salariu_baza, spor_vechime, spor_repaus, spor_noapte, data_incepere, data_act, numar_act, nr_contract, data_contract, operat_de, data_incetare, data_operare) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                (id_salariat, salariu_vechi, salariu_baza, salariu_net, spor_vechime, spor_repaus, spor_noapte, data_incepere, data_act, numar_act, nr_contract, data_contract, operat_de, data_incetare, data_operare) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             `;
 
             const rows = await pool.query(query, values);

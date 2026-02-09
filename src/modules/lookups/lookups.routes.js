@@ -12,4 +12,5 @@ router.get("/hours/worked", auth, LookupsController.hoursWorked);
 router.get("/payment/type", auth, LookupsController.paymentType);
 router.get("/working/days", auth, LookupsController.workingDays);
 router.get("/nom/constants", auth, LookupsController.getNomConstants);
+router.get("/payroll/recalc/:id", auth, LookupsController.updateNeedsRecalc);
 export default router;

@@ -60,5 +60,14 @@ export const LookupsService = {
 
   async getNomConstants() {
     return await LookupsModel.getNomConstants();
+  },
+
+  async updateNeedsRecalc(id_firma) {
+    try {   
+      const data = await LookupsModel.updateNeedsRecalc(id_firma);
+      return data;
+    } catch (err) {
+      throw err;
+    }
   }
 };

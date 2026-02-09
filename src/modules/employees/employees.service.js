@@ -94,5 +94,20 @@ export const EmployeesService = {
   async findByCnp(cnp) {
     const data = await EmployeesModel.findByCnp(cnp); 
     return data;
+  },
+
+  async getNomenclatoareData() {
+    const data = await EmployeesModel.getNomenclatoareData(); 
+    return data;
+  },
+
+  async deducere(flag, suma, persoaneIntretinere, data) {
+    const result = await EmployeesModel.deducere(flag, suma, persoaneIntretinere, data);
+    return result;
+  },
+
+  async getPayRol(month, year) {
+    const result = await EmployeesModel.getPayRol(month, year);
+    return result;
   }
 };
