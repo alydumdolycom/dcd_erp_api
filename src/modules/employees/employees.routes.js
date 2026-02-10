@@ -21,4 +21,5 @@ router.get("/features", auth, EmployeesController.getEmployeeFeatures);
 router.get("/list/in/salaries", auth, EmployeesController.getEmployeesList);
 router.post("/calculate/salaries/brut/to/net", auth, EmployeesController.calculateBrutToNetSalary);
 router.post("/calculate/salaries/net/to/brut", auth, EmployeesController.calculateNetToBrutSalary);
+router.get("/payment/methods/:id_salariat", auth, EmployeesController.getEmployeePaymentMethods);
 export default router;

@@ -109,5 +109,10 @@ export const EmployeesService = {
   async getPayRol(month, year) {
     const result = await EmployeesModel.getPayRol(month, year);
     return result;
+  },
+
+  async getEmployeePaymentMethods(id_salariat) {
+    const result = await EmployeesModel.getEmployeePaymentMethods(id_salariat);
+    return result;
   }
 };

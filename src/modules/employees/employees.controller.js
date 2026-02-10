@@ -420,5 +420,22 @@ export const EmployeesController = {
         brut: result
       }
     });
+  },
+
+  async getEmployeePaymentMethods(req, res, next) { 
+    try {
+      const { id_salariat } = req.params; 
+      const result = await EmployeesService.getEmployeePaymentMethods(id_salariat);
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la incarcarea metodelor de plata",
+        details: err.message
+      });
+    } 
   }
 };

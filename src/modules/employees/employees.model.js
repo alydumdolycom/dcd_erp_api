@@ -585,5 +585,19 @@ export const EmployeesModel = {
       `;
       const { rows } = await pool.query(checkQuery, [month, year]);
       return rows[0] || null;
+  },
+
+  async getEmployeePaymentMethods(id_salariat) {
+    
+    const query = `SELECT SMP.id, NSMP.mod_plata, SMP.cont_bancar FROM nomenclatoare.nom_salarii_modplata AS NSMP
+        LEFT JOIN salarizare.salariati_modplata SMP ON SMP.id_modplata = NSMP.id
+        LEFT JOIN salarizare.salariati AS S ON S.id = NSMP.id
+        WHERE SMP.id_salariat = $1
+        ORDER BY NSMP.id ASC;
+	  `;
+    const values = [id_salariat];
+
+    const { rows } = await pool.query(query, values);
+    return rows;
   }
 };
