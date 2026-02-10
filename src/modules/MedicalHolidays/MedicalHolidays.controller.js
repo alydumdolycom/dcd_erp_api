@@ -8,8 +8,7 @@ export const MedicalHolidaysController = {
             
             res.status(200).json({
                 success: true,
-                data: data,
-                nom_medical_data: nom_medical_data
+                data: data
             });
         } catch (error) {
             next(error);
