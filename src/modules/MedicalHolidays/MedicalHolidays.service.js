@@ -7,18 +7,38 @@ export const MedicalHolidaysService = {
     },
 
     async create(data) {
+        const find = await MedicalHolidaysModel.findByCertificate(data.numar_certificat);
+        if (find) {
+            return {
+                success: false,
+                message: 'Un concediu medical cu acest număr de certificat există deja'
+            }
+        }
         const row = await MedicalHolidaysModel.create(data);
         return row;
     },
 
+    async getById(id) {
+        const row = await MedicalHolidaysModel.findById(id);
+        return row;
+    },
+    
     async update(id, data) {
+        const find = await MedicalHolidaysModel.findById(id);
+        if (!find) {
+            return null;
+        }
         const row = await MedicalHolidaysModel.update(id, data);
         return row;
     },
 
     async delete(id) {
-        const row = await MedicalHolidaysModel.delete(id);
-        return row;
+        const find = await MedicalHolidaysModel.findById(id);
+        if (!find) {
+            return null;
+        }
+        const result = await MedicalHolidaysModel.delete(id);
+        return result;
     },
 
     async getNomMedicalData() {

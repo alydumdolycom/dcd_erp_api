@@ -4,7 +4,7 @@ export const AdvancePaymentsController = {
     async getAll(req, res, next) {
         try {
             const data = await AdvancePaymentsService.getAll(req.query.id_firma);
-            res.json({
+            res.status(200).json({
                 success: true,
                 data: data
             });
@@ -19,7 +19,7 @@ export const AdvancePaymentsController = {
     async update(req, res, next) {
         try {
             const data = await AdvancePaymentsService.update(req.params.id, req.body);
-            res.json({
+            res.status(200).json({
                 success: true,
                 data: data
             });
@@ -35,7 +35,7 @@ export const AdvancePaymentsController = {
         try {
             const id = req.params.id;   
             const data = await AdvancePaymentsService.getById(id);
-            res.json({
+            res.status(200).json({
                 success: true,
                 data: data
             });

@@ -56,14 +56,15 @@ export const UserModel = {
       // Insert user
       const userSql = `
         INSERT INTO ${this.TABLE}
-          (nume_complet, email, parola_hash)
-        VALUES ($1, $2, $3)
+          (nume_complet, email, parola_hash, activ)
+        VALUES ($1, $2, $3, $4)
         RETURNING id_utilizator, nume_complet, email, activ, creat_la;
         `;
       const userResult = await client.query(userSql, [
         nume_complet,
         email,
-        await hashPassword(parola_hash)
+        await hashPassword(parola_hash),
+        true
       ]);
       const user = userResult.rows[0];
       const userId = user.id_utilizator;

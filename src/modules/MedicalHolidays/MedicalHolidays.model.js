@@ -20,46 +20,51 @@ export const MedicalHolidaysModel = {
         return rows;
     },
 
+    async findByCertificate(numar_certificat) {
+        const query = `SELECT * FROM ${this.Table} WHERE numar_certificat = $1;`;
+        const { rows } = await pool.query(query, [numar_certificat]);
+        return rows[0] || null;
+    },
+
     async create(data) {
         const client = await pool.connect();
         try {
+            // Validate data.cnp_copil: must be 13 digit string if provided
+            if (data.cnp_copil && (!/^\d{13}$/.test(data.cnp_copil))) {
+                return {
+                    success: false,
+                    message: 'cnp_copil trebuie să fie un șir de 13 cifre'
+                };
+            }
+
             await client.query('BEGIN');
             
             const insertQuery = `
                 INSERT INTO ${this.Table} (
-                    id_salariat,
-                    serie_certificat,
-                    numar_certificat,
-                    cod_indemnizatie,
-                    cod_loc_prescriere,
-                    cod_boala,
-                    data_acordarii,
-                    data_inceput,
-                    data_sfarsit,
-                    anul,
-                    luna,
-                    id_utilizator
+                    id_salariat, serie_certificat, numar_certificat, cod_indemnizatie, cod_loc_prescriere, cod_boala,
+                    data_acordarii, data_inceput, data_sfarsit, anul, luna, procent,
+                    zile_angajator, zile_boala, zile_accidente, zile_sarcina,
+                    zile_ingrijire_copil, zile_crestere_copil, id_utilizator, aviz_medic_expert,
+                    data_certificat_initial, cod_urgenta, cnp_copil,  numar_certificat_initial, serie_certificat_initial
                 ) VALUES (
-                    $1, $2, $3, $4, $5,
-                    $6, $7, $8, $9, $10,
-                    $11, $12
+                    $1, $2, $3, $4, $5, $6,
+                    $7, $8, $9, $10, $11, $12,
+                    $13, $14, $15, $16,
+                    $17, $18, $19, $20,
+                    $21, $22, $23, $24, $25
                 )
                 RETURNING *;
             `;
+
             const values = [
-                data.id_salariat,
-                data.serie_certificat,
-                data.numar_certificat,
-                data.cod_indemnizatie,
-                data.cod_loc_prescriere,
-                data.cod_boala,
-                data.data_acordarii,
-                data.data_inceput,
-                data.data_sfarsit,
-                data.anul,
-                data.luna,  
-                data.id_utilizator
+                data.id_salariat, data.serie_certificat, data.numar_certificat, data.cod_indemnizatie,
+                data.cod_loc_prescriere, data.cod_boala, data.data_acordarii, data.data_inceput,
+                data.data_sfarsit, data.anul, data.luna, data.procent, data.zile_angajator,
+                data.zile_boala, data.zile_accidente, data.zile_sarcina, data.zile_ingrijire_copil,
+                data.zile_crestere_copil, data.id_utilizator, data.aviz_medic_expert,
+                data.data_certificat_initial, data.cod_urgenta, data.cnp_copil, data.numar_certificat_initial, data.serie_certificat_initial
             ];
+
             const { rows } = await client.query(insertQuery, values);
             await client.query('COMMIT');
             return rows[0];
@@ -73,17 +78,18 @@ export const MedicalHolidaysModel = {
 
     async update(id, data) {
         // Build dynamic SET clause and values array for PATCH (partial update)
-        const fields = Object.keys(data);
+        const fields = Object.keys(data).filter(field => data[field] !== undefined);
         if (fields.length === 0) return null;
 
-        const setClause = fields.map((field, idx) => `${field} = $${idx + 1}`).join(', ');
+        const setClause = fields.map((field, idx) => `"${field}" = $${idx + 1}`).join(', ');
         const values = fields.map(field => data[field]);
         values.push(id); // last value for WHERE clause
 
+        const parameterIndex = fields.length + 1;
         const query = `
             UPDATE ${this.Table}
             SET ${setClause}
-            WHERE id = $${fields.length + 1}
+            WHERE id = $${parameterIndex}
             RETURNING *;
         `;
         const { rows } = await pool.query(query, values);
@@ -104,11 +110,16 @@ export const MedicalHolidaysModel = {
         return rows;
     },
 
+    async findById(id) {
+        const query = `SELECT * FROM ${this.Table} WHERE id = $1;`;
+        const { rows } = await pool.query(query, [id]);
+        return rows[0] || null;
+    },
+
     async delete(id) {
-        const query = `DELETE FROM ${this.Table} WHERE id = $1 RETURNING *;`;
-        const { rows } = await pool
-            .query(query, [id]);
-        return rows[0]; 
+        const query = `DELETE FROM ${this.Table} WHERE id = $1;`;
+        const result  = await pool.query(query, [id]);
+        return result.rowCount > 0 ? result.rows[0] : null;
     }
 };
     

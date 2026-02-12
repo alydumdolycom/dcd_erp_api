@@ -4,6 +4,7 @@ export const AdvancePaymentsModel = {
 
     async all(id_firma) {
         const query = `SELECT
+            DISTINCT
             S.id as id_salariat,   
             S.nume, 
             S.prenume,
@@ -15,15 +16,22 @@ export const AdvancePaymentsModel = {
             SP.zile_lucrate,
             SP.co_zile,
             SP.cm_zile_angajator,
+            SP.luna,
+            SP.anul,
             SP.cm_zile_cass,
-            SP.co_primit
+            SP.co_primit,
+            NSMP.mod_plata
         FROM salarizare.state_plata  SP
             LEFT JOIN salarizare.salariati S 
                 ON SP.id_salariat = S.id
             LEFT JOIN  nomenclatoare.nom_salarii_departamente NSD
                 ON S.id_departament = NSD.id
-        WHERE S.id_firma = $1
-        ORDER BY SP.id asc`;
+            LEFT JOIN nomenclatoare.nom_salarii_modplata  NSMP
+                ON NSMP.id = SP.id_salariat_modplata
+            LEFT JOIN salarizare.salariati_modplata SMP
+                ON SMP.id_salariat = S.id
+        WHERE S.id_firma = $1 and SMP.activ = true
+        ORDER BY SP.id asc`;    
         const results = await pool.query(query, [id_firma]);
         return results.rows;
     },
