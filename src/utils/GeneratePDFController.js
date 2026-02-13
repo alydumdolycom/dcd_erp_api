@@ -1,15 +1,16 @@
 import path from "path";
 import puppeteer from "puppeteer";
 export const GeneratePDFController = {
+
    async generate(req, res) {
-        
+        let browser;
         try {
-
-            const browser = await puppeteer.launch({
+            browser = await puppeteer.launch({
                 headless: "new",
-                args: ["--no-sandbox", "--disable-setuid-sandbox"]
+                args: ["--no-sandbox", "--disable-setuid-sandbox"],
+                executablePath: process.env.CHROMIUM_PATH || undefined,
+                ignoreHTTPSErrors: true
             });
-
             const page = await browser.newPage();
 
             // Generate a simple HTML table

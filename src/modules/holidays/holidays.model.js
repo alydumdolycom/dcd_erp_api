@@ -211,7 +211,7 @@ export const HolidaysModel = {
             RETURNING *`;
 
         const { rows } = await pool.query(query, values);
-        return rows;
+        return rows[0];
     },
 
     /* Delete a holiday record */
@@ -222,5 +222,25 @@ export const HolidaysModel = {
                     WHERE id = $1`;
         // Execute query with id
         await pool.query(query, [id]);    
-    }   
+    },
+
+    async reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata) {
+        const query = `
+            SELECT DISTINCT 
+                SUM (SCO.co_plata) as TOTAL_CO_PLATA, 
+                NSMP.mod_plata
+            FROM salarizare.concedii_odihna as SCO
+                LEFT JOIN salarizare.salariati S
+                    ON SCO.id_salariat = S.id
+                LEFT JOIN salarizare.salariati_modplata SMP
+                    ON SCO.id_modalitate_plata = SMP.id
+                LEFT JOIN nomenclatoare.nom_salarii_modplata NSMP
+                    ON NSMP.id = SMP.id_modplata
+                WHERE NSMP.id = $1 AND SCO.anul = $2 AND SCO.luna = $3 AND S.id_firma = $4
+            GROUP BY NSMP.mod_plata
+        `;
+        const values = [id_modplata, an, luna, id_firma];
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    }
 };

@@ -4,20 +4,50 @@ export const MedicalHolidaysModel = {
     Table: "salarizare.concedii_medicale",
 
     async all(id_firma) {
-        const { rows } = await pool.query(
-            `SELECT 
-                CM.*, 
+        const query = `SELECT
+		        CM.id, CM.luna, CM.id_salariat,
+                CM.anul,
+                CM.serie_certificat, CM.numar_certificat,
+                CM.cod_indemnizatie, CM.cod_loc_prescriere,
+                CM.cod_boala, CM.data_acordarii,
+                CM.data_inceput, CM.data_sfarsit,
+                CM.procent, CM.zile_angajator,
+                CM.zile_boala, CM.zile_accidente,
+                CM.zile_sarcina, CM.zile_ingrijire_copil,
+                CM.zile_crestere_copil, CM.id_utilizator,
+                CM.aviz_medic_expert,
+                (CM.zile_angajator + CM.zile_cass) AS zile,
+                S.id AS id_salariat,
                 S.nume, S.prenume,
-                NSD.nume_departament, NSD.id as id_departament
-            FROM ${this.Table} as CM
-                LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id
-                LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
-                    ON NSD.id = S.id_departament    
-                WHERE S.id_firma = $1
-             ORDER BY CM.id DESC;`,
-            [id_firma] 
-        );
+                NSD.nume_departament,
+                NSD.id AS id_departament
+            FROM salarizare.concedii_medicale CM
+            LEFT JOIN salarizare.salariati S 
+                ON CM.id_salariat = S.id
+            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+                ON NSD.id = S.id_departament
+            WHERE S.id_firma = $1
+            ORDER BY CM.id DESC;
+            `;
+        const { rows } = await pool.query(query, [id_firma]);
         return rows;
+        // const { rows } = await pool.query(
+        //     `SELECT 
+        //         sum(CM.zile_angajator+CM.zile_cass) as zile, CM.an, CM.luna, CM.id, CM.id_salariat, CM.serie_certificat, CM.numar_certificat, CM.cod_indemnizatie, CM.cod_loc_prescriere, CM.cod_boala,
+        //         CM.data_acordarii, CM.data_inceput, CM.data_sfarsit, CM.procent, CM.zile_angajator, CM.zile_boala, CM.zile_accidente, CM.zile_sarcina,
+        //         CM.zile_ingrijire_copil, CM.zile_crestere_copil, CM.id_utilizator, CM.aviz_medic_expert,
+        //         S.id as id_salariat,
+        //         S.nume, S.prenume,
+        //         NSD.nume_departament, NSD.id as id_departament
+        //     FROM ${this.Table} as CM
+        //         LEFT JOIN salarizare.salariati as S ON CM.id_salariat = S.id
+        //         LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
+        //             ON NSD.id = S.id_departament    
+        //         WHERE S.id_firma = $1
+        //      ORDER BY CM.id DESC;`,
+        //     [id_firma] 
+        // );
+        // return rows;
     },
 
     async findByCertificate(numar_certificat) {

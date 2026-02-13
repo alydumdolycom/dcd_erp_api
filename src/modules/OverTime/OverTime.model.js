@@ -4,17 +4,34 @@ export const OverTimeModel = {
     Table: "salarizare.ore_suplimentare",
     async all(id_firma) {
         const query = `SELECT 
-                S.id AS id_salariat,
-                S.nume,
-                S.prenume,
-                OS.ore_lucrate,
-                OS.data_ora_inceput,
-                OS.co,
-                OS.ore_cm
-                FROM ${this.Table} AS OS
-                LEFT JOIN salarizare.salariati S 
-                    ON ${this.Table}.id_salariat = S.id
-                WHERE S.id_firma = $1`;
+            S.id AS id_salariat,
+            S.nume,
+            S.prenume,
+            OS.id,
+            OS.ore_lucrate,
+            OS.ore_cm,
+            OS.ore_co,
+            OS.ore_norma,
+            OS.ore_lucrate,
+            OS.ore_suplimentare,
+            OS.zile_baza_calcul,
+            OS.salar_baza_net,
+            OS.salar_baza_brut,
+            OS.brut_suplimentare,
+            OS.net_suplimentare,
+            OS.fix,
+            OS.procent,
+            OS.luna,
+            OS.an,
+            NSD.id AS id_departament,
+            NSD.nume_departament
+        FROM ${this.Table} AS OS
+            LEFT JOIN salarizare.salariati S 
+                ON OS.id_salariat = S.id
+            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+                ON S.id_departament = NSD.id
+            WHERE S.id_firma = $1
+        ORDER BY OS.id ASC;`;
         const { rows } = await pool.query(query, [id_firma]);
         return rows;
     },

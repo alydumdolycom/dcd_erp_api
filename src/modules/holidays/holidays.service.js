@@ -44,5 +44,10 @@ export const HolidaysService = {
     async delete(id) {
         // Logic to delete a holiday
         await HolidaysModel.delete(id);
-    }   
+    },
+
+    async reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata) {
+        const rows = await HolidaysModel.reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata);
+        return rows;
+    }
 };

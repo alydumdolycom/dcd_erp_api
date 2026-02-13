@@ -33,6 +33,8 @@ import payroll from "./modules/payroll/payroll.routes.js";
 import advancePaymentsRoutes from "./modules/AdvancePayments/AdvancePayments.routes.js";
 import profileRoutes from "./modules/profile/profile.routes.js";
 import OverTimeRoutes from "./modules/OverTime/OverTime.routes.js";
+import { GeneratePDFController } from "./utils/GeneratePDFController.js"; 
+import { ContractPDFController } from "./utils/ContractPDFController.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -80,6 +82,7 @@ app.use("/api/payroll", auth, payroll);
 app.use("/api/advance/payments", auth, advancePaymentsRoutes);
 app.use("/api/profile", auth, profileRoutes);
 app.use("/api/overtime", auth, OverTimeRoutes);
+app.get("/api/generate-pdf", ContractPDFController.generate);
 
 // Health check
 app.get("/health", (req, res) => {

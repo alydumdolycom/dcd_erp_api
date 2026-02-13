@@ -60,5 +60,15 @@ export const HolidaysController = {
         } catch (error) {
             next(error);
         }
+    },
+
+    async reportCoPaymentHolidaySum(req, res, next) {
+        try {
+            const { id_firma, an, luna, id_modplata } = req.query;
+            const result = await HolidaysService.reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata);
+            res.status(200).json(result);
+        } catch (error) {
+            next(error);
+        }   
     }
 };
