@@ -21,6 +21,23 @@ export const PaymentsController = {
     }
   },
 
+  async find(req, res, next) {
+      // Logic to find a specific payment by ID
+    try { 
+      const data = await PaymentsService.find(req.params.id);
+      res.status(200).json({
+        success: true,
+        data: data
+      });
+    } catch (err) {
+      next({
+        success: false,
+        message: "Eroare server",
+        details: err.message,
+        status: 500,  
+      });
+    } 
+  },
   /* Create a new payment */
   async create(req, res, next) {
       // Logic to create a new payment

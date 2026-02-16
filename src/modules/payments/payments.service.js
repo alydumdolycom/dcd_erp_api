@@ -18,12 +18,25 @@ export const PaymentsService = {
     /* update an existing payment */
     async update(id, paymentData) {
         // Logic to update an existing payment
+        const find = await PaymentsModel.findById(id);
+        if (!find) {
+           return null; // nu exista payment cu acest id
+        }
        return PaymentsModel.update(id, paymentData);
     },
 
     /* delete a payment */
     async delete(id) {
         // Logic to delete a payment
+        const find = await PaymentsModel.findById(id);
+        if (!find) {
+           return null; // nu exista payment cu acest id
+        }
        return PaymentsModel.delete(id);
+    },
+
+    async find(id) {
+        // Logic to find a specific payment by ID
+        return PaymentsModel.findById(id);
     }
 };

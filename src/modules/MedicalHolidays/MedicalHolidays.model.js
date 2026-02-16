@@ -16,6 +16,8 @@ export const MedicalHolidaysModel = {
                 CM.zile_sarcina, CM.zile_ingrijire_copil,
                 CM.zile_crestere_copil, CM.id_utilizator,
                 CM.aviz_medic_expert,
+                CM.procent, CM.zile_angajator, CM.zile_cass,
+                CM.data_certificat_initial, CM.cod_urgenta, CM.cnp_copil, CM.numar_certificat_initial, CM.serie_certificat_initial,
                 (CM.zile_angajator + CM.zile_cass) AS zile,
                 S.id AS id_salariat,
                 S.nume, S.prenume,
@@ -123,7 +125,7 @@ export const MedicalHolidaysModel = {
             RETURNING *;
         `;
         const { rows } = await pool.query(query, values);
-        return rows[0];
+        return rows;
     },
     
     async getNomMedicalData() { 

@@ -331,6 +331,24 @@ export const EmployeesController = {
     }
   },
 
+  async updateEmployeesList(req, res, next) {
+    try {
+      const { id_firma } = req.query;
+      const id = req.params.id;
+      const result = await EmployeesService.updateEmployeesList(id, req.body);
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la incarcarea listei de salariati",
+        details: err.message
+      });
+    }
+  },
+
   async calculateBrutToNetSalary(req, res, next) {
     const { brut, persoaneIntretinere, data } = req.body;
     // datele din nomenclatoare.nom_taxe_cote

@@ -10,7 +10,13 @@ export const PaymentsModel = {
         );
         return rows;
     },
-
+    async findById(id) {
+        const { rows } = await pool.query(
+        `SELECT * FROM ${this.Table} WHERE id = $1`,    
+        [id]
+        );
+        return rows[0] || null;
+    },
     /* create a new payment method */
     async create(paymentData) {
         try {   

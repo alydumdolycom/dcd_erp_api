@@ -37,7 +37,7 @@ export const HolidaysService = {
     async update(id, data) {
         // Logic to update an existing holiday
         const rows = await HolidaysModel.update(id, data);
-        return rows[0];
+        return rows;
     },
 
     /*  Delete Holiday */

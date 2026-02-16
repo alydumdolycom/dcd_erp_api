@@ -5,6 +5,7 @@ import { auth } from "../../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", auth, PaymentsController.getAll);
+router.get("/:id", auth, PaymentsController.find);
 router.post("/", auth, PaymentsController.create);
 router.patch("/:id", auth, PaymentsController.update);
 router.delete("/:id", auth, PaymentsController.delete);

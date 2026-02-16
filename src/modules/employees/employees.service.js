@@ -114,5 +114,10 @@ export const EmployeesService = {
   async getEmployeePaymentMethods(id_salariat) {
     const result = await EmployeesModel.getEmployeePaymentMethods(id_salariat);
     return result;
+  },
+
+  async updateEmployeesList(id, data) {
+    const result = await EmployeesModel.updateEmployeesList(id, data);
+    return result;
   }
 };

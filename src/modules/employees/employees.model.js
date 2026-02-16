@@ -49,12 +49,12 @@ export const EmployeesModel = {
     // =========================
     if (search) {
       values.push(`%${search}%`);
-      whereClauses.push(`
-      (
-        S.nume ILIKE $${values.length}
-        OR S.prenume ILIKE $${values.length}
-        OR S.cnp ILIKE $${values.length}
-      )
+        whereClauses.push(`
+        (
+          S.nume ILIKE $${values.length}
+          OR S.prenume ILIKE $${values.length}
+          OR S.cnp ILIKE $${values.length}
+        )
       `);
     }
 
@@ -107,26 +107,26 @@ export const EmployeesModel = {
     // =========================
     const query = `
       SELECT
-      S.id,
-      S.id_firma,
-      S.nume,
-      S.prenume,
-      S.cnp,
-      TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
-      S.salar_net,
-      S.salar_baza,
-      S.sector,
-      S.data_incetarii,
-      S.data_determinata,
-      NSD.id AS id_departament,
-      NSD.nume_departament,
-      NSF.nume_functie
+        S.id,
+        S.id_firma,
+        S.nume,
+        S.prenume,
+        S.cnp,
+        TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
+        S.salar_net,
+        S.salar_baza,
+        S.sector,
+        S.data_incetarii,
+        S.data_determinata,
+        NSD.id AS id_departament,
+        NSD.nume_departament,
+        NSF.nume_functie
       FROM ${this.TABLE} S
-      LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
-      ON S.id_departament = NSD.id
-      JOIN nomenclatoare.nom_salarii_functii NSF
-      ON S.id_functie = NSF.id
-      ${whereSQL}
+        LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+          ON S.id_departament = NSD.id
+        JOIN nomenclatoare.nom_salarii_functii NSF
+          ON S.id_functie = NSF.id
+        ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir};
     `;
 
@@ -599,5 +599,34 @@ export const EmployeesModel = {
 
     const { rows } = await pool.query(query, values);
     return rows;
+  },
+
+  async updateEmployeesList(id, data) {
+    const fields = [];
+    const values = [];
+    let idx = 1;
+
+    for (const key in data) {
+      if (data[key] !== undefined && data[key] !== null) {
+        fields.push(`${key} = $${idx}`);
+        values.push(data[key]);
+        idx++;
+      }
+    }
+
+    if (fields.length === 0) {
+      return null;
+    }
+
+    values.push(id);
+    const query = `
+      UPDATE salarizare.state_plata
+      SET ${fields.join(", ")}
+      WHERE id = $${idx}
+      RETURNING *;
+    `;
+    const result = await pool.query(query, values);
+    return result.rows[0];
+    
   }
 };

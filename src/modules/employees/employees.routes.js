@@ -19,6 +19,7 @@ router.get("/employee/company", auth, EmployeesController.employeeCompany);
 router.post("/mod/edit/employee", auth, EmployeesController.modEditEmployee);
 router.get("/features", auth, EmployeesController.getEmployeeFeatures);
 router.get("/list/in/salaries", auth, EmployeesController.getEmployeesList);
+router.patch("/list/in/salaries/:id", auth, EmployeesController.updateEmployeesList);
 router.post("/calculate/salaries/brut/to/net", auth, EmployeesController.calculateBrutToNetSalary);
 router.post("/calculate/salaries/net/to/brut", auth, EmployeesController.calculateNetToBrutSalary);
 router.get("/payment/methods/:id_salariat", auth, EmployeesController.getEmployeePaymentMethods);
