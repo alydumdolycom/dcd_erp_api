@@ -66,17 +66,19 @@ export const DocumentsModel = {
                 data.data_contract,
                 data.operat_de,
                 data.data_incetare,
-                data.data_operare
+                data.data_operare,
+                data.id_firma
             ];
 
             const query = `
                 INSERT INTO ${this.Table} 
-                (id_salariat, salariu_vechi, salariu_baza, salariu_net, spor_vechime, spor_repaus, spor_noapte, data_incepere, data_act, numar_act, nr_contract, data_contract, operat_de, data_incetare, data_operare) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                (id_salariat, salariu_vechi, salariu_baza, salariu_net, spor_vechime, spor_repaus, spor_noapte, data_incepere, data_act, numar_act, nr_contract, data_contract, operat_de, data_incetare, data_operare, id_firma) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                RETURNING *;
             `;
 
-            const rows = await pool.query(query, values);
-            return rows;
+            const { rows } = await pool.query(query, values);
+            return rows[0];
 
         } catch (error) {
             throw error;

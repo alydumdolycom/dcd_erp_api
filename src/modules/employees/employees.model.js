@@ -499,8 +499,9 @@ export const EmployeesModel = {
 
   async getEmployeesList(id_firma) {
     const query = `
-      SELECT 
-        S.id, 
+        SELECT 
+        SP.id,
+        S.id AS id_salariat,
         S.nume, 
         S.prenume, 
         S.salar_net,
@@ -508,15 +509,14 @@ export const EmployeesModel = {
         S.are_garantie,
         S.id_departament,
         NSD.nume_departament,
-        SP.id AS id_stare_plata,
         SP.avans_cass,
         SP.avans_firma,
         SP.asigurari,
         SP.garantii,
         SP.premii
       FROM salarizare.salariati S
-      LEFT JOIN salarizare.state_plata SP ON SP.id_salariat = S.id
-      LEFT JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
+      JOIN salarizare.state_plata SP ON SP.id_salariat = S.id
+      JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
       WHERE S.id_firma = $1
       AND S.data_incetarii IS NULL
       ORDER BY S.nume ASC;
@@ -617,7 +617,7 @@ export const EmployeesModel = {
     if (fields.length === 0) {
       return null;
     }
-
+    console.log("Updating employee list with data:", data);
     values.push(id);
     const query = `
       UPDATE salarizare.state_plata

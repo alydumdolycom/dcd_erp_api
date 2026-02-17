@@ -4,7 +4,7 @@ export const PayRollController = {
     async getAll(req, res, next) {
         // Logic to get all payroll records
         try {
-            const data = await PayRollService.getAll(req.query.id_firma);
+            const data = await PayRollService.getAll(req.query);
             if(!data) {
                 return res.status(404).json({
                     success: false,

@@ -7,6 +7,7 @@ router.get('/:id', HolidaysController.getById);
 router.post('/', HolidaysController.create);
 router.patch('/:id', HolidaysController.update);
 router.delete('/:id', HolidaysController.delete);
-router.get('/reports/holday/payment', HolidaysController.reportCoPaymentHolidaySum);
+router.get('/reports/holiday/payment', HolidaysController.reportCoPaymentHolidaySum);
+router.get('/reports/holiday/payment/method', HolidaysController.reportByPaymentMethod);
 
 export default router;

@@ -66,13 +66,25 @@ export const HolidaysController = {
 
     async reportCoPaymentHolidaySum(req, res, next) {
         try {
-            const { id_firma, an, luna, id_modplata } = req.query;
-            const result = await HolidaysService.reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata);
+            const { id_firma, an, luna } = req.query;
+            const result = await HolidaysService.reportCoPaymentHolidaySum(id_firma, an, luna);
             res.status(200).json({
                data: result
             });
         } catch (error) {
             next(error);
         }   
-    }
+    },
+
+    async reportByPaymentMethod(req, res, next) {
+        try {
+            const { id_firma, an, luna, id_modplata } = req.query;
+            const result = await HolidaysService.reportByPaymentMethod(id_firma, an, luna, id_modplata);
+            res.status(200).json({
+               data: result
+            });
+        } catch (error) {
+            next(error);
+        }   
+    },
 };

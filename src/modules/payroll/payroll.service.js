@@ -1,16 +1,16 @@
 import { PayRollModel } from "./payroll.model.js";
 
 export const PayRollService = {
-    async getAll(id_firma) {
+    async getAll(params) {
         // Logic to get all payroll records
-        const data = await PayRollModel.all(id_firma);
-        return data;
+        const result = await PayRollModel.all(params);
+        return result;
     },
 
     async getById(id) {
         // Logic to get a payroll record by ID
-        const data = await PayRollModel.findById(id);
-        return data;    
+        const result = await PayRollModel.findById(id);
+        return result;    
     },
 
     async create(data) {

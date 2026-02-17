@@ -4,10 +4,10 @@ export const OverTimeModel = {
     Table: "salarizare.ore_suplimentare",
     async all(id_firma) {
         const query = `SELECT 
+            OS.id,    
             S.id AS id_salariat,
             S.nume,
             S.prenume,
-            OS.id,
             OS.ore_lucrate,
             OS.ore_cm,
             OS.ore_co,
@@ -64,6 +64,62 @@ export const OverTimeModel = {
             updates.push(`id_salariat = $${paramIndex++}`);
             values.push(data.id_salariat);
         }
+        if (data.ore_norma !== undefined) {
+            updates.push(`ore_norma = $${paramIndex++}`);
+            values.push(data.ore_norma);
+        }
+        if (data.ore_lucrate !== undefined) {
+            updates.push(`ore_lucrate = $${paramIndex++}`);
+            values.push(data.ore_lucrate);
+        }
+        if (data.ore_co !== undefined) {
+            updates.push(`ore_co = $${paramIndex++}`);
+            values.push(data.ore_co);
+        }
+        if (data.ore_cm !== undefined) {
+            updates.push(`ore_cm = $${paramIndex++}`);
+            values.push(data.ore_cm);
+        }
+        if (data.ore_suplimentare !== undefined) {
+            updates.push(`ore_suplimentare = $${paramIndex++}`);
+            values.push(data.ore_suplimentare);
+        }
+        if (data.salar_baza_brut !== undefined) {
+            updates.push(`salar_baza_brut = $${paramIndex++}`);
+            values.push(data.salar_baza_brut);
+        }
+        if (data.salar_baza_net !== undefined) {
+            updates.push(`salar_baza_net = $${paramIndex++}`);
+            values.push(data.salar_baza_net);
+        }
+        if (data.procent !== undefined) {
+            updates.push(`procent = $${paramIndex++}`);
+            values.push(data.procent);
+        }
+        if (data.fix !== undefined) {
+            updates.push(`fix = $${paramIndex++}`);
+            values.push(data.fix);
+        }
+        if (data.zile_baza_calcul !== undefined) {
+            updates.push(`zile_baza_calcul = $${paramIndex++}`);
+            values.push(data.zile_baza_calcul);
+        }
+        if (data.brut_suplimentare !== undefined) {
+            updates.push(`brut_suplimentare = $${paramIndex++}`);
+            values.push(data.brut_suplimentare);
+        }
+        if (data.net_suplimentare !== undefined) {
+            updates.push(`net_suplimentare = $${paramIndex++}`);
+            values.push(data.net_suplimentare);
+        }
+        if (data.an !== undefined) {
+            updates.push(`an = $${paramIndex++}`);
+            values.push(data.an);
+        }
+        if (data.luna !== undefined) {
+            updates.push(`luna = $${paramIndex++}`);
+            values.push(data.luna);
+        }
         if (data.data_ora_inceput !== undefined) {
             updates.push(`data_ora_inceput = $${paramIndex++}`);
             values.push(data.data_ora_inceput);
@@ -84,7 +140,7 @@ export const OverTimeModel = {
             `UPDATE ${this.Table} SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
             values
         );
-        return rows[0];
+        return rows;
     },
 
     async delete(id) {

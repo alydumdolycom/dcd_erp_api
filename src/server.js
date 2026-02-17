@@ -35,6 +35,7 @@ import profileRoutes from "./modules/profile/profile.routes.js";
 import OverTimeRoutes from "./modules/OverTime/OverTime.routes.js";
 import { GeneratePDFController } from "./utils/GeneratePDFController.js"; 
 import { ContractPDFController } from "./utils/ContractPDFController.js";
+import { ReportsPaymentsPDFController } from "./utils/ReportsPaymentsPDFController.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -83,6 +84,7 @@ app.use("/api/advance/payments", auth, advancePaymentsRoutes);
 app.use("/api/profile", auth, profileRoutes);
 app.use("/api/overtime", auth, OverTimeRoutes);
 app.get("/api/generate-pdf", ContractPDFController.generate);
+app.get("/api/reports-payments-pdf", ReportsPaymentsPDFController.generate);
 
 // Health check
 app.get("/health", (req, res) => {

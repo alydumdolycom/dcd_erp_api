@@ -4,10 +4,10 @@ export const AdvancePaymentsModel = {
 
     async all(id_firma) {
         const query = `SELECT  
+                SP.id, SP.luna, SP.anul, SP.zile_lucrate, SP.avans_firma, SP.avans_cass, SP.co_zile, SP.cm_zile_angajator, SP.cm_zile_cass, SP.co_primit,
                 S.id AS id_salariat, S.nume, S.prenume,
                 NSMP.mod_plata,
-                NSD.nume_departament, NSD.id AS id_departament, 
-                SP.luna, SP.anul, SP.zile_lucrate, SP.avans_firma, SP.avans_cass, SP.co_zile, SP.cm_zile_angajator, SP.cm_zile_cass, SP.co_primit
+                NSD.nume_departament, NSD.id AS id_departament
             FROM salarizare.salariati AS S
             JOIN salarizare.state_plata SP 
                 ON SP.id_salariat = S.id

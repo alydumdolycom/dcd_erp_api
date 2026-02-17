@@ -46,8 +46,13 @@ export const HolidaysService = {
         await HolidaysModel.delete(id);
     },
 
-    async reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata) {
-        const rows = await HolidaysModel.reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata);
+    async reportCoPaymentHolidaySum(id_firma, an, luna) {
+        const rows = await HolidaysModel.reportCoPaymentHolidaySum(id_firma, an, luna);
+        return rows;
+    },
+
+    async reportByPaymentMethod(id_firma, an, luna, id_modplata) {
+        const rows = await HolidaysModel.reportByPaymentMethod(id_firma, an, luna, id_modplata);
         return rows;
     }
 };

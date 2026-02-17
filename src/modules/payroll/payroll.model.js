@@ -2,13 +2,15 @@ import pool from "../../config/db.js";
 
 export const PayRollModel = {
     Table: 'salarizare.state_plata',
-    async all(id_firma) {
+    async all(params) {
+        const { id_firma, luna_numeric, anul } = params;
         try {   
-            const query = `SELECT 
-                                S.nume, S.prenume, S.id_firma, S.salar_baza,
+            let query = `SELECT 
                                 SP.id,
+                                S.nume, S.prenume, S.id_firma, S.salar_baza,
                                 SP.id_salariat,
                                 SP.luna,
+                                SP.anul,
                                 SP.zile_lucrate,
                                 SP.zile_luna,
                                 SP.co_zile,
@@ -25,9 +27,23 @@ export const PayRollModel = {
                                 ON S.id = SP.id_salariat
                             LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
                                 ON NSD.id = S.id_departament
-                            
                             WHERE S.id_firma  = $1`;
-            const { rows } =  await pool.query(query, [id_firma]);
+            const params = [id_firma];
+            let paramIndex = 2;
+            
+            if (luna_numeric !== undefined && luna_numeric !== null) {
+                query += ` AND SP.luna = $${paramIndex}`;
+                params.push(luna_numeric);
+                paramIndex++;
+            }
+            
+            if (anul !== undefined && anul !== null) {
+                query += ` AND SP.anul = $${paramIndex}`;
+                params.push(anul);
+            }
+            
+            query += ` ORDER BY SP.id ASC`;
+            const { rows } =  await pool.query(query, params);
             return rows;
         } catch (error) {
             throw error;

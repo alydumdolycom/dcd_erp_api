@@ -224,31 +224,60 @@ export const HolidaysModel = {
         await pool.query(query, [id]);    
     },
 
-    async reportCoPaymentHolidaySum(id_firma, an, luna, id_modplata) {
-        let query = `
-            SELECT DISTINCT 
-                SUM (SCO.co_plata) as TOTAL_CO_PLATA, 
-                NSMP.mod_plata,
-                NSMP.id
-            FROM salarizare.concedii_odihna as SCO
-                LEFT JOIN salarizare.salariati S
-                    ON SCO.id_salariat = S.id
-                LEFT JOIN salarizare.salariati_modplata SMP
-                    ON SCO.id_modalitate_plata = SMP.id
-                LEFT JOIN nomenclatoare.nom_salarii_modplata NSMP
-                    ON NSMP.id = SMP.id_modplata
-                WHERE SCO.anul = $1 AND SCO.luna = $2 AND S.id_firma = $3
-        `;
-        const values = [an, luna, id_firma];
-        
-        if (id_modplata) {
-            query += ` AND NSMP.id = $4`;
-            values.push(id_modplata);
+    async reportCoPaymentHolidaySum(id_firma, an, luna) {
+        if (!an || !luna) {
+            throw new Error("Parameters 'an' and 'luna' are required");
         }
-        
-        query += ` GROUP BY NSMP.mod_plata, NSMP.id`;
-        
+
+        let query = `
+            SELECT 
+                nm.mod_plata AS ModPlata,
+                SUM(co.co_plata) AS TotalCoPlata
+            FROM 
+                salarizare.concedii_odihna AS co
+            INNER JOIN 
+                salarizare.salariati_modplata AS sm ON co.id_modalitate_plata = sm.id
+            INNER JOIN 
+                nomenclatoare.nom_salarii_modplata AS nm ON sm.id_modplata = nm.id
+            WHERE CO.anul = $1 AND CO.luna = $2 AND CO.id_firma = $3
+            GROUP BY 
+                nm.mod_plata
+            ORDER BY 
+                nm.mod_plata
+            `;
+      
+        const values = [an, luna, id_firma];
         const { rows } = await pool.query(query, values);
-        return id_modplata ? rows[0] : rows;
+        return rows;
+    },
+
+    async reportByPaymentMethod(id_firma, an, luna, id_modplata) {  
+        if (!an || !luna || !id_modplata) {
+            return {
+                error: "Parametri 'an', 'luna' și 'id_modplata' sunt obligatorii"
+            }
+        }   
+        let query = `SELECT 
+                        s.nume,
+                        s.prenume,
+                        s.cnp,
+                        smp.cont_bancar,
+                        SUM(co.co_plata) AS suma_totala_co    
+                    FROM salarizare.concedii_odihna co
+                    INNER JOIN salarizare.salariati s ON co.id_salariat = s.id
+                    INNER JOIN salarizare.salariati_modplata smp ON co.id_modalitate_plata = smp.id
+                    INNER JOIN nomenclatoare.nom_salarii_modplata nm ON smp.id_modplata = nm.id
+                    WHERE nm.id = $4  	
+                    AND co.id_firma = $1	
+                    AND co.luna = $2		
+                    AND co.anul = $3	
+                    GROUP BY s.id, s.nume, s.prenume, s.cnp, smp.cont_bancar
+                    HAVING SUM(co.co_plata) > 0
+                    ORDER BY s.nume, s.prenume
+        `;
+        const values = [id_firma, luna, an, id_modplata];
+        const { rows } = await pool.query(query, values);
+        return rows;
+
     }
 };
