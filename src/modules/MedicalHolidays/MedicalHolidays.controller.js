@@ -60,7 +60,7 @@ export const MedicalHolidaysController = {
                     req.body.cod_urgenta = null;
                 }
             }
-            req.body.id_utilizator = req.user.id;
+            req.body.id_utilizator = parseInt(req.user.id)
             const data = await MedicalHolidaysService.create(req.body);
             if (data.success === false) {
                 return res.status(409).json({
@@ -129,5 +129,17 @@ export const MedicalHolidaysController = {
         } catch (error) {
             next(error);
         }
-    }
+    },
+
+    async calculatorBase(req, res, next) {
+        try {
+            const result = await MedicalHolidaysService.calculatorBase(req.params.id, req.body);
+            res.status(200).json({
+                success: true,
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+    }   
 };

@@ -18,7 +18,7 @@ export const AdvancePaymentsController = {
 
     async update(req, res, next) {
         try {
-            const data = await AdvancePaymentsService.update(req.params.id, req.body);
+            const data = await AdvancePaymentsService.update(req.params.id,  req.body);
             res.status(200).json({
                 success: true,
                 data: data

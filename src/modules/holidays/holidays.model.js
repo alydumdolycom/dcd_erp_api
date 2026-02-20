@@ -14,17 +14,17 @@ export const HolidaysModel = {
         // Build base query and dynamic filters
         let query = `
             SELECT DISTINCT 
-                SCO.*, 
+                CO.*, 
                 S.id as id_salariat, S.nume, S.prenume, 
                 NSD.nume_departament, NSD.id as id_departament,
                 NSMP.mod_plata
-            FROM salarizare.concedii_odihna as SCO
+            FROM salarizare.concedii_odihna as CO
                 LEFT JOIN salarizare.salariati S
-                    ON SCO.id_salariat = S.id
+                    ON CO.id_salariat = S.id
                 LEFT JOIN nomenclatoare.nom_salarii_departamente NSD 
                     ON NSD.id = S.id_departament 
                 LEFT JOIN salarizare.salariati_modplata SMP
-                    ON SCO.id_modalitate_plata = SMP.id
+                    ON CO.id_modalitate_plata = SMP.id
                 LEFT JOIN nomenclatoare.nom_salarii_modplata NSMP
                     ON NSMP.id = SMP.id_modplata
             WHERE S.id_firma = $1
@@ -45,11 +45,11 @@ export const HolidaysModel = {
             values.push(`%${prenume}%`);
         }
         if (an) {
-            query += ` AND SCO.anul = $${idx++}`;
+            query += ` AND CO.anul = $${idx++}`;
             values.push(an);
         }
         if (luna) {
-            query += ` AND SCO.luna = $${idx++}`;
+            query += ` AND CO.luna = $${idx++}`;
             values.push(luna);
         }
 
@@ -68,18 +68,18 @@ export const HolidaysModel = {
         }
         const query = `
             SELECT 
-                SCO.*, 
+                CO.*, 
                 S.id as id_salariat, S.nume, S.prenume, 
                 NSD.nume_departament, NSD.id as id_departament,
                 SMP.cont_bancar
-            FROM salarizare.concedii_odihna as SCO
+            FROM salarizare.concedii_odihna as CO
             LEFT JOIN salarizare.salariati S
-                ON SCO.id_salariat = S.id
+                ON CO.id_salariat = S.id
             LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
                 ON NSD.id = S.id_departament
             LEFT JOIN salarizare.salariati_modplata SMP 
                 ON S.id = SMP.id_salariat
-            WHERE SCO.id = $1
+            WHERE  CO.id = $1
             ORDER BY S.nume, S.prenume DESC limit 1;`;
         
         const { rows } = await pool.query(query, [id]);
@@ -128,13 +128,23 @@ export const HolidaysModel = {
         return rows[0] || null;
     },
 
+    async findIdFirma(id) {
+        const query = `
+        SELECT S.id_firma FROM salarizare.salariati S
+         WHERE S.id = $1
+        `;
+        const values = [id];
+        const { rows } = await pool.query(query, values);
+        return rows[0] || null;
+    },
+
     /* Create a new holiday record */
     async create(data) {
         const client = await pool.connect();
         const salariat = await this.findEmployeePaymentMethod(data.id_salariat);
+        const firma = await this.findIdFirma(data.id_salariat);
         try {
             await client.query("BEGIN");
-
             const query = `
             INSERT INTO ${this.Table}
             (
@@ -150,10 +160,11 @@ export const HolidaysModel = {
                 id_modalitate_plata,
                 nou,
                 data_borderou,
-                data_operare
+                data_operare,
+                id_firma
             )
             VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             RETURNING *;
             `;
 
@@ -167,16 +178,17 @@ export const HolidaysModel = {
                 data.perioada,
                 data.co_plata,
                 data.co_compensare,
-                salariat.id,
+                data.id_modalitate_plata,
                 data.nou,
                 data.data_borderou,
-                data.data_operare
+                data.data_operare,
+                data.id_firma
             ];
 
             const { rows } = await client.query(query, values);
 
             await client.query("COMMIT");
-            return rows[0];
+            return rows;
 
         } catch (error) {
             await client.query("ROLLBACK");

@@ -54,5 +54,10 @@ export const HolidaysService = {
     async reportByPaymentMethod(id_firma, an, luna, id_modplata) {
         const rows = await HolidaysModel.reportByPaymentMethod(id_firma, an, luna, id_modplata);
         return rows;
+    },
+
+    async getCompanyName(id_firma) {
+        const row = await EmployeesModel.getCompanyName(id_firma);
+        return row ? row.nume : null;
     }
 };

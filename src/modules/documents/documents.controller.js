@@ -6,9 +6,8 @@ export const DocumentsController = {
         try {
             const { id_firma, id_departament, search } = req.query;
             const data = await DocumentsService.getAll({id_firma, id_departament, search });
-            res.send({
-                data,
-                code: 200
+            res.status(200).send({
+                data: data
             });
         } catch (error) {
             next({ message: "Error fetching documents", error });
@@ -49,7 +48,7 @@ export const DocumentsController = {
 
     async getEmployeeDocs(req, res, next) { 
         try {
-            const data = await DocumentsService.getEmployeeDocs(req.params.id_employee);
+            const data = await DocumentsService.getEmployeeDocs(req.query.id_salariat);
             res.send(data);
         } catch (error) {
             next({ message: "Error fetching employee documents", error });

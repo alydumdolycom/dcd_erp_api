@@ -8,12 +8,12 @@ export const AdvancePaymentsService = {
     },
 
     async update(id, data) {
-        const row = await AdvancePaymentsModel.update(id, data);
-        return row;// Placeholder return
+        const rows = await AdvancePaymentsModel.update(id, data);
+        return rows;// Placeholder return
     },
 
     async getById(id) {
-        const row = await AdvancePaymentsModel.findById(id);
-        return row;// Placeholder return
+        const rows = await AdvancePaymentsModel.findById(id);
+        return rows;
     }
 };

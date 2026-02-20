@@ -119,5 +119,11 @@ export const EmployeesService = {
   async updateEmployeesList(id, data) {
     const result = await EmployeesModel.updateEmployeesList(id, data);
     return result;
+  },
+
+  async getEmployeeFiles(id_salariat) {
+    const documents = await EmployeesModel.getEmployeeDocuments(id_salariat);
+    const holidays = await EmployeesModel.getEmployeeHolidays(id_salariat);
+    return { documents, holidays };
   }
 };

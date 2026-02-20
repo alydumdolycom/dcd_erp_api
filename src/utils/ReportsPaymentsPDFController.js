@@ -7,42 +7,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const ReportsPaymentsPDFController = {
-  async generate(req, res) {
+  async generate(data) {
     let browser;
     try {
-      const data = req.body; // { luna, anul, companyName, employees: [...] }
-
-      let htmlTemplate = fs.readFileSync(
-        path.join(__dirname, 'templates', 'reports-payments-template.html'),
-        'utf-8'
-      );
-
-      // ── Step 1: replace scalar placeholders ──
-      htmlTemplate = htmlTemplate
-        .replace('{{COMPANY_NAME}}', data.companyName)
-        .replace('{{CUI}}', data.cui)
-        .replace('{{LUNA}}', data.luna)
-        .replace('{{ANUL}}', data.anul);
-
-      // ── Step 2: generate dynamic rows ──
-      const tableRows = data.employees.map((emp, i) => `
-        <tr>
-          <td class="td-nr">${i + 1}</td>
-          <td>${emp.nume} ${emp.prenume}</td>
-          <td class="td-cnp">${emp.cnp}</td>
-          <td class="td-iban">${emp.cont_bancar}</td>
-          <td class="td-suma">${formatNumber(emp.suma_totala_co)}</td>
-        </tr>
-      `).join('');
-
-      const total = data.employees.reduce(
-        (sum, emp) => sum + parseFloat(emp.suma_totala_co), 0
-      );
-
-      htmlTemplate = htmlTemplate
-        .replace('{{TABLE_ROWS}}', tableRows)
-        .replace('{{TOTAL}}', formatNumber(total));
-
+      console.log(data)
+      let htmlTemplate = `<div>test</div>`; // Placeholder, replace with actual template loading
+    
       // ── Step 3: Puppeteer render ──
       browser = await puppeteer.launch({
         headless: true,
@@ -62,7 +32,7 @@ export const ReportsPaymentsPDFController = {
 
       res.set({
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename=borderou-${data.luna}-${data.anul}.pdf`,
+        'Content-Disposition': `inline; filename=borderou-02-2026.pdf`,
         'Content-Length': pdfBuffer.length
       });
 

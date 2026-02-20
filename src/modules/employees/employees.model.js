@@ -513,7 +513,7 @@ export const EmployeesModel = {
         SP.avans_firma,
         SP.asigurari,
         SP.garantii,
-        SP.premii
+        SP.premii_net
       FROM salarizare.salariati S
       JOIN salarizare.state_plata SP ON SP.id_salariat = S.id
       JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
@@ -627,6 +627,47 @@ export const EmployeesModel = {
     `;
     const result = await pool.query(query, values);
     return result.rows[0];
-    
+  },
+
+  async getCompanyName(id_firma) {
+    const query = `
+      SELECT nume FROM admin.firme
+      WHERE id = $1
+      LIMIT 1;
+    `;
+    const values = [id_firma];
+    const { rows } = await pool.query(query, values);
+    return rows[0] || null;
+  },
+
+  async getEmployeeDocuments(id_salariat) {
+    const query = `
+      SELECT 
+	  	  TO_CHAR(AA.data_incepere, 'DD-MM-YYYY') AS data_incepere, AA.salariu_vechi, AA.salariu_nou, TO_CHAR(AA.data_act, 'DD-MM-YYYY') AS data_act, AA.numar_act
+	    FROM salarizare.salariati AS S
+        INNER JOIN salarizare.acte_aditionale AA ON S.id = AA.id_salariat
+      WHERE S.id = $1
+        ORDER BY AA.data_incepere ASC;
+    `;
+    const values = [id_salariat];
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
+  
+  async getEmployeeHolidays(id_salariat) {
+    const query = `
+      SELECT 
+        SP.luna, SP.anul, SP.zile_lucrate, 
+        (SP.cm_zile_angajator+SP.cm_zile_cass) AS zile_calculate, 
+        SP.co_zile, SP.venit_net, 
+        (SP.brut_firma+SP.suma_medical_cass) AS suma
+      FROM salarizare.salariati AS S
+      INNER JOIN salarizare.state_plata SP ON S.id = SP.id_salariat
+      WHERE S.id = $1
+      ORDER BY SP.luna ASC;
+    `;
+    const values = [id_salariat];
+    const { rows } = await pool.query(query, values);
+    return rows;
   }
 };

@@ -24,21 +24,38 @@ export const AdvancePaymentsModel = {
         return results.rows;
     },
 
-    async update(id, data) {    
+    async update(id, data) { 
         try {
-            // Build dynamic SET clause for PATCH (partial update)
+            const updates = [];
+            const values = [];
+            let paramIndex = 1;
+
+            if (data.avans_firma !== undefined) {
+                updates.push(`avans_firma = $${paramIndex}`);
+                values.push(data.avans_firma);
+                paramIndex++;
+            }
+
+            if (data.avans_cass !== undefined) {
+                updates.push(`avans_cass = $${paramIndex}`);
+                values.push(data.avans_cass);
+                paramIndex++;
+            }
+
+            if (updates.length === 0) {
+                return { success: false, message: "No fields to update" };
+            }
+
+            values.push(id);
             const query = `
                 UPDATE salarizare.state_plata
-                SET avans_firma = $1, avans_cass = $2
-                WHERE id = $3
-                RETURNING *
+                SET ${updates.join(', ')}
+                WHERE id = $${paramIndex}
             `;
-            const values = [data.avans_firma, data.avans_cass, id];
-
-            const result = await pool.query(query, values);
-            return result.rows[0];
+            
+            await pool.query(query, values);
         } catch (error) {
-            throw new Error("Error updating advance payment record: " + error.message);
+            return { success: false, message: error.message };
         }
     }
 };

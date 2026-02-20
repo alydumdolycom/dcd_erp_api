@@ -455,5 +455,28 @@ export const EmployeesController = {
         details: err.message
       });
     } 
+  },
+
+  async employeeFiles(req, res, next) {
+    try { 
+      const findEmployee = await EmployeesService.findById(req.query.id_salariat);
+      if (!findEmployee) {
+        return res.status(404).json({
+          success: false,
+          message: "Salariatul nu a fost gasit"
+        });
+      }
+      const result = await EmployeesService.getEmployeeFiles(req.query.id_salariat);
+      res.status(200).json({
+          success: true,
+          data: result
+        });
+    } catch(err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la incarcarea fisierelor angajatului",
+        details: err.message
+      });
+    }
   }
 };

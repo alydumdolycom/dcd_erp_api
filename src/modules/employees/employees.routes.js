@@ -23,4 +23,5 @@ router.patch("/list/in/salaries/:id", auth, EmployeesController.updateEmployeesL
 router.post("/calculate/salaries/brut/to/net", auth, EmployeesController.calculateBrutToNetSalary);
 router.post("/calculate/salaries/net/to/brut", auth, EmployeesController.calculateNetToBrutSalary);
 router.get("/payment/methods/:id_salariat", auth, EmployeesController.getEmployeePaymentMethods);
+router.get("/employee/files", auth, EmployeesController.employeeFiles);
 export default router;
