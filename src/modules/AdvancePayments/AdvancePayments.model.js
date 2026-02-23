@@ -57,5 +57,21 @@ export const AdvancePaymentsModel = {
         } catch (error) {
             return { success: false, message: error.message };
         }
+    },
+
+    reportsAdvancePayments(id_mod_plata) {
+        const query = `
+            SELECT 
+                COALESCE((SP.suma_plata_firma + SP.suma_plata_cass), 0) AS AVANS
+            FROM salarizare.salariati AS S
+            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
+                ON NSD.id = S.id_departament
+            LEFT JOIN salarizare.state_plata AS SP
+                ON SP.id_salariat = S.id
+            LEFT JOIN salarizare.concedii_odihna AS CO
+                ON CO.id_salariat = S.id
+            ORDER BY S.id
+        `;
+        return pool.query(query, [id_mod_plata]);
     }
 };

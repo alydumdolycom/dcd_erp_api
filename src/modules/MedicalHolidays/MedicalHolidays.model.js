@@ -177,6 +177,33 @@ export const MedicalHolidaysModel = {
         ];
         const { rows } = await pool.query(query, values);
         return rows;
+    },
+
+    async getMedicalHolidaysLastSixMonths(id_salariat) {
+        const query = `
+            SELECT 
+                EXTRACT(MONTH FROM GS.luna_data)::int AS luna_generata,
+                EXTRACT(YEAR FROM GS.luna_data)::int AS anul_generat,
+                S.id AS id_salariat,
+                S.nume,
+                S.prenume,
+                CM.luna AS cm_luna,
+                CM.anul AS cm_anul
+            FROM generate_series(
+                DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months',
+                DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month',
+                INTERVAL '1 month'
+            ) AS GS(luna_data)
+            CROSS JOIN salarizare.salariati AS S
+            LEFT JOIN salarizare.concedii_medicale AS CM
+                ON CM.id_salariat = S.id
+                AND CM.luna = EXTRACT(MONTH FROM GS.luna_data)::int
+                AND CM.anul = EXTRACT(YEAR FROM GS.luna_data)::int
+            where S.ID = $1
+            ORDER BY S.id, GS.luna_data ASC
+        `;
+        const { rows } = await pool.query(query, [id_salariat]);
+        return rows;
     }
 };
     

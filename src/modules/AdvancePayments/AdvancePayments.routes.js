@@ -6,5 +6,6 @@ const router = Router();
 router.get("/", auth, AdvancePaymentsController.getAll);
 router.get("/:id", auth, AdvancePaymentsController.getById);
 router.patch("/:id", auth, AdvancePaymentsController.update);
+router.get("/reports/advance/payments", auth, AdvancePaymentsController.reportsAdvancePayments);
 
 export default router;

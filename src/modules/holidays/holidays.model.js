@@ -53,7 +53,7 @@ export const HolidaysModel = {
             values.push(luna);
         }
 
-        query += ` ORDER BY S.nume, S.prenume`;
+        query += ` order by co.nou DESC`;
 
         const { rows } = await pool.query(query, values);
         return rows;

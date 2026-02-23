@@ -141,5 +141,17 @@ export const MedicalHolidaysController = {
         } catch (error) {
             next(error);
         }
-    }   
+    },
+
+    async getMedicalHolidaysLastSixMonths(req, res, next) {
+        try {
+            const result = await MedicalHolidaysService.getMedicalHolidaysLastSixMonths(req.query.id_salariat);
+            res.status(200).json({
+                success: true,
+                data: result
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 };

@@ -45,5 +45,21 @@ export const AdvancePaymentsController = {
                 message: error.message
             });
         }
+    },
+
+    async reportsAdvancePayments(req, res, next) {
+        try {
+            const id_mod_plata = req.query.id_mod_plata;    
+            const data = await AdvancePaymentsService.reportsAdvancePayments(id_mod_plata);
+            res.status(200).json({
+                success: true,
+                data: data
+            });
+        } catch (error) {
+            next({
+                success: false,
+                message: error.message
+            });
+        }
     }
 };

@@ -11,5 +11,6 @@ router.patch("/:id", auth, MedicalHolidaysController.update);
 router.delete("/:id", auth, MedicalHolidaysController.delete);
 router.get("/nom/medical/data", auth, MedicalHolidaysController.getMedicalData);
 router.patch("/calculator/base/:id", auth, MedicalHolidaysController.calculatorBase);
+router.get("/last/six/months", auth, MedicalHolidaysController.getMedicalHolidaysLastSixMonths);
 
 export default router;

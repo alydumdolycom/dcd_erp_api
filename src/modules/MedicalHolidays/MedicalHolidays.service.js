@@ -54,5 +54,10 @@ export const MedicalHolidaysService = {
     async calculatorBase(id,data) {
         const result = await MedicalHolidaysModel.calculatorBase(id, data);
         return result;
-    }   
+    },
+
+    async getMedicalHolidaysLastSixMonths(id_salariat) {
+        const result = await MedicalHolidaysModel.getMedicalHolidaysLastSixMonths(id_salariat);
+        return result;
+    }
 };

@@ -6,28 +6,28 @@ export const PayRollModel = {
         const { id_firma, luna_numeric, anul } = params;
         try {   
             let query = `SELECT 
-                                SP.id,
-                                S.nume, S.prenume, S.id_firma, S.salar_baza,
-                                SP.id_salariat,
-                                SP.luna,
-                                SP.anul,
-                                SP.zile_lucrate,
-                                SP.zile_luna,
-                                SP.co_zile,
-                                SP.cm_zile_angajator,
-                                SP.cm_zile_cass,
-                                SP.suma_realizata,
-                                SP.co_calculat,
-                                SP.suma_medical_firma,
-                                SP.suma_medical_cass,
-                                NSD.nume_departament,
-                                S.id_departament
-                            FROM ${this.Table} SP
-                            LEFT JOIN salarizare.salariati S 
-                                ON S.id = SP.id_salariat
-                            LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
-                                ON NSD.id = S.id_departament
-                            WHERE S.id_firma  = $1`;
+                            SP.id,
+                            S.nume, S.prenume, S.id_firma, S.salar_baza,
+                            SP.id_salariat,
+                            SP.luna,
+                            SP.anul,
+                            SP.zile_lucrate,
+                            SP.zile_luna,
+                            SP.co_zile,
+                            SP.cm_zile_angajator,
+                            SP.cm_zile_cass,
+                            SP.suma_realizata,
+                            SP.co_calculat,
+                            SP.suma_medical_firma,
+                            SP.suma_medical_cass,
+                            NSD.nume_departament,
+                            S.id_departament
+                        FROM ${this.Table} SP
+                        LEFT JOIN salarizare.salariati S 
+                            ON S.id = SP.id_salariat
+                        LEFT JOIN nomenclatoare.nom_salarii_departamente  NSD 
+                            ON NSD.id = S.id_departament
+                        WHERE S.id_firma  = $1`;
             const params = [id_firma];
             let paramIndex = 2;
             
@@ -98,5 +98,8 @@ export const PayRollModel = {
         catch (error) {
             throw error;
         }   
-    }
+    },
+
+    async paymentMethods(id_firma) {
+    }  
 };

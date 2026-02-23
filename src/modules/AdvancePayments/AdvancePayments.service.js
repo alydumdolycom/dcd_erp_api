@@ -15,5 +15,10 @@ export const AdvancePaymentsService = {
     async getById(id) {
         const rows = await AdvancePaymentsModel.findById(id);
         return rows;
+    },
+
+    async reportsAdvancePayments(id_mod_plata) {
+        const rows = await AdvancePaymentsModel.reportsAdvancePayments(id_mod_plata);
+        return rows;
     }
 };
