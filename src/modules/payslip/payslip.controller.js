@@ -15,12 +15,12 @@ export const PayslipController = {
                 error: error.message || "Eroare server"
             });
         }   
-    },  
-    
-    async getById(req, res, next) {  
+    },
+
+    async findBy(req, res, next) {
         try {
-            const { id } = req.params;  
-            const data = await PayslipService.getById(id);  
+            const { luna, anul, id_firma } = req.query; 
+            const data = await PayslipService.findBy(luna, anul, id_firma);  
             res.status(200).json({ 
                 success: true,
                 data: data

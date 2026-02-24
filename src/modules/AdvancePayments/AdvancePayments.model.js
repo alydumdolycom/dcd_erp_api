@@ -59,19 +59,19 @@ export const AdvancePaymentsModel = {
         }
     },
 
-    reportsAdvancePayments(id_mod_plata) {
+    async reportsAdvancePayments(luna, anul, id_firma) {
         const query = `
             SELECT 
-                COALESCE((SP.suma_plata_firma + SP.suma_plata_cass), 0) AS AVANS
-            FROM salarizare.salariati AS S
-            LEFT JOIN nomenclatoare.nom_salarii_departamente NSD
-                ON NSD.id = S.id_departament
-            LEFT JOIN salarizare.state_plata AS SP
-                ON SP.id_salariat = S.id
-            LEFT JOIN salarizare.concedii_odihna AS CO
-                ON CO.id_salariat = S.id
-            ORDER BY S.id
-        `;
-        return pool.query(query, [id_mod_plata]);
+                SP.luna, SP.anul,
+                NSMP.mod_plata, 
+                (COALESCE(SP.avans_cass, 0) + COALESCE(SP.avans_firma, 0)) AS avans 
+            FROM salarizare.state_plata AS SP
+                INNER JOIN salarizare.salariati_modplata AS SMP ON SMP.id_modplata = SP.id_salariat_modplata
+                INNER JOIN nomenclatoare.nom_salarii_modplata AS NSMP ON NSMP.id = SMP.id_modplata
+            WHERE SP.luna = $1 AND SP.anul = $2 AND SP.id_firma = $3
+            GROUP BY NSMP.mod_plata, avans, SP.luna, SP.anul`;
+        const values = [luna, anul, id_firma];
+        const { rows } = await pool.query(query, values);
+        return rows;
     }
 };

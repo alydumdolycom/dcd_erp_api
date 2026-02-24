@@ -7,8 +7,8 @@ export const PayslipService = {
         return rows;
     },
 
-    async getById(id) {
-        const row = await PayslipModel.findById(id);
-        return row || null;
+    async findBy(luna, anul, id_firma) {
+        const rows = await PayslipModel.findBy(luna, anul, id_firma);
+        return rows;
     }
-}
+};

@@ -17,8 +17,8 @@ export const AdvancePaymentsService = {
         return rows;
     },
 
-    async reportsAdvancePayments(id_mod_plata) {
-        const rows = await AdvancePaymentsModel.reportsAdvancePayments(id_mod_plata);
+    async reportsAdvancePayments(luna, anul, id_firma) {
+        const rows = await AdvancePaymentsModel.reportsAdvancePayments(luna, anul, id_firma);
         return rows;
     }
 };

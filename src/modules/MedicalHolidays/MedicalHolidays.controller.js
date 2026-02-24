@@ -36,29 +36,41 @@ export const MedicalHolidaysController = {
     async create(req, res, next) {
         try {
             // Validate data.cod_indemnizatie is not null
-            if (req.body.cod_indemnizatie) {
-                // validare cod_indemnizatie si cnp_copil trebuie sa fie required si valid
-                if (req.body.cod_indemnizatie === '91' || req.body.cod_indemnizatie === '09') {
-                    if (!req.body.cnp_copil) {
-                        return res.status(400).json({
-                            success: false,
-                            message: 'cnp_copil este obligatoriu pentru cod_indemnizatie 91 sau 09'
-                        });
-                    }   
-                } else {
-                    req.body.cnp_copil = null;
-                }
 
-                if(req.body.cod_indemnizatie === '06') {
-                    if( !req.body.cod_urgenta) {
-                        return res.status(400).json({
-                            success: false,
-                            message: 'cod_urgenta este obligatoriu pentru cod_indemnizatie 06'
-                        });
-                    }
-                } else {
-                    req.body.cod_urgenta = null;
+                // cnp_copil required only for '91' or '09'
+            if (req.body.cod_indemnizatie === '91' || req.body.cod_indemnizatie === '09') {
+                if (!req.body.cnp_copil) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'cnp_copil este obligatoriu pentru cod_indemnizatie 91 sau 09'
+                    });
                 }
+            } else {
+                req.body.cnp_copil = null;
+            }
+
+            if (req.body.zile_ingrijire_copil !== 0 && req.body.cnp_copil == null) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'cnp_copil este obligatoriu daca zile_ingrijire_copil nu este 0'
+                });
+            }
+            if (req.body.cnp_copil && (!/^\d{13}$/.test(req.body.cnp_copil))) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'cnp_copil trebuie să fie un șir de 13 cifre'
+                });
+            }
+            // cod_urgenta required only for '06'
+            if (req.body.cod_indemnizatie === '06') {
+                if (!req.body.cod_urgenta) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'cod_urgenta este obligatoriu pentru cod_indemnizatie 06'
+                    });
+                }
+            } else {
+                req.body.cod_urgenta = null;
             }
             req.body.id_utilizator = parseInt(req.user.id)
             const data = await MedicalHolidaysService.create(req.body);

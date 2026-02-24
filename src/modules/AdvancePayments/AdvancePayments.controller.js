@@ -49,8 +49,8 @@ export const AdvancePaymentsController = {
 
     async reportsAdvancePayments(req, res, next) {
         try {
-            const id_mod_plata = req.query.id_mod_plata;    
-            const data = await AdvancePaymentsService.reportsAdvancePayments(id_mod_plata);
+            const { luna, anul, id_firma } = req.query;  
+            const data = await AdvancePaymentsService.reportsAdvancePayments(luna, anul, id_firma);
             res.status(200).json({
                 success: true,
                 data: data

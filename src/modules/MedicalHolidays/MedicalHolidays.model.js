@@ -61,13 +61,6 @@ export const MedicalHolidaysModel = {
     async create(data) {
         const client = await pool.connect();
         try {
-            // Validate data.cnp_copil: must be 13 digit string if provided
-            if (data.cnp_copil && (!/^\d{13}$/.test(data.cnp_copil))) {
-                return {
-                    success: false,
-                    message: 'cnp_copil trebuie să fie un șir de 13 cifre'
-                };
-            }
 
             await client.query('BEGIN');
             const query = `
