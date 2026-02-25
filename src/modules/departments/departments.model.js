@@ -8,16 +8,24 @@ export const DepartmentsModel = {
   TABLE: "nomenclatoare.nom_salarii_departamente",
 
   /* Retrieve all department records */
-  async all() {
-    const query = `
+  async all(search, sortBy, sortOrder, id_firma = null) {
+    let query = `
       SELECT    
         id,
         nume_departament, 
         observatii
       FROM ${this.TABLE}
-      ORDER BY id ASC
     `;
-    const { rows } = await pool.query(query);
+    const params = [];
+    
+    if (id_firma !== null) {
+      query += ` WHERE id_firma = $1`;
+      params.push(id_firma);
+    }
+    
+    query += ` ORDER BY ${sortBy} ${sortOrder}`;
+    
+    const { rows } = await pool.query(query, params);
     return rows;
   },
 
@@ -101,5 +109,20 @@ export const DepartmentsModel = {
     `;
     const { rows } = await pool.query(query, [id]);
     return rows[0];
-  }
-}
+  },
+
+  async getEmployeesDepartaments(id_firma) {  
+    const query = `
+      SELECT    
+        id,
+        nume_departament, 
+        id_firma,
+        observatii
+      FROM nomenclatoare.nom_salarii_departamente
+      WHERE id_firma = $1
+      ORDER BY id ASC
+    `;
+    const { rows } = await pool.query(query, [id_firma]);
+    return rows;
+  }   
+};

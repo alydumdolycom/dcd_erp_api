@@ -22,6 +22,7 @@ export const EmployeesController = {
           activ
         } = req.query;
 
+        const departments = await EmployeesService.getDepartments(id_firma);
         const result = await EmployeesService.getAll({
           search,
           sortBy,
@@ -40,7 +41,8 @@ export const EmployeesController = {
 
         res.status(200).json({
           success: true,
-          data: result.data
+          data: result.data,
+          departments: departments
         });
       } catch (err) {
         next({

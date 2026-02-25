@@ -669,5 +669,17 @@ export const EmployeesModel = {
     const values = [id_salariat];
     const { rows } = await pool.query(query, values);
     return rows;
+  },
+
+  async getDepartments(id_firma) {
+    const query = `
+      SELECT id, nume_departament, observatii
+      FROM nomenclatoare.nom_salarii_departamente
+      WHERE id_firma = $1
+      ORDER BY id ASC;
+    `;
+    const values = [id_firma];
+    const { rows } = await pool.query(query, values);
+    return rows;
   }
 };

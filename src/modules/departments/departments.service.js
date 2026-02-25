@@ -7,9 +7,9 @@ import { DepartmentsModel } from "./departments.model.js";
 export const DepartmentsService = {
 
   /* Retrieve all departments with optional search and sorting */
-  async getAll({ search, sortBy, sortOrder }) {
+  async getAll({ search, sortBy, sortOrder, id_firma }) {
     // Simulated database call  
-    const data = await DepartmentsModel.all();
+    const data = await DepartmentsModel.all(search, sortBy, sortOrder, id_firma);
     return data;
   },
 
@@ -48,5 +48,10 @@ export const DepartmentsService = {
   async delete(id) {
     const data = await DepartmentsModel.delete(id);
     return data;
-  } 
+  },
+
+  async getEmployeesDepartaments(id_firma)  {
+    const data = await DepartmentsModel.getEmployeesDepartaments(id_firma);
+    return data;
+  }
 }

@@ -12,11 +12,13 @@ export const DepartmentsController = {
             search = "",
             sortBy = res.query?.defaultSortBy || "id",
             sortOrder =  res.sortOrder || "asc",
+            id_firma,
         } = req.query;
         const rows = await DepartmentsService.getAll({
             search,
             sortBy,
             sortOrder,
+            id_firma,
         });
         res.status(200).json({
             success: true,
@@ -87,6 +89,15 @@ export const DepartmentsController = {
             return res.status(404).json({ success: false, message: "Informatiile nu au fost gasite" });
         } 
         res.status(200).json({ success: true, message: "Informatiile au fost sterse cu succes" });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getEmployeesDepartaments(req, res, next) {
+    try {
+      const data = await DepartmentsService.getEmployeesDepartaments(req.query.id_firma);
+      res.status(200).json({ success: true, data: data });
     } catch (err) {
       next(err);
     }

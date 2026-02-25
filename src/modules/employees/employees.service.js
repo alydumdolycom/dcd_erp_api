@@ -125,5 +125,10 @@ export const EmployeesService = {
     const documents = await EmployeesModel.getEmployeeDocuments(id_salariat);
     const holidays = await EmployeesModel.getEmployeeHolidays(id_salariat);
     return { documents, holidays };
+  },
+
+  async getDepartments(id_firma) {
+    const data = await EmployeesModel.getDepartments(id_firma);
+    return data;
   }
 };

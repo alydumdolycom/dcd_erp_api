@@ -2,7 +2,7 @@ import path from "path";
 import puppeteer from "puppeteer";
 export const GeneratePDFController = {
 
-   async generate(req, res) {
+    async generate(req, res) {
         let browser;
         try {
             browser = await puppeteer.launch({
