@@ -657,14 +657,11 @@ export const EmployeesModel = {
   async getEmployeeHolidays(id_salariat) {
     const query = `
       SELECT 
-        SP.luna, SP.anul, SP.zile_lucrate, 
-        (SP.cm_zile_angajator+SP.cm_zile_cass) AS zile_calculate, 
-        SP.co_zile, SP.venit_net, 
-        (SP.brut_firma+SP.suma_medical_cass) AS suma
+        S.id AS id_salariat,
+        CO.co_plata, CO.zile_co_plata, CO.zile_co
       FROM salarizare.salariati AS S
-      INNER JOIN salarizare.state_plata SP ON S.id = SP.id_salariat
-      WHERE S.id = $1
-      ORDER BY SP.luna ASC;
+        INNER JOIN salarizare.concedii_odihna AS CO ON CO.id_salariat = S.id
+      WHERE S.id = $1;
     `;
     const values = [id_salariat];
     const { rows } = await pool.query(query, values);
@@ -681,5 +678,34 @@ export const EmployeesModel = {
     const values = [id_firma];
     const { rows } = await pool.query(query, values);
     return rows;
+  },
+
+  async getContractData(id_salariat) {
+    const query = `
+      SELECT 
+        S.nume, S.prenume, S.cnp, S.data_angajarii, S.data_determinata, S.data_incetarii, S.id_firma,
+        NSD.nume_departament, NSF.nume_functie,
+        F.nume AS nume_firma
+      FROM salarizare.salariati S
+      JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
+      JOIN nomenclatoare.nom_salarii_functii NSF ON S.id_functie = NSF.id
+      JOIN admin.firme F ON S.id_firma = F.id
+      WHERE S.id = $1
+      LIMIT 1;
+    `;
+    const values = [id_salariat];
+    const { rows } = await pool.query(query, values);
+    return rows[0] || null;   
+  },
+
+  async getCompanyById(id_firma) {
+    const query = `
+      SELECT * FROM admin.firme
+      WHERE id = $1
+      ORDER BY id ASC
+    `;
+    const values = [id_firma];
+    const { rows } = await pool.query(query, values);
+    return rows[0] || null;
   }
 };

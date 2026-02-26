@@ -130,5 +130,15 @@ export const EmployeesService = {
   async getDepartments(id_firma) {
     const data = await EmployeesModel.getDepartments(id_firma);
     return data;
+  },
+
+  async getContractData(id_salariat) {
+    const data = await EmployeesModel.getContractData(id_salariat);
+    return data;
+  },
+
+  async getCompanyById(id_firma) {
+    const data = await EmployeesModel.getCompanyById(id_firma);
+    return data;
   }
 };

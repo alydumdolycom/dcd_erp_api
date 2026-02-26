@@ -79,5 +79,25 @@ export const PayslipService = {
     async getByPayrollType(id_modplata, luna, anul, id_firma) {
         const rows = await PayslipModel.getByPayrollType(id_modplata, luna, anul, id_firma);
         return rows;
+    },
+
+    async getPayrollPaymentsTypes(luna, anul, id_firma) {
+        const rows = await PayslipModel.getPayrollPaymentsTypes(luna, anul, id_firma);
+        return rows;
+    },
+
+    async getPayrollPaymentByType(luna, anul, id_firma, id_mod_plata) {
+        const rows = await PayslipModel.getPayrollPaymentByType(luna, anul, id_firma, id_mod_plata);
+        return rows;
+    },
+
+    async getModPlataName(id_mod_plata) {
+        const modPlata = await PayslipModel.getModPlataName(id_mod_plata);
+        return modPlata;
+    },
+
+    async getPayrollByCard(luna, anul, id_firma) {
+        const rows = await PayslipModel.getPayrollByCard(luna, anul, id_firma);
+        return rows;
     }
 };

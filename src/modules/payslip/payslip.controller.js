@@ -1,5 +1,6 @@
 import { PayslipService } from "./payslip.service.js";
 import ExcelJS from "exceljs";
+import puppeteer from "puppeteer";
 
 export const PayslipController = {
     async getAll(req, res, next) {
@@ -144,25 +145,37 @@ export const PayslipController = {
         }
     },
 
+    async groupByDept(rows) {
+        const groups = {};
+        const order  = [];
+        for (const row of rows) {
+            const dept = row.nume_departament;
+            if (!groups[dept]) { groups[dept] = []; order.push(dept); }
+            groups[dept].push(row);
+        }
+        return { groups, order };
+    },
+
     async getByPayrollType(req, res, next) {
-        try {
-            const { id_modplata, luna, anul, id_firma } = req.query;  
-            const data = await PayslipService.getByPayrollType(id_modplata, luna, anul, id_firma);  
+        try  {
+            const { luna, anul, id_firma } = req.query; 
+            const data = await PayslipService.getPayrollPaymentsTypes(luna, anul, id_firma);  
             res.status(200).json({ 
                 success: true,
                 data: data
             });
-        } catch (error) {
+        } catch(error) {
             next({
                 status: 500,
-                success: false,
+                success: false,                
                 error: error.message || "Eroare server"
             });
         }
     },
 
-    async generate(req, res) {
-        let browser;
+    async exportPdfByPayrollType(req, res, next) {
+
+         let browser;
         try {
             browser = await puppeteer.launch({
                 headless: "new",
@@ -171,44 +184,81 @@ export const PayslipController = {
                 ignoreHTTPSErrors: true
             });
             const page = await browser.newPage();
+            const data = await PayslipService.getPayrollPaymentByType(req.query.luna, req.query.anul, req.query.id_firma, req.query.id_mod_plata);
+            // Group data by department
+            const grouped = {};
+            data.forEach(row => {
+                const dept = row.nume_departament || 'N/A';
+                if (!grouped[dept]) {
+                    grouped[dept] = [];
+                }
+                grouped[dept].push(row);
+            });
 
-            // Generate a simple HTML table
+            // Build table rows grouped by department
+            let tableRows = '';
+            Object.entries(grouped).forEach(([dept, employees]) => {
+                
+                employees.forEach(row => {
+                    tableRows += `
+                        <tr>
+                            <td>${row.id || ''}</td>
+                            <td>${row.nume +' '+ row.prenume}</td>
+                            <td>${row.suma || 0}</td>
+                        </tr>
+                    `;
+                });
+                tableRows += `<tr style="background-color: #E8E8E8;"><td colspan="3" style="font-weight: bold;">${dept}</td></tr>`;
+            });
+            const modPlata = await PayslipService.getModPlataName(req.query.id_mod_plata);
+
+            const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+            const luna = months[Number(req.query.luna) - 1] || 'Luna necunoscuta';
+            const anul = req.query.anul || 'An necunoscut';
+            // Generate HTML with data table
             const document = `
                 <html>
                 <head>
                     <style>
                         body {
                             font-family: Arial, sans-serif;
-                            font-size: 12px;
+                            font-size: 11px;
                             color: #222;
+                            margin: 20px;
                         }
                         .header-lines {
-                            position: absolute;
-                            top: 30px;
-                            left: 40px;
                             font-size: 14px;
                             font-weight: bold;
-                        }
-                        .section {
-                            margin-top: 70px;
-                        }
-                        .info {
-                            text-align: left;
                             margin-bottom: 20px;
-                            font-size: 12px;
-                            display: block;
                         }
-
-                        .section-title {
-                            margin-top: 150px;
+                        .header-lines div {
+                            margin-bottom: 5px;
+                        }
+                        .title {
                             text-align: center;
-                            font-size: 18px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin: 20px 0;
                         }
-
-                        .section-date {
-                            margin-top: 80px;
-                            text-align: right;
-                            font-size: 20px;
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                        }
+                        th {
+                            background-color: #D3D3D3;
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+                        td {
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #f9f9f9;
                         }
                     </style>
                 </head>
@@ -218,45 +268,19 @@ export const PayslipController = {
                         <div>Str. Varnav, Nr. 29E, Botosani</div>
                         <div>CUI RO 32264626, J23/1234/2010</div>
                     </div>
-                    <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 12px; color: #222;">
-                        <div class="section-date">
-                            <span>Nr. <span style="text-decoration: underline;">6130/08.09.2025</span></span>
-                        </div>
-                        <h2 class="section-title">ACT ADIȚIONAL</h2>
-                        <div style="text-align: center; font-size: 16px; margin-bottom: 10px;">
-                            de modificare a contractului individual de muncă
-                        </div>
-                        <div class="section">
-                            Subsemnatul, <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000;">&nbsp;</span>, Manager General al <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000;">&nbsp;</span> DISTRIBUTIE SRL, 
-                            prezenta, decid conform art.41 alin.(3) lit.e din Codul Muncii modificarea salariului 
-                            lunar brut al d-lui/d-nei <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000;">&nbsp;</span>, 
-                            CNP <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000;">&nbsp;</span>, 
-                            angajat al societății noastre, de la <span style="display: inline-block; min-width: 60px; border-bottom: 1px solid #000;">&nbsp;</span> lei la <span style="display: inline-block; min-width: 60px; border-bottom: 1px solid #000;">&nbsp;</span> lei 
-                            începând cu data de <b>01/09/2025</b>.
-                        </div>
-                        <div class="section" style="margin-bottom: 10px;">
-                            Salariul lunar brut în valoare de: <span style="display: inline-block; min-width: 80px; border-bottom: 1px solid #000;">&nbsp;</span> lei este format din:
-                            <ul style="margin: 5px 0 5px 30px; padding: 0;">
-                                <li>salariul de bază brut de <span style="display: inline-block; min-width: 60px; border-bottom: 1px solid #000;">&nbsp;</span> lei;</li>
-                                <li>spor de vechime în valoare de <span style="display: inline-block; min-width: 60px; border-bottom: 1px solid #000;">&nbsp;</span> lei;</li>
-                                <li>spor de repaus săptămânal în valoare de <span style="display: inline-block; min-width: 60px; border-bottom: 1px solid #000;">&nbsp;</span> lei;</li>
-                            </ul>
-                        </div>
-                        <div class="section" style="margin-bottom: 10px;">
-                            <p>Salariul se plătește în bani sau prin virament într-un cont bancar, după caz, iar data la care se plătește salariul este de 22 ale lunii următoare. Modificările survenite vor fi adăugate și la contractul colectiv de muncă prin act adițional.
-                            </br>Prezentul act adițional s-a întocmit în 3 exemplare originale, două exemplare pentru angajator și unul pentru salariat.</p>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 40px;">
-                            <div>
-                                <b>Angajator,</b><br>
-                                <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000; margin-top: 40px;">&nbsp;</span>
-                            </div>
-                            <div>
-                                <b>Salariat,</b><br>
-                                <span style="display: inline-block; min-width: 120px; border-bottom: 1px solid #000; margin-top: 40px;">&nbsp;</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="title">Raport Plati ${luna}/${anul} - ${modPlata}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nume si prenume</th>
+                                <th>Suma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
                 </body>
                 </html>
             `;
@@ -279,6 +303,144 @@ export const PayslipController = {
             res.send(pdfBuffer);
         } catch (error) {
             res.status(500).json({ error: error.message });
+        }
+    },
+
+    async getPayrollByCard(req, res, next) {
+
+        const { luna, anul, id_firma } = req.query;
+        const data = await PayslipService.getPayrollByCard(luna, anul, id_firma);  
+        let browser;
+        try {
+            browser = await puppeteer.launch({
+                headless: "new",
+                args: ["--no-sandbox", "--disable-setuid-sandbox"],
+                executablePath: process.env.CHROMIUM_PATH || undefined,
+                ignoreHTTPSErrors: true
+            });
+            const page = await browser.newPage();
+
+            // Group data by department
+            const grouped = {};
+            data.forEach(row => {
+                const dept = row.nume_departament || 'N/A';
+                if (!grouped[dept]) {
+                    grouped[dept] = [];
+                }
+                grouped[dept].push(row);
+            });
+
+            // Build table rows grouped by department
+            let tableRows = '';
+            Object.entries(grouped).forEach(([dept, employees]) => {
+                
+                employees.forEach(row => {
+                    tableRows += `
+                        <tr>
+                            <td>${row.id || ''}</td>
+                            <td>${row.nume +' '+ row.prenume}</td>
+                            <td>${row.suma || 0}</td>
+                        </tr>
+                    `;
+                });
+                tableRows += `<tr style="background-color: #E8E8E8;"><td colspan="3" style="font-weight: bold;">${dept}</td></tr>`;
+            });
+
+            const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+            const luna = months[Number(req.query.luna) - 1] || 'Luna necunoscuta';
+            const anul = req.query.anul || 'An necunoscut';
+            // Generate HTML with data table
+            const document = `
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            font-size: 11px;
+                            color: #222;
+                            margin: 20px;
+                        }
+                        .header-lines {
+                            font-size: 14px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                        }
+                        .header-lines div {
+                            margin-bottom: 5px;
+                        }
+                        .title {
+                            text-align: center;
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin: 20px 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                        }
+                        th {
+                            background-color: #D3D3D3;
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+                        td {
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-lines">
+                        <div>SC DOLYCOM DISTRIBUTIE SRL BOTOSANI</div>
+                        <div>Str. Varnav, Nr. 29E, Botosani</div>
+                        <div>CUI RO 32264626, J23/1234/2010</div>
+                    </div>
+                    <div class="title">Lista lichidari card luna ${luna} an ${anul}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nume si prenume</th>
+                                <th>Suma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            await page.setContent(document, { waitUntil: 'networkidle0' });
+
+            const pdfBuffer = await page.pdf({
+                format: "A4",
+                printBackground: true
+            });
+
+            await browser.close();
+
+            // Output PDF in browser (inline, not as download)
+            res.set({
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'inline; filename="document.pdf"',
+                'Content-Length': pdfBuffer.length
+            });
+            res.send(pdfBuffer);
+        } catch (error) {
+            next({
+                status: 500,
+                success: false,                
+                error: error.message || "Eroare server"
+            });
         }
     }
 };  
