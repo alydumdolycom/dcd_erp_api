@@ -43,7 +43,8 @@ const allowedOrigins = [
   "http://localhost:5173", 
   "http://localhost:8080",
   "http://localhost:8081",
-  "http://localhost:8082"
+  "http://localhost:8082",
+  "http://192.168.122.232"
 ];
 app.use(cors({
   origin: function (origin, callback) {
