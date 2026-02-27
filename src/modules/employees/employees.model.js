@@ -656,12 +656,14 @@ export const EmployeesModel = {
   
   async getEmployeeHolidays(id_salariat) {
     const query = `
-      SELECT 
-        S.id AS id_salariat,
-        CO.co_plata, CO.zile_co_plata, CO.zile_co
-      FROM salarizare.salariati AS S
-        INNER JOIN salarizare.concedii_odihna AS CO ON CO.id_salariat = S.id
-      WHERE S.id = $1;
+        SELECT 
+          SP.luna, SP.anul, SP.zile_lucrate, SUM(SP.cm_zile_angajator+SP.cm_zile_cass) AS zile_calculate, SP.co_zile, SP.venit_net, 
+          SUM(SP.brut_firma + SP.suma_medical_cass) AS SUMA
+        FROM  salarizare.state_plata AS SP 
+        LEFT JOIN salarizare.concedii_odihna AS CO on SP.id_salariat = CO.id_salariat
+        WHERE SP.id_salariat = $1
+        GROUP BY CO.luna, CO.anul,  SP.cm_zile_cass, SP.zile_lucrate, SP.co_zile, SP.venit_net, SP.cm_zile_angajator, SP.id
+        ORDER BY SP.anul DESC, SP.luna DESC;
     `;
     const values = [id_salariat];
     const { rows } = await pool.query(query, values);
@@ -700,9 +702,25 @@ export const EmployeesModel = {
 
   async getCompanyById(id_firma) {
     const query = `
-      SELECT * FROM admin.firme
-      WHERE id = $1
-      ORDER BY id ASC
+      SELECT 
+        id_firma,
+        MAX(CASE WHEN id_sablon = 2  THEN valoare END) AS cif,
+        MAX(CASE WHEN id_sablon = 3  THEN valoare END) AS adresa,
+        MAX(CASE WHEN id_sablon = 4  THEN valoare END) AS nr,
+        MAX(CASE WHEN id_sablon = 5  THEN valoare END) AS oras,
+        MAX(CASE WHEN id_sablon = 7  THEN valoare END) AS nume,
+        MAX(CASE WHEN id_sablon = 8  THEN valoare END) AS functie,
+        MAX(CASE WHEN id_sablon = 15  THEN valoare END) AS data_inreg,
+        MAX(CASE WHEN id_sablon = 9  THEN valoare END) AS prenume,
+        MAX(CASE WHEN id_sablon = 10 THEN valoare END) AS familie,
+        MAX(CASE WHEN id_sablon = 11 THEN valoare END) AS telefon,
+        MAX(CASE WHEN id_sablon = 12 THEN valoare END) AS email,
+        MAX(CASE WHEN id_sablon = 13 THEN valoare END) AS website,
+        MAX(CASE WHEN id_sablon = 16 THEN valoare END) AS iban,
+        MAX(CASE WHEN id_sablon = 19 THEN valoare END) AS tip
+      FROM admin.firme_detalii
+        WHERE id_firma = $1
+      GROUP BY id_firma;
     `;
     const values = [id_firma];
     const { rows } = await pool.query(query, values);

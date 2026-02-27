@@ -34,7 +34,6 @@ import payslip from "./modules/payslip/payslip.routes.js";
 import advancePaymentsRoutes from "./modules/AdvancePayments/AdvancePayments.routes.js";
 import profileRoutes from "./modules/profile/profile.routes.js";
 import OverTimeRoutes from "./modules/OverTime/OverTime.routes.js";
-import { ReportsPaymentsPDFController } from "./utils/ReportsPaymentsPDFController.js";
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -83,7 +82,6 @@ app.use("/api/payslip", auth, payslip);
 app.use("/api/advance/payments", auth, advancePaymentsRoutes);
 app.use("/api/profile", auth, profileRoutes);
 app.use("/api/overtime", auth, OverTimeRoutes);
-app.get("/api/reports/payments-pdf", ReportsPaymentsPDFController.generate);
 
 // Health check
 app.get("/health", (req, res) => {

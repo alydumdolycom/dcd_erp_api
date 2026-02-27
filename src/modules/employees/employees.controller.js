@@ -528,6 +528,7 @@ export const EmployeesController = {
       const { id_salariat } = req.query;
       const salariat = await EmployeesService.getContractData(id_salariat);
       const firma  = await EmployeesService.getCompanyById(salariat.id_firma);
+
       if (!salariat) {
         return res.status(404).json({
           success: false,
@@ -673,7 +674,7 @@ export const EmployeesController = {
                       <div class="section">
                           <div class="section-title">A. Părțile contractului:</div>
                           <div class="section-content">
-                              ${firma.nume}, cu sediul în ${firma.sediu}, înregistrată la Registrul Comerțului din ${firma.judet}, sub nr.${firma.nr_inreg}/${firma.data_inreg}, cod unic de înregistrare ${firma.cif}, telefon ${firma.telefon}, e-mail ${firma.email}, reprezentată legal prin ${firma.reprezentant}, în calitate de administrator
+                              Angajator-Persoana juridică, cu sediul în ${firma.adresa} ${firma.nr} ${firma.oras}, înregistrată la Registrul Comerțului din ${firma.oras}, sub nr.${firma.cif}/${firma.data_inreg}, cod unic de înregistrare ${firma.cif}, telefon ${firma.telefon}, e-mail ${firma.email}, reprezentată legal prin Domnul <strong>${firma.prenume} ${firma.familie}</strong>, în calitate de administrator
                           </div>
                           <div class="bold-text" style="margin: 5px 0; text-align: center;">și</div>
                           <div class="section-content">

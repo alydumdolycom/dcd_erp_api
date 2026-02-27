@@ -1,4 +1,3 @@
-import { ReportsPaymentsPDFController } from '../../utils/ReportsPaymentsPDFController.js';
 import { HolidaysService } from './holidays.service.js';
 import puppeteer from "puppeteer";
 import fs from "fs";
