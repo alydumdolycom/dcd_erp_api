@@ -350,10 +350,10 @@ export const EmployeesModel = {
   /* Get companies associated with an employee */
   async getEmployeeCompany(id) {
     const query = `
-      SELECT F.id, F.nume FROM utilizatori AS U
-      JOIN utilizatori_acces_firme as UAF 
+      SELECT F.id, F.nume FROM admin.utilizatori AS U
+      JOIN admin.utilizatori_acces_firme as UAF 
         ON U.id_utilizator = UAF.id_utilizator
-      JOIN firme AS F
+      JOIN admin.firme AS F
         ON F.id = UAF.id_firma
       WHERE U.id_utilizator = $1
     `;
