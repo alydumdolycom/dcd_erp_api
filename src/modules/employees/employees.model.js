@@ -169,6 +169,8 @@ export const EmployeesModel = {
           spor_vechime,
           vechime,
           pensionar,
+          numar_ci, 
+          serie_ci,
           scutit_impozit,
           intrerupere,
           are_garantie,
@@ -193,7 +195,7 @@ export const EmployeesModel = {
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 
           TO_DATE($12, 'YYYY-MM-DD'), 
           $13, $14, $15, TO_DATE($16, 'YYYY-MM-DD'), $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35,
-          $36, $37, $38, $39, $40
+          $36, $37, $38, $39, $40, $41, $42
         )
         RETURNING id;
             `;
@@ -219,6 +221,8 @@ export const EmployeesModel = {
             data.spor_vechime,
             data.vechime,
             data.pensionar,
+            data.numar_ci,
+            data.serie_ci,
             data.scutit_impozit,
             data.intrerupere,
             data.are_garantie,
@@ -685,12 +689,17 @@ export const EmployeesModel = {
   async getContractData(id_salariat) {
     const query = `
       SELECT 
-        S.nume, S.prenume, S.cnp, S.data_angajarii, S.data_determinata, S.data_incetarii, S.id_firma,
+        S.nume, S.prenume, S.cnp, S.data_angajarii, S.data_determinata, S.data_incetarii, S.id_firma, S.email, S.sex,
+        S.strada, S.nr, S.bloc, S.scara, S.etaj, S.ap, S.numar_ci, S.serie_ci,
+        S.localitate, S.cod_postal,
+        NJ.judet,
         NSD.nume_departament, NSF.nume_functie,
+        NJ.judet,
         F.nume AS nume_firma
       FROM salarizare.salariati S
       JOIN nomenclatoare.nom_salarii_departamente NSD ON S.id_departament = NSD.id
       JOIN nomenclatoare.nom_salarii_functii NSF ON S.id_functie = NSF.id
+      JOIN nomenclatoare.nom_judete NJ ON S.judet::integer = NJ.id
       JOIN admin.firme F ON S.id_firma = F.id
       WHERE S.id = $1
       LIMIT 1;

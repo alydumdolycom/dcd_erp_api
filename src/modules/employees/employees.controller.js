@@ -161,6 +161,21 @@ export const EmployeesController = {
       });
     }
 
+
+    if(req.body.numar_ci === "" || req.body.numar_ci === null || req.body.numar_ci === undefined ) {
+      return res.status(400).json({
+        success: false,
+        message: "Numarul CI este obligatoriu"
+      });
+    }
+
+    if (req.body.serie_ci === "" || req.body.serie_ci === null || req.body.serie_ci === undefined ) {
+      return res.status(400).json({
+        success: false,
+        message: "Seria CI este obligatorie"
+      });
+    }
+
     if (req.body.cnp) {
       const existing = await EmployeesService.findByCnp(req.body.cnp);
       if (existing) {
@@ -527,8 +542,10 @@ export const EmployeesController = {
       const __dirname = path.dirname(__filename);
       const { id_salariat } = req.query;
       const salariat = await EmployeesService.getContractData(id_salariat);
+      console.log(salariat)
       const firma  = await EmployeesService.getCompanyById(salariat.id_firma);
-
+      
+      return
       if (!salariat) {
         return res.status(404).json({
           success: false,
@@ -678,7 +695,15 @@ export const EmployeesController = {
                           </div>
                           <div class="bold-text" style="margin: 5px 0; text-align: center;">și</div>
                           <div class="section-content">
-                              Salariatul/salariata-Domnul/Doamna, domiciliat(a) în ${salariat.adresa}, e-mail ${salariat.email}, posesor/posesoare al/a cărții de identitate/pașaportului seria ${salariat.serie_ci} nr. ${salariat.nr_ci}, eliberată/eliberat de ${salariat.eliberat_de} la data de ${salariat.data_eliberarii}, CNP ${salariat.cnp}, autorizație de muncă/permis ședere în scop de muncă seria ${salariat.serie_autorizatie} nr. ${salariat.nr_autorizatie} din data ${salariat.data_autorizatie}, am încheiat prezentul contract individual de muncă în următoarele condiții asupra cărora am convenit:
+                              ${salariat.sex === 'M' ? 'Salariatul' : 'Salariata'}
+                              ${salariat.sex === 'M' ? 'Domnul' : 'Doamna'}  
+                              ${salariat.prenume} ${salariat.nume}, domiciliat(a) în
+                              ${salariat.judet}, ${salariat.localitate}, strada ${salariat.strada}, nr. 
+                              ${salariat.nr}, ${salariat.bloc != '' ? 'bloc ' + salariat.bloc : ''}, 
+                              ${salariat.scara != '' ? 'scara ' + salariat.scara : ''}, 
+                              ${salariat.etaj != '' ? 'etaj ' + salariat.etaj : ''},
+                              ${salariat.ap != '' ? 'apartament ' + salariat.ap : ''},
+                              ${salariat.email != '' ? 'e-mail ' + salariat.email : ''}, posesor/posesoare al/a cărții de identitate/pașaportului seria ${salariat.serie_ci} nr. ${salariat.numar_ci}, eliberată/eliberat de ${salariat.eliberat_de} la data de ${salariat.data_eliberarii}, CNP ${salariat.cnp}, autorizație de muncă/permis ședere în scop de muncă seria ${salariat.serie_autorizatie} nr. ${salariat.nr_autorizatie} din data ${salariat.data_autorizatie}, am încheiat prezentul contract individual de muncă în următoarele condiții asupra cărora am convenit:
                           </div>
                       </div>
 

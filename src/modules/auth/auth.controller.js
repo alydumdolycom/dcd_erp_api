@@ -128,10 +128,10 @@ export const AuthController = {
     // Set refresh token cookie
     res.cookie("refresh_token", result.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 8 * 60 * 60 * 1000 // 8h
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     const abilities = await AccessService.resolveAbilities(result.user.id_utilizator);
