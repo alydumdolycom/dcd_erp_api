@@ -25,4 +25,6 @@ router.post("/calculate/salaries/net/to/brut", auth, EmployeesController.calcula
 router.get("/payment/methods/:id_salariat", auth, EmployeesController.getEmployeePaymentMethods);
 router.get("/employee/files", auth, EmployeesController.employeeFiles);
 router.get("/employee/contract/pdf", auth, EmployeesController.generateContractPDF);
+router.post("/validate/payroll/data", auth, EmployeesController.validateEmployeeData);
+
 export default router;

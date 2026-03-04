@@ -4,6 +4,7 @@ import path from "path";
 
 import { EmployeesService } from "./employees.service.js";
 import { fileURLToPath } from "url";
+import { EmployeesModel } from "./employees.model.js";
 /*
   Controller for managing employees.
 */
@@ -231,6 +232,13 @@ export const EmployeesController = {
       const { id } = req.params;
       const data = await EmployeesService.update(id, req.body);
       
+      if(data.error) {
+        return res.status(400).json({ 
+          success: false,
+          message: data.error
+        });
+      }
+
       return res.status(200).json({
         success: true,
         data: data
@@ -951,5 +959,36 @@ export const EmployeesController = {
           details: error.message
         });
       }
+  },
+
+  async validateEmployeeData(req, res, next) {
+    try {
+      const { id } = req.params;
+      const employee = await EmployeesService.findById(id);
+      if (!employee) {
+        return res.status(404).json({
+          success: false,
+          message: "Salariatul nu a fost gasit"
+        });
+      }
+      // const data = await EmployeesModel.insertPayrollData(employee);
+
+      if(data.error) {
+        return res.status(400).json({ 
+          success: false,
+          message: data.error
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: data
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la validarea datelor angajatului",
+        details: err.message
+      });
+    }
   }
 };

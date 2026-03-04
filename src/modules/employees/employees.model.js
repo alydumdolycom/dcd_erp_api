@@ -115,7 +115,10 @@ export const EmployeesModel = {
         TO_CHAR(S.data_angajarii, 'DD-MM-YYYY') AS data_angajarii,
         S.salar_net,
         S.salar_baza,
+        S.stare,
         S.sector,
+        S.numar_ci,
+        S.serie_ci,
         S.data_incetarii,
         S.data_determinata,
         NSD.id AS id_departament,
@@ -129,9 +132,16 @@ export const EmployeesModel = {
         ${whereSQL}
       ORDER BY ${sortColumn} ${sortDir};
     `;
-
-    const { rows } = await pool.query(query, values);
-    return rows;
+    try { 
+      const { rows } = await pool.query(query, values);
+      return rows;
+    } catch(error) {  
+      console.error("Error fetching employees:", {  
+        message: error.message,
+        code: error.code,
+        detail: error.detail
+      });
+    }    
   },
 
   /* Create new employee with payment method */
@@ -144,6 +154,10 @@ export const EmployeesModel = {
         }
         if (data.data_contract) {
           data.data_contract = new Date(data.data_contract).toISOString().slice(0, 10);
+        }
+
+        if (data.data_determinata) {
+          data.data_determinata = new Date(data.data_determinata).toISOString().slice(0, 10);
         }
 
         const query = `
@@ -172,7 +186,7 @@ export const EmployeesModel = {
           numar_ci, 
           serie_ci,
           scutit_impozit,
-          intrerupere,
+          data_suspendare,
           are_garantie,
           garantie_plafon,
           garantie_luna,
@@ -224,7 +238,7 @@ export const EmployeesModel = {
             data.numar_ci,
             data.serie_ci,
             data.scutit_impozit,
-            data.intrerupere,
+            data.data_suspendare,
             data.are_garantie,
             data.garantie_plafon,
             data.garantie_luna,
@@ -277,25 +291,61 @@ export const EmployeesModel = {
   
   /* Update employee data */
   async update(id, employeeData) {
-    const fields = [];
-    const values = [];
-    let idx = 1;
-    for (const key in employeeData) {
-      fields.push(`${key} = $${idx}`);
-      values.push(employeeData[key]);
-      idx++;
-    }
-    values.push(id); // for WHERE clause
 
-    const query = `
-      UPDATE ${this.TABLE}
-      SET ${fields.join(", ")}
-      WHERE id = $${idx}
-      RETURNING *;
-    `;
-    const result = await pool.query(query, values);
-    
-    return result.rows[0];
+    if(employeeData.stare === 'plecat') {
+      return {
+        error: "Salariatul este cu status plecat, nu puteti edita datele acestuia"
+      };
+    }
+
+    try {
+      const fields = [];
+      const values = [];
+      let idx = 1;
+      if(employeeData.data_suspendarii) {
+        const parts = employeeData.data_suspendarii.split('-');
+        const day = parts[0];
+        const month = parts[1];
+        const year = parts[2];
+        employeeData.data_suspendarii = `${year}-${month}-${day}`;
+      }
+
+      const validat = await pool.query(`
+        SELECT inchis FROM salarizare.state_plata_header 
+        WHERE luna = $1 AND anul = $2;
+      `, [employeeData.luna_angajarii, employeeData.anul_angajarii]);
+      const closed = validat.rows[0]?.inchis;
+
+      if(closed === true) {
+        return {
+          error: "Invalid luna si an, nu puteti edita salariatul"
+        };
+      } else {
+        employeeData.stare = 'operat';
+      }
+      
+      for (const key in employeeData) {
+        fields.push(`${key} = $${idx}`);
+        values.push(employeeData[key]);
+        idx++;
+      }
+      values.push(id); // for WHERE clause
+
+      const query = `
+        UPDATE ${this.TABLE}
+        SET ${fields.join(", ")}
+        WHERE id = $${idx}
+        RETURNING *;
+      `;
+      const result = await pool.query(query, values);
+      
+      return result.rows[0];
+    } catch (error) {
+        console.error("Error updating employee:", {
+          message: error.message,
+          code: error.code,   
+      });
+    }
   },
 
   /* Find employee by ID */
@@ -734,5 +784,130 @@ export const EmployeesModel = {
     const values = [id_firma];
     const { rows } = await pool.query(query, values);
     return rows[0] || null;
-  }
+  },
+
+  // Node.js with pg library
+  // async insertPayrollData(employeeData) {
+  //   const query = `
+  //       INSERT INTO salarizare.state_plata (
+  //           id_salariat,
+  //           id_firma,
+  //           salariu_baza,
+  //           zile_luna,
+  //           zile_lucrate,
+  //           ore_suplimentare,
+  //           co_zile,
+  //           co_calculat,
+  //           cm_zile_angajator,
+  //           cm_zile_cass,
+  //           suma_medical_firma,
+  //           suma_medical_cass,
+  //           suma_realizata,
+  //           suplimentare_net,
+  //           calcul_net,
+  //           premii_net,
+  //           alte_venituri,
+  //           brut_firma,
+  //           venit_net,
+  //           deducere_numar,
+  //           deducere_suma,
+  //           tax_impozit_firma,
+  //           tax_cas_firma,
+  //           tax_cass_firma,
+  //           tax_impozit_cass,
+  //           tax_cas_cass,
+  //           tax_cass_cass,
+  //           avans_firma,
+  //           avans_cass,
+  //           co_primit,
+  //           debite_firma,
+  //           debite_cass,
+  //           garantii,
+  //           asigurari,
+  //           total_retineri_firma,
+  //           suma_plata_firma,
+  //           suma_plata_cass,
+  //           net_manual,
+  //           anul,
+  //           luna,
+  //           id_salariat_modplata,
+  //           calcul,
+  //           net_baza_incadrare,
+  //           net_baza_calcul
+  //       ) VALUES (
+  //           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+  //           $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+  //           $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
+  //           $31, $32, $33, $34, $35, $36, $37, $38, $39, $40,
+  //           $41, $42, $43, $44
+  //       )
+  //       RETURNING id, id_salariat, anul, luna
+  //   `;
+
+  //   const values = [
+  //       employeeData.id_salariat,              // $1
+  //       employeeData.id_firma,                 // $2
+  //       employeeData.salariu_baza,             // $3
+  //       employeeData.zile_luna,                // $4
+  //       employeeData.zile_lucrate || 0,        // $5
+  //       employeeData.ore_suplimentare || 0,    // $6
+  //       employeeData.co_zile || 0,             // $7
+  //       employeeData.co_calculat || 0,         // $8
+  //       employeeData.cm_zile_angajator || 0,   // $9
+  //       employeeData.cm_zile_cass || 0,        // $10
+  //       employeeData.suma_medical_firma || 0,  // $11
+  //       employeeData.suma_medical_cass || 0,   // $12
+  //       employeeData.suma_realizata || 0,      // $13
+  //       employeeData.suplimentare_net || 0,    // $14
+  //       employeeData.calcul_net || 0,          // $15
+  //       employeeData.premii_net || 0,          // $16
+  //       employeeData.alte_venituri || 0,       // $17
+  //       employeeData.brut_firma || 0,          // $18
+  //       employeeData.venit_net,                // $19
+  //       employeeData.deducere_numar,           // $20
+  //       employeeData.deducere_suma || 0,       // $21
+  //       employeeData.tax_impozit_firma || 0,   // $22
+  //       employeeData.tax_cas_firma || 0,       // $23
+  //       employeeData.tax_cass_firma || 0,      // $24
+  //       employeeData.tax_impozit_cass || 0,    // $25
+  //       employeeData.tax_cas_cass || 0,        // $26
+  //       employeeData.tax_cass_cass || 0,       // $27
+  //       employeeData.avans_firma || 0,         // $28
+  //       employeeData.avans_cass || 0,          // $29
+  //       employeeData.co_primit || 0,           // $30
+  //       employeeData.debite_firma || 0,        // $31
+  //       employeeData.debite_cass || 0,         // $32
+  //       employeeData.garantii || 0,            // $33
+  //       employeeData.asigurari || 0,           // $34
+  //       employeeData.total_retineri_firma || 0,// $35
+  //       employeeData.suma_plata_firma || 0,    // $36
+  //       employeeData.suma_plata_cass || 0,     // $37
+  //       employeeData.net_manual || 0,          // $38
+  //       employeeData.anul,                     // $39
+  //       employeeData.luna,                     // $40
+  //       employeeData.id_salariat_modplata,     // $41
+  //       employeeData.calcul !== false,         // $42 (default true)
+  //       employeeData.net_baza_incadrare,       // $43
+  //       employeeData.net_baza_calcul || 0      // $44
+  //   ];
+
+  //   try {
+  //       const result = await pool.query(query, values);
+        
+  //       if (result.rows.length === 0) {
+  //           throw new Error('Nu s-au inserat date');
+  //       }
+  //       const queryUpdateSalariat = `
+  //         UPDATE salarizare.salariati
+  //         SET stare = 'operat'
+  //         WHERE id = $1;
+  //       `;
+  //       await pool.query(queryUpdateSalariat, [employeeData.id_salariat]);
+  //       return result.rows[0];
+  //   } catch (error) {
+  //       console.error('Database error:', error);
+  //       // Re-throw cu mesaj user-friendly
+  //       throw new Error('Eroare la inserarea datelor de salarizare. Verificați datele și încercați din nou.');
+  //   }
+  // }
 };
