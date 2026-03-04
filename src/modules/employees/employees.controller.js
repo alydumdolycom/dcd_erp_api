@@ -542,10 +542,8 @@ export const EmployeesController = {
       const __dirname = path.dirname(__filename);
       const { id_salariat } = req.query;
       const salariat = await EmployeesService.getContractData(id_salariat);
-      console.log(salariat)
       const firma  = await EmployeesService.getCompanyById(salariat.id_firma);
       
-      return
       if (!salariat) {
         return res.status(404).json({
           success: false,
@@ -906,7 +904,7 @@ export const EmployeesController = {
                           <div style="margin-top: 10px;">Semnătură ................................ Data ...........................</div>
                       </div>
                     </body>
-                  </html>`;
+          </html>`;
 
         browser = await puppeteer.launch({
           headless: true,
@@ -937,7 +935,6 @@ export const EmployeesController = {
         });
 
         await browser.close();
-
         res.set({
           "Content-Type": "application/pdf",
           "Content-Disposition": "inline; filename=contract-demo.pdf",
