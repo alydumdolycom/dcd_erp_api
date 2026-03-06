@@ -106,8 +106,8 @@ export const EmployeesService = {
     return result;
   },
 
-  async getPayRol(month, year) {
-    const result = await EmployeesModel.getPayRol(month, year);
+  async getPayRol(month, year, id_firma) {
+    const result = await EmployeesModel.getPayRol(month, year, id_firma);
     return result;
   },
 

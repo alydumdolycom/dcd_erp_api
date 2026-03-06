@@ -228,6 +228,13 @@ export const EmployeesController = {
   },
   /* Update an existing employee */
   async update(req, res, next) {
+    const result = await EmployeesModel.checkPayroll(req.params.id, req.body.data_incetarii);
+    if(result.error) { 
+      return res.status(400).json({
+        success: false,
+        message: result.error
+      });
+    }
     try {
       const { id } = req.params;
       const data = await EmployeesService.update(id, req.body);
@@ -380,7 +387,7 @@ export const EmployeesController = {
   },
 
   async calculateBrutToNetSalary(req, res, next) {
-    const { brut, persoaneIntretinere, data } = req.body;
+    const { brut, persoaneIntretinere, data, id_firma } = req.body;
     // datele din nomenclatoare.nom_taxe_cote
     // cota_cas (1), cota_cass (2), cota_impozit (3)
     // pasii pentru calcul:
@@ -393,14 +400,14 @@ export const EmployeesController = {
     const [dayStr, monthStr, yearStr] = req.body.data.split("-");
     const month = parseInt(monthStr, 10); // 1
     const year = parseInt(yearStr, 10);   // 2026
-    const checkDate = await EmployeesService.getPayRol(month,year);
-    if(!checkDate) {
-      return res.status(400).json({
-        success: false,
-        message: "Nu exista stat de plata pentru luna si anul selectat"
-      });
-    }
-    // // 1. Get employee salary data
+    // const checkDate = await EmployeesService.getPayRol(month,year, id_firma);
+    // if(!checkDate) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Nu exista stat de plata pentru luna si anul selectat"
+    //   });
+    // }
+    // 1. Get employee salary data
     const taxe = await EmployeesService.getNomenclatoareData();
 
     const cota_cas = taxe[0].procent;
@@ -442,13 +449,13 @@ export const EmployeesController = {
     const year = parseInt(yearStr, 10);
 
     // Verifică existența statului de plată (luna și anul)
-    const checkDate = await EmployeesService.getPayRol(month, year);
-    if (!checkDate) {
-      return res.status(400).json({
-        success: false,
-        message: "Nu există stat de plată pentru luna și anul selectat"
-      });
-    }
+    // const checkDate = await EmployeesService.getPayRol(month, year);
+    // if (!checkDate) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Nu există stat de plată pentru luna și anul selectat"
+    //   });
+    // }
      const taxe = await EmployeesService.getNomenclatoareData();
 
     const cota_cas = taxe[0].procent;
@@ -470,11 +477,28 @@ export const EmployeesController = {
     });
   },
 
+  async getEmployeePaymentMethodForHoliday(req, res, next) {
+     try {
+      const { id_salariat } = req.params; 
+      const salariat = await EmployeesService.getEmployeePaymentMethods(id_salariat);
+      return res.status(200).json({ 
+        success: true,
+        data: salariat
+      });
+    } catch (err) {
+      next({
+        status: 500,
+        message: "A aparut o eroare la generarea contractului PDF",
+        details: err.message
+      });
+    } 
+  },
+
   async getEmployeePaymentMethods(req, res, next) { 
     try {
       const { id_salariat } = req.params; 
       const salariat = await EmployeesService.getEmployeePaymentMethods(id_salariat);
-            browser = await puppeteer.launch({
+      browser = await puppeteer.launch({
         headless: true,
         args: [
           "--no-sandbox",
@@ -962,16 +986,16 @@ export const EmployeesController = {
   },
 
   async validateEmployeeData(req, res, next) {
+
     try {
-      const { id } = req.params;
-      const employee = await EmployeesService.findById(id);
+      const employee = await EmployeesService.findById(req.body.id_salariat);
       if (!employee) {
         return res.status(404).json({
           success: false,
           message: "Salariatul nu a fost gasit"
         });
       }
-      // const data = await EmployeesModel.insertPayrollData(employee);
+      const data = await EmployeesModel.insertPayrollData(employee);
 
       if(data.error) {
         return res.status(400).json({ 

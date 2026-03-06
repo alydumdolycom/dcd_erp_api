@@ -75,7 +75,7 @@ export const PayRollModel = {
 
     async update(id, data) {
         // Logic to update a payroll record by ID using PATCH semantics
-        const query = `UPDATE ${this.Table} SET zile_lucrate = $1 WHERE id = $2 RETURNING *`;
+        const query = `UPDATE ${this.Table} SET zile_lucrate = $1, calcul = true WHERE id = $2 RETURNING *`;
         const { rows } = await pool.query(query, [data.zile_lucrate, id]);
         return rows[0];
     },
